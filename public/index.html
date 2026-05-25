@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>课时管理系统</title>
+<style>
+:root{--primary:#4F46E5;--primary-light:#6366F1;--primary-bg:#EEF2FF;--success:#10B981;--success-bg:#D1FAE5;--danger:#EF4444;--danger-bg:#FEE2E2;--warn:#F59E0B;--warn-bg:#FEF3C7;--g50:#F9FAFB;--g100:#F3F4F6;--g200:#E5E7EB;--g300:#D1D5DB;--g400:#9CA3AF;--g500:#6B7280;--g600:#4B5563;--g700:#374151;--g800:#1F2937;--g900:#111827;--r:12px;--sh:0 1px 3px rgba(0,0,0,.1)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--g50);color:var(--g800);min-height:100vh;-webkit-font-smoothing:antialiased}
+.page{display:none;min-height:100vh}.page.active{display:block}
+.landing{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#667eea,#764ba2);padding:20px}
+.landing-title{color:#fff;font-size:28px;font-weight:700;margin-bottom:8px}
+.landing-sub{color:rgba(255,255,255,.8);font-size:15px;margin-bottom:40px}
+.landing-cards{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;max-width:680px}
+.landing-card{background:#fff;border-radius:20px;padding:40px 36px;width:280px;text-align:center;cursor:pointer;transition:all .3s;box-shadow:0 10px 25px rgba(0,0,0,.15)}
+.landing-card:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(0,0,0,.2)}
+.landing-card .icon{font-size:48px;margin-bottom:16px}
+.landing-card h3{font-size:20px;color:var(--g800);margin-bottom:8px}
+.landing-card p{font-size:14px;color:var(--g500);line-height:1.5}
+.landing-card.coach-card{border-top:4px solid var(--primary)}
+.landing-card.parent-card{border-top:4px solid var(--success)}
+.header{background:#fff;border-bottom:1px solid var(--g200);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh)}
+.header-left{display:flex;align-items:center;gap:12px}
+.back-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--g200);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .2s}
+.back-btn:hover{background:var(--g100)}
+.header-title{font-size:18px;font-weight:600}
+.header-badge{font-size:12px;padding:3px 10px;border-radius:20px;font-weight:500}
+.badge-coach{background:var(--primary-bg);color:var(--primary)}
+.badge-parent{background:var(--success-bg);color:var(--success)}
+.container{max-width:600px;margin:0 auto;padding:20px 16px 100px}
+.login-box{max-width:400px;margin:60px auto;background:#fff;border-radius:20px;padding:40px 32px;box-shadow:0 10px 25px rgba(0,0,0,.1)}
+.login-box h2{font-size:22px;text-align:center;margin-bottom:6px}
+.login-box .login-sub{text-align:center;color:var(--g500);font-size:14px;margin-bottom:28px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:14px;font-weight:500;color:var(--g700);margin-bottom:6px}
+.form-group input,.form-group select{width:100%;padding:12px 14px;border:1.5px solid var(--g200);border-radius:10px;font-size:15px;outline:none;background:#fff;transition:border .2s}
+.form-group input:focus,.form-group select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 24px;border-radius:10px;font-size:15px;font-weight:600;border:none;cursor:pointer;transition:all .2s;width:100%}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-light)}.btn-primary:disabled{background:var(--g300);cursor:not-allowed}
+.btn-success{background:var(--success);color:#fff}.btn-success:hover{background:#059669}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-outline{background:#fff;color:var(--g700);border:1.5px solid var(--g200)}.btn-outline:hover{background:var(--g50)}
+.btn-sm{padding:8px 16px;font-size:13px;width:auto}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:var(--r);padding:20px 16px;box-shadow:var(--sh)}
+.stat-card .stat-value{font-size:28px;font-weight:700;color:var(--g900)}
+.stat-card .stat-label{font-size:13px;color:var(--g500);margin-top:2px}
+.section-title{font-size:16px;font-weight:600;color:var(--g800);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card{background:#fff;border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:16px}
+.deduct-area{display:flex;flex-direction:column;gap:14px}
+.student-select-area select{width:100%;padding:12px 14px;border:1.5px solid var(--g200);border-radius:10px;font-size:15px;outline:none;background:#fff;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236B7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.student-info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--g100)}
+.student-info-row:last-child{border-bottom:none}
+.info-label{font-size:14px;color:var(--g500)}
+.info-value{font-size:15px;font-weight:600;color:var(--g800)}
+.info-value.highlight{color:var(--primary);font-size:20px}
+.deduct-btn{margin-top:4px;background:var(--danger);color:#fff;padding:14px;border-radius:10px;border:none;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;width:100%}
+.deduct-btn:hover{background:#DC2626}.deduct-btn:disabled{background:var(--g300);cursor:not-allowed}
+.record-item{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(--g100);gap:12px}
+.record-item:last-child{border-bottom:none}
+.record-dot{width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0}
+.record-main{flex:1;min-width:0}
+.record-name{font-size:15px;font-weight:500;color:var(--g800)}
+.record-meta{font-size:13px;color:var(--g400);margin-top:2px}
+.record-badge{font-size:12px;padding:3px 10px;border-radius:20px;background:var(--danger-bg);color:var(--danger);font-weight:500;white-space:nowrap}
+.empty-state{text-align:center;padding:40px 20px;color:var(--g400)}
+.empty-state .empty-icon{font-size:40px;margin-bottom:12px}
+.empty-state p{font-size:14px}
+.query-box{background:#fff;border-radius:16px;padding:24px;box-shadow:var(--sh);margin-bottom:20px}
+.query-input-row{display:flex;gap:10px}
+.query-input-row input{flex:1;padding:12px 14px;border:1.5px solid var(--g200);border-radius:10px;font-size:15px;outline:none}
+.query-input-row input:focus{border-color:var(--success);box-shadow:0 0 0 3px rgba(16,185,129,.1)}
+.query-btn{padding:12px 20px;background:var(--success);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;white-space:nowrap}
+.query-btn:hover{background:#059669}
+.result-header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.result-avatar{width:52px;height:52px;border-radius:14px;background:var(--success-bg);display:flex;align-items:center;justify-content:center;font-size:24px}
+.result-name{font-size:20px;font-weight:700;color:var(--g900)}
+.result-id{font-size:13px;color:var(--g400)}
+.class-badge{display:inline-flex;align-items:center;gap:6px;background:var(--success-bg);color:var(--success);padding:8px 16px;border-radius:10px;font-weight:600;font-size:15px;margin-bottom:16px}
+.class-badge .num{font-size:24px;font-weight:800}
+.manage-tabs{display:flex;background:var(--g100);border-radius:10px;padding:4px;margin-bottom:20px}
+.manage-tab{flex:1;padding:10px;text-align:center;font-size:14px;font-weight:500;border:none;background:transparent;cursor:pointer;border-radius:8px;color:var(--g500);transition:all .2s}
+.manage-tab.active{background:#fff;color:var(--g800);box-shadow:var(--sh)}
+.student-list-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--g100)}
+.student-list-item:last-child{border-bottom:none}
+.student-list-info{display:flex;align-items:center;gap:12px}
+.student-avatar-sm{width:36px;height:36px;border-radius:10px;background:var(--primary-bg);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:var(--primary)}
+.student-name{font-size:15px;font-weight:500}
+.student-id-sm{font-size:12px;color:var(--g400)}
+.student-classes{font-size:14px;font-weight:600;color:var(--primary)}
+.student-actions{display:flex;gap:6px}
+.action-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--g200);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s}
+.action-btn:hover{background:var(--g50)}
+.action-btn.danger:hover{background:var(--danger-bg);border-color:var(--danger)}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:20px;padding:28px 24px;width:100%;max-width:400px;box-shadow:0 25px 50px rgba(0,0,0,.25)}
+.modal h3{font-size:18px;font-weight:600;margin-bottom:20px;text-align:center}
+.modal-actions{display:flex;gap:10px;margin-top:20px}
+.modal-actions .btn{flex:1}
+.toast-container{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:2000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--g800);color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:500;box-shadow:0 10px 25px rgba(0,0,0,.2);animation:toastIn .3s ease,toastOut .3s ease 2.2s forwards;pointer-events:auto}
+.toast.success{background:var(--success)}.toast.error{background:var(--danger)}.toast.warn{background:var(--warn)}
+@keyframes toastIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastOut{from{opacity:1}to{opacity:0}}
+.confirm-content{text-align:center;color:var(--g600);font-size:15px;line-height:1.6}
+.confirm-content strong{color:var(--g900)}
+.loading{display:flex;align-items:center;justify-content:center;padding:20px;color:var(--g400);gap:8px}
+.loading .spinner{width:16px;height:16px;border:2px solid var(--g200);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:480px){.landing-card{width:100%;padding:28px 24px}.stat-grid{grid-template-columns:1fr}.container{padding:16px 12px 100px}}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--g300);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="page active" id="landingPage">
+  <div class="landing">
+    <div class="landing-title">📚 课时管理系统</div>
+    <div class="landing-subtitle">选择您的身份进入系统</div>
+    <div class="landing-cards">
+      <div class="landing-card coach-card" onclick="showCoachLogin()">
+        <div class="icon">🏋️</div><h3>教练入口</h3><p>扣减课时 · 查看记录<br>需授权账号登录</p>
+      </div>
+      <div class="landing-card parent-card" onclick="showParentPage()">
+        <div class="icon">👨‍👩‍👧</div><h3>家长入口</h3><p>查询课时 · 查看记录<br>输入学员编号即可</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="coachLoginPage">
+  <div class="login-box">
+    <h2>🔐 教练登录</h2>
+    <p class="login-sub">仅限授权教练账号</p>
+    <div class="form-group"><label>教练账号</label><input type="text" id="coachUsername" placeholder="请输入账号" autocomplete="off"></div>
+    <div class="form-group"><label>登录密码</label><input type="password" id="coachPassword" placeholder="请输入密码"></div>
+    <button class="btn btn-primary" id="loginBtn" onclick="coachLogin()">登 录</button>
+    <div style="text-align:center;margin-top:16px"><a href="#" onclick="showLanding()" style="color:var(--g400);font-size:13px;text-decoration:none">← 返回首页</a></div>
+  </div>
+</div>
+
+<div class="page" id="coachPage">
+  <div class="header">
+    <div class="header-left"><button class="back-btn" onclick="coachLogout()">←</button><span class="header-title">课时管理</span></div>
+    <span class="header-badge badge-coach" id="coachBadge">教练</span>
+  </div>
+  <div class="container">
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-value" id="statStudents">-</div><div class="stat-label">在读学员</div></div>
+      <div class="stat-card"><div class="stat-value" id="statToday">-</div><div class="stat-label">今日扣课</div></div>
+    </div>
+    <div class="section-title">⚡ 扣减课时</div>
+    <div class="card deduct-area">
+      <div class="student-select-area">
+        <select id="studentSelect" onchange="onStudentSelect()"><option value="">— 选择学员 —</option></select>
+      </div>
+      <div id="selectedStudentInfo" style="display:none">
+        <div class="student-info-row"><span class="info-label">学员编号</span><span class="info-value" id="infoId">-</span></div>
+        <div class="student-info-row"><span class="info-label">剩余课时</span><span class="info-value highlight" id="infoClasses">-</span></div>
+      </div>
+      <button class="deduct-btn" id="deductBtn" onclick="deductClass()" disabled>扣 1 节课</button>
+    </div>
+    <div class="section-title">📋 近期记录</div>
+    <div class="card" id="coachRecordsCard">
+      <div id="coachRecordsList"></div>
+      <div class="empty-state" id="coachEmptyRecords"><div class="empty-icon">📝</div><p>暂无上课记录</p></div>
+    </div>
+    <div class="section-title" style="margin-top:8px">👥 学员管理</div>
+    <div class="manage-tabs">
+      <button class="manage-tab active" onclick="switchManageTab('list',this)">学员列表</button>
+      <button class="manage-tab" onclick="switchManageTab('add',this)">添加学员</button>
+    </div>
+    <div id="manageList" class="card"><div id="studentListArea"></div></div>
+    <div id="manageAdd" class="card" style="display:none">
+      <div class="form-group"><label>学员姓名</label><input type="text" id="newStudentName" placeholder="输入姓名"></div>
+      <div class="form-group"><label>学员编号</label><input type="text" id="newStudentId" placeholder="如 S001"></div>
+      <div class="form-group"><label>初始课时数</label><input type="number" id="newStudentClasses" placeholder="如 20" min="0" value="20"></div>
+      <button class="btn btn-primary" onclick="addStudent()">添加学员</button>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="parentPage">
+  <div class="header">
+    <div class="header-left"><button class="back-btn" onclick="showLanding()">←</button><span class="header-title">课时查询</span></div>
+    <span class="header-badge badge-parent">家长端</span>
+  </div>
+  <div class="container">
+    <div class="query-box">
+      <div class="query-input-row">
+        <input type="text" id="parentQueryInput" placeholder="输入学员编号" onkeydown="if(event.key==='Enter')parentQuery()">
+        <button class="query-btn" onclick="parentQuery()">查询</button>
+      </div>
+    </div>
+    <div id="parentResult" style="display:none">
+      <div class="card">
+        <div class="result-header"><div class="result-avatar" id="parentAvatar">👦</div><div><div class="result-name" id="parentName">-</div><div class="result-id" id="parentId">-</div></div></div>
+        <div class="class-badge">剩余 <span class="num" id="parentClasses">0</span> 节课</div>
+      </div>
+      <div class="section-title">📋 上课记录</div>
+      <div class="card"><div id="parentRecordsList"></div><div class="empty-state" id="parentEmptyRecords" style="display:none"><div class="empty-icon">📝</div><p>暂无上课记录</p></div></div>
+    </div>
+    <div id="parentNoResult" style="display:none"><div class="card"><div class="empty-state"><div class="empty-icon">🔍</div><p>未找到该学员，请检查编号</p></div></div></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>✏️ 编辑学员</h3>
+    <div class="form-group"><label>学员姓名</label><input type="text" id="editName"></div>
+    <div class="form-group"><label>剩余课时</label><input type="number" id="editClasses" min="0"></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeEditModal()">取消</button><button class="btn btn-primary" onclick="saveEditStudent()">保存</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <h3 id="confirmTitle">确认操作</h3>
+    <div class="confirm-content" id="confirmContent"></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeConfirm()">取消</button><button class="btn btn-danger" onclick="confirmAction()">确认</button></div>
+  </div>
+</div>
+
+<script>
+let currentCoach = null;
+let confirmCallback = null;
+let editingStudentId = null;
+let cachedData = null;
+
+// ===== API Helpers =====
+async function apiGet() {
+  const res = await fetch('/api/data');
+  if (!res.ok) throw new Error('Failed to fetch data');
+  cachedData = await res.json();
+  return cachedData;
+}
+
+async function apiLogin(username, password) {
+  const res = await fetch('/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  });
+  if (!res.ok) { const d = await res.json(); throw new Error(d.error || '登录失败'); }
+  return await res.json();
+}
+
+async function apiUpdate(updates) {
+  if (!currentCoach) throw new Error('未登录');
+  const res = await fetch('/api/data', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ auth: { username: currentCoach.username, password: currentCoach._password }, updates })
+  });
+  if (!res.ok) { const d = await res.json(); throw new Error(d.error || '操作失败'); }
+  return await res.json();
+}
+
+// ===== Navigation =====
+function showPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function showLanding() { showPage('landingPage'); }
+function showCoachLogin() { showPage('coachLoginPage'); document.getElementById('coachUsername').value = ''; document.getElementById('coachPassword').value = ''; }
+function showParentPage() { showPage('parentPage'); document.getElementById('parentQueryInput').value = ''; document.getElementById('parentResult').style.display = 'none'; document.getElementById('parentNoResult').style.display = 'none'; }
+
+// ===== Coach Auth =====
+async function coachLogin() {
+  const username = document.getElementById('coachUsername').value.trim();
+  const password = document.getElementById('coachPassword').value.trim();
+  if (!username || !password) { showToast('请输入账号和密码', 'warn'); return; }
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = '登录中...';
+  try {
+    const coach = await apiLogin(username, password);
+    currentCoach = { ...coach, _password: password };
+    showToast('登录成功，欢迎 ' + coach.name, 'success');
+    enterCoachDashboard();
+  } catch(e) { showToast(e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = '登 录'; }
+}
+
+function coachLogout() { currentCoach = null; showLanding(); }
+
+async function enterCoachDashboard() {
+  showPage('coachPage');
+  document.getElementById('coachBadge').textContent = currentCoach.name;
+  await refreshCoachData();
+}
+
+// ===== Coach Dashboard =====
+async function refreshCoachData() {
+  try {
+    const db = await apiGet();
+    document.getElementById('statStudents').textContent = db.students.length;
+    const today = new Date().toISOString().slice(0, 10);
+    document.getElementById('statToday').textContent = db.records.filter(r => r.time && r.time.startsWith(today)).length;
+    const sel = document.getElementById('studentSelect');
+    sel.innerHTML = '<option value="">— 选择学员 —</option>';
+    db.students.sort((a, b) => a.id.localeCompare(b.id)).forEach(s => {
+      sel.innerHTML += `<option value="${s.id}">${s.name}（${s.id}）- 余${s.classes}节</option>`;
+    });
+    document.getElementById('selectedStudentInfo').style.display = 'none';
+    document.getElementById('deductBtn').disabled = true;
+    renderCoachRecords(db);
+    renderStudentList(db);
+  } catch(e) { showToast('数据加载失败', 'error'); console.error(e); }
+}
+
+function onStudentSelect() {
+  const id = document.getElementById('studentSelect').value;
+  if (!id) { document.getElementById('selectedStudentInfo').style.display = 'none'; document.getElementById('deductBtn').disabled = true; return; }
+  const s = cachedData.students.find(st => st.id === id);
+  if (!s) return;
+  document.getElementById('infoId').textContent = s.id;
+  document.getElementById('infoClasses').textContent = s.classes + ' 节';
+  document.getElementById('selectedStudentInfo').style.display = 'block';
+  document.getElementById('deductBtn').disabled = false;
+}
+
+async function deductClass() {
+  const id = document.getElementById('studentSelect').value;
+  if (!id) return;
+  const s = cachedData.students.find(st => st.id === id);
+  if (!s) return;
+  if (s.classes <= 0) { showToast('该学员课时已为 0', 'warn'); return; }
+  showConfirm('确认扣课', `确认为 <strong>${s.name}</strong>（${s.id}）扣减 1 节课？<br>剩余课时：${s.classes} → ${s.classes - 1}`, async () => {
+    const db = cachedData;
+    const student = db.students.find(st => st.id === id);
+    student.classes -= 1;
+    db.records.unshift({ studentId: id, studentName: student.name, coachName: currentCoach.name, time: new Date().toISOString(), classesAfter: student.classes });
+    try {
+      await apiUpdate({ students: db.students, records: db.records });
+      showToast(`已为 ${student.name} 扣减 1 节课`, 'success');
+      await refreshCoachData();
+    } catch(e) { showToast('操作失败：' + e.message, 'error'); }
+  });
+}
+
+function renderCoachRecords(db) {
+  const records = db.records.slice(0, 20);
+  const listEl = document.getElementById('coachRecordsList');
+  const emptyEl = document.getElementById('coachEmptyRecords');
+  if (records.length === 0) { listEl.innerHTML = ''; emptyEl.style.display = 'block'; return; }
+  emptyEl.style.display = 'none';
+  listEl.innerHTML = records.map(r => {
+    const d = new Date(r.time);
+    const ds = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    return `<div class="record-item"><div class="record-dot"></div><div class="record-main"><div class="record-name">${r.studentName}</div><div class="record-meta">${ds} · ${r.coachName}</div></div><div class="record-badge">-1节 余${r.classesAfter}节</div></div>`;
+  }).join('');
+}
+
+// ===== Student Management =====
+function switchManageTab(tab, el) {
+  document.querySelectorAll('.manage-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('manageList').style.display = tab === 'list' ? 'block' : 'none';
+  document.getElementById('manageAdd').style.display = tab === 'add' ? 'block' : 'none';
+  if (tab === 'add') {
+    document.getElementById('newStudentName').value = '';
+    document.getElementById('newStudentId').value = 'S' + String(cachedData.nextId).padStart(3, '0');
+    document.getElementById('newStudentClasses').value = '20';
+  }
+}
+
+async function addStudent() {
+  const name = document.getElementById('newStudentName').value.trim();
+  const id = document.getElementById('newStudentId').value.trim();
+  const classes = parseInt(document.getElementById('newStudentClasses').value) || 0;
+  if (!name) { showToast('请输入学员姓名', 'warn'); return; }
+  if (!id) { showToast('请输入学员编号', 'warn'); return; }
+  if (cachedData.students.find(s => s.id === id)) { showToast('该编号已存在', 'error'); return; }
+  cachedData.students.push({ id, name, classes });
+  cachedData.nextId = Math.max(cachedData.nextId, parseInt(id.replace(/\D/g, '')) + 1);
+  try {
+    await apiUpdate({ students: cachedData.students, nextId: cachedData.nextId });
+    showToast(`学员 ${name} 添加成功`, 'success');
+    await refreshCoachData();
+  } catch(e) { showToast('添加失败：' + e.message, 'error'); }
+}
+
+function renderStudentList(db) {
+  const area = document.getElementById('studentListArea');
+  if (db.students.length === 0) { area.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><p>暂无学员</p></div>'; return; }
+  area.innerHTML = db.students.sort((a, b) => a.id.localeCompare(b.id)).map(s => `
+    <div class="student-list-item">
+      <div class="student-list-info"><div class="student-avatar-sm">${s.name[0]}</div><div><div class="student-name">${s.name}</div><div class="student-id-sm">${s.id}</div></div></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="student-classes">${s.classes}节</span>
+        <div class="student-actions">
+          <button class="action-btn" onclick="openEditModal('${s.id}')">✏️</button>
+          <button class="action-btn danger" onclick="deleteStudent('${s.id}')">🗑️</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openEditModal(id) {
+  const s = cachedData.students.find(st => st.id === id);
+  if (!s) return;
+  editingStudentId = id;
+  document.getElementById('editName').value = s.name;
+  document.getElementById('editClasses').value = s.classes;
+  document.getElementById('editModal').classList.add('active');
+}
+
+function closeEditModal() { document.getElementById('editModal').classList.remove('active'); editingStudentId = null; }
+
+async function saveEditStudent() {
+  if (!editingStudentId) return;
+  const name = document.getElementById('editName').value.trim();
+  const classes = parseInt(document.getElementById('editClasses').value);
+  if (!name) { showToast('姓名不能为空', 'warn'); return; }
+  if (isNaN(classes) || classes < 0) { showToast('课时数无效', 'warn'); return; }
+  const s = cachedData.students.find(st => st.id === editingStudentId);
+  s.name = name; s.classes = classes;
+  try {
+    await apiUpdate({ students: cachedData.students });
+    closeEditModal();
+    showToast('修改成功', 'success');
+    await refreshCoachData();
+  } catch(e) { showToast('修改失败：' + e.message, 'error'); }
+}
+
+function deleteStudent(id) {
+  const s = cachedData.students.find(st => st.id === id);
+  if (!s) return;
+  showConfirm('删除学员', `确认删除学员 <strong>${s.name}</strong>（${s.id}）？<br>此操作不可恢复`, async () => {
+    cachedData.students = cachedData.students.filter(st => st.id !== id);
+    cachedData.records = cachedData.records.filter(r => r.studentId !== id);
+    try {
+      await apiUpdate({ students: cachedData.students, records: cachedData.records });
+      showToast('已删除', 'success');
+      await refreshCoachData();
+    } catch(e) { showToast('删除失败：' + e.message, 'error'); }
+  });
+}
+
+// ===== Parent Query =====
+async function parentQuery() {
+  const input = document.getElementById('parentQueryInput').value.trim();
+  if (!input) { showToast('请输入学员编号', 'warn'); return; }
+  try {
+    const db = await apiGet();
+    const s = db.students.find(st => st.id.toUpperCase() === input.toUpperCase());
+    if (!s) { document.getElementById('parentResult').style.display = 'none'; document.getElementById('parentNoResult').style.display = 'block'; return; }
+    document.getElementById('parentNoResult').style.display = 'none';
+    document.getElementById('parentResult').style.display = 'block';
+    document.getElementById('parentName').textContent = s.name;
+    document.getElementById('parentId').textContent = s.id;
+    document.getElementById('parentClasses').textContent = s.classes;
+    const emojis = ['👦','👧','🧒','👶','🧑'];
+    document.getElementById('parentAvatar').textContent = emojis[s.name.charCodeAt(0) % emojis.length];
+    const records = db.records.filter(r => r.studentId === s.id);
+    const listEl = document.getElementById('parentRecordsList');
+    const emptyEl = document.getElementById('parentEmptyRecords');
+    if (records.length === 0) { listEl.innerHTML = ''; emptyEl.style.display = 'block'; }
+    else {
+      emptyEl.style.display = 'none';
+      listEl.innerHTML = records.map(r => {
+        const d = new Date(r.time);
+        const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        return `<div class="record-item"><div class="record-dot" style="background:var(--success)"></div><div class="record-main"><div class="record-name">上课扣减 1 节</div><div class="record-meta">${ds} · ${r.coachName}</div></div><div class="record-badge" style="background:var(--primary-bg);color:var(--primary)">余${r.classesAfter}节</div></div>`;
+      }).join('');
+    }
+  } catch(e) { showToast('查询失败', 'error'); }
+}
+
+// ===== Toast & Confirm =====
+function showToast(msg, type = '') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type; t.textContent = msg; c.appendChild(t);
+  setTimeout(() => t.remove(), 2600);
+}
+
+function showConfirm(title, content, cb) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmContent').innerHTML = content;
+  confirmCallback = cb;
+  document.getElementById('confirmModal').classList.add('active');
+}
+
+function closeConfirm() { document.getElementById('confirmModal').classList.remove('active'); confirmCallback = null; }
+
+async function confirmAction() {
+  if (confirmCallback) await confirmCallback();
+  closeConfirm();
+}
+
+// ===== Hash Routing =====
+function handleHash() {
+  const h = window.location.hash;
+  if (h === '#coach') showCoachLogin();
+  else if (h === '#parent') showParentPage();
+}
+window.addEventListener('hashchange', handleHash);
+handleHash();
+</script>
+</body>
+</html>
