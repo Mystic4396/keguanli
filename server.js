@@ -1,14 +1,11 @@
 const express = require('express');
 const https = require('https');
-const fs = require('fs');
 const path = require('path');
 
 const app = express();
 app.use(express.json());
-
 const PORT = process.env.PORT || 3000;
 
-// Upstash Redis REST API config
 const REDIS_URL = 'https://enhanced-gecko-136149.upstash.io';
 const REDIS_TOKEN = 'gQAAAAAAAhPVAAIgcDE2ZWVhMDNiZTI5OTM0YjlkYTA3MzQ0Y2VmOTZmZmIxNQ';
 const DATA_KEY = 'classmanager:db';
@@ -24,101 +21,87 @@ const DEFAULT_DATA = {
   nextId: 1
 };
 
-// Redis REST API helper
-function redisRequest(method, pathname, body) {
+function redisReq(method, pathname, body) {
   return new Promise((resolve, reject) => {
-    const url = new URL(pathname, REDIS_URL);
-    const options = {
-      hostname: url.hostname,
-      path: url.pathname,
-      method: method,
-      headers: {
-        'Authorization': `Bearer ${REDIS_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
+    const u = new URL(pathname, REDIS_URL);
+    const opts = {
+      hostname: u.hostname, path: u.pathname, method,
+      headers: { 'Authorization': `Bearer ${REDIS_TOKEN}`, 'Content-Type': 'application/json' }
     };
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
-        catch(e) { reject(new Error('Parse error: ' + data)); }
-      });
+    const req = https.request(opts, res => {
+      let d = ''; res.on('data', c => d += c);
+      res.on('end', () => { try { resolve(JSON.parse(d)); } catch(e) { reject(e); } });
     });
     req.on('error', reject);
-    if (body) req.write(JSON.stringify(body));
+    if (body) req.write(typeof body === 'string' ? body : JSON.stringify(body));
     req.end();
   });
 }
 
 async function readData() {
   try {
-    const res = await redisRequest('GET', `/get/${DATA_KEY}`);
-    if (res.result) {
-      const data = typeof res.result === 'string' ? JSON.parse(res.result) : res.result;
-      // Migration: ensure all coaches exist
-      const required = DEFAULT_DATA.coaches;
+    const r = await redisReq('GET', `/get/${DATA_KEY}`);
+    if (r.result) {
+      const data = typeof r.result === 'string' ? JSON.parse(r.result) : r.result;
       let changed = false;
-      for (const rc of required) {
-        if (!data.coaches.find(c => c.username === rc.username)) {
-          data.coaches.push(rc);
-          changed = true;
-        }
+      for (const rc of DEFAULT_DATA.coaches) {
+        if (!data.coaches.find(c => c.username === rc.username)) { data.coaches.push(rc); changed = true; }
       }
       if (changed) await writeData(data);
       return data;
     }
-  } catch(e) { console.error('Redis read error:', e.message); }
-  // Fallback: write default and return
+  } catch(e) { console.error('Read error:', e.message); }
   await writeData(DEFAULT_DATA);
   return JSON.parse(JSON.stringify(DEFAULT_DATA));
 }
 
 async function writeData(data) {
   try {
-    const res = await redisRequest('POST', `/set/${DATA_KEY}`, JSON.stringify(data));
-    return res.result === 'OK';
-  } catch(e) { console.error('Redis write error:', e.message); return false; }
+    // Upstash SET: body must be JSON-string-of-string
+    const r = await redisReq('POST', `/set/${DATA_KEY}`, JSON.stringify(JSON.stringify(data)));
+    return r.result === 'OK';
+  } catch(e) { console.error('Write error:', e.message); return false; }
 }
 
-// Serve frontend
 app.use(express.static(path.join(__dirname, 'public')));
 
-// API: Read data
 app.get('/api/data', async (req, res) => {
   try {
     const data = await readData();
-    const safe = { ...data, coaches: data.coaches.map(c => ({ username: c.username, name: c.name })) };
-    res.json(safe);
-  } catch(e) { res.status(500).json({ error: '读取数据失败' }); }
+    res.json({ ...data, coaches: data.coaches.map(c => ({ username: c.username, name: c.name })) });
+  } catch(e) { res.status(500).json({ error: '读取失败' }); }
 });
 
-// API: Coach login
 app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
   try {
     const data = await readData();
-    const coach = data.coaches.find(c => c.username === username && c.password === password);
+    const coach = data.coaches.find(c => c.username === req.body.username && c.password === req.body.password);
     if (!coach) return res.status(401).json({ error: '账号或密码错误' });
     res.json({ name: coach.name, username: coach.username });
   } catch(e) { res.status(500).json({ error: '登录失败' }); }
 });
 
-// API: Write data
 app.put('/api/data', async (req, res) => {
-  const { username, password } = req.body.auth || {};
   try {
     const data = await readData();
-    const coach = data.coaches.find(c => c.username === username && c.password === password);
+    const coach = data.coaches.find(c => c.username === (req.body.auth||{}).username && c.password === (req.body.auth||{}).password);
     if (!coach) return res.status(401).json({ error: '未授权' });
-    const updates = req.body.updates;
-    if (updates.students !== undefined) data.students = updates.students;
-    if (updates.records !== undefined) data.records = updates.records;
-    if (updates.nextId !== undefined) data.nextId = updates.nextId;
-    const ok = await writeData(data);
-    if (ok) res.json({ ok: true });
-    else res.status(500).json({ error: '保存失败' });
+    const u = req.body.updates || {};
+    if (u.students) data.students = u.students;
+    if (u.records) data.records = u.records;
+    if (u.nextId) data.nextId = u.nextId;
+    await writeData(data);
+    res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: '保存失败' }); }
 });
 
-app.listen(PORT, () => console.log('Server running on port ' + PORT));
+// Export all data as JSON (for backup)
+app.get('/api/export', async (req, res) => {
+  try {
+    const data = await readData();
+    res.setHeader('Content-Disposition', 'attachment; filename=keguanli_backup.json');
+    res.json(data);
+  } catch(e) { res.status(500).json({ error: '导出失败' }); }
+});
+
+app.listen(PORT, () => console.log('Running on ' + PORT));
