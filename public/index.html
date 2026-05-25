@@ -67,6 +67,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
 .empty-state{text-align:center;padding:40px 20px;color:var(--g400)}
 .empty-state .empty-icon{font-size:40px;margin-bottom:12px}
 .empty-state p{font-size:14px}.match-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--g100);cursor:pointer;transition:background .2s}.match-item:last-child{border-bottom:none}.match-item:hover{background:var(--g50);margin:0 -20px;padding:14px 20px;border-radius:8px}.match-item .match-name{font-size:15px;font-weight:500;color:var(--g800)}.match-item .match-id{font-size:12px;color:var(--g400)}.match-item .match-classes{font-size:14px;font-weight:600;color:var(--primary)}#coachMatchList{max-height:240px;overflow-y:auto;margin:0 -20px;padding:0 20px}#coachMatchList .match-item{border-radius:8px;margin:0 -20px;padding:14px 20px}
+.day-group{margin-bottom:12px}
+.day-header{font-size:14px;font-weight:600;color:var(--g700);padding:10px 0 6px;border-top:1px solid var(--g200);margin-top:4px}
+.day-count{font-size:12px;color:var(--g400);margin-left:6px}
+.fold-btn{display:inline-block;font-size:12px;color:var(--primary);cursor:pointer;margin-left:6px;padding:2px 8px;border-radius:4px;background:var(--primary-bg);border:none;font-weight:500}
+.fold-btn:hover{background:var(--primary);color:#fff}
+.day-records.folded .record-item:nth-child(n+6){display:none}
 .query-box{background:#fff;border-radius:16px;padding:24px;box-shadow:var(--sh);margin-bottom:20px}
 .query-input-row{display:flex;gap:10px}
 .query-input-row input{flex:1;padding:12px 14px;border:1.5px solid var(--g200);border-radius:10px;font-size:15px;outline:none}
@@ -371,16 +377,50 @@ async function deductClass() {
 }
 
 function renderCoachRecords(db) {
-  const records = db.records.slice(0, 20);
+  const records = db.records.slice(0, 100);
   const listEl = document.getElementById('coachRecordsList');
   const emptyEl = document.getElementById('coachEmptyRecords');
   if (records.length === 0) { listEl.innerHTML = ''; emptyEl.style.display = 'block'; return; }
   emptyEl.style.display = 'none';
-  listEl.innerHTML = records.map(r => {
-    const d = new Date(r.time);
-    const ds = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-    return `<div class="record-item"><div class="record-dot"></div><div class="record-main"><div class="record-name">${r.studentName}</div><div class="record-meta">${ds} · ${r.coachName}</div></div><div class="record-badge">-1节 余${r.classesAfter}节</div></div>`;
+  const groups = groupByDay(records);
+  listEl.innerHTML = Object.entries(groups).map(([date, recs]) => {
+    const folded = recs.length > 5;
+    return '<div class="day-group">' +
+      '<div class="day-header">' + date + '<span class="day-count">' + recs.length + '条</span>' +
+      (folded ? '<button class="fold-btn" onclick="toggleFold(this)">展开</button>' : '') +
+      '</div>' +
+      '<div class="day-records' + (folded ? ' folded' : '') + '">' +
+      recs.map(r => renderRecordItem(r, 'coach')).join('') +
+      '</div></div>';
   }).join('');
+}
+
+function groupByDay(records) {
+  const groups = {};
+  records.forEach(r => {
+    const d = new Date(r.time);
+    const key = d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(r);
+  });
+  return groups;
+}
+
+function renderRecordItem(r, mode) {
+  const d = new Date(r.time);
+  const time = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  if (mode === 'coach') {
+    return '<div class="record-item"><div class="record-dot"></div><div class="record-main"><div class="record-name">' + r.studentName + '</div><div class="record-meta">' + time + ' · ' + r.coachName + '</div></div><div class="record-badge">-1节 余' + r.classesAfter + '节</div></div>';
+  } else {
+    return '<div class="record-item"><div class="record-dot" style="background:var(--success)"></div><div class="record-main"><div class="record-name">上课扣减 1 节</div><div class="record-meta">' + time + ' · ' + r.coachName + '</div></div><div class="record-badge" style="background:var(--primary-bg);color:var(--primary)">余' + r.classesAfter + '节</div></div>';
+  }
+}
+
+function toggleFold(btn) {
+  const container = btn.closest('.day-group').querySelector('.day-records');
+  const isFolded = container.classList.contains('folded');
+  container.classList.toggle('folded');
+  btn.textContent = isFolded ? '收起' : '展开';
 }
 
 // ===== Student Management =====
@@ -516,10 +556,16 @@ function showParentDetail(s, db) {
   if (records.length === 0) { listEl.innerHTML = ''; emptyEl.style.display = 'block'; }
   else {
     emptyEl.style.display = 'none';
-    listEl.innerHTML = records.map(r => {
-      const d = new Date(r.time);
-      const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-      return '<div class="record-item"><div class="record-dot" style="background:var(--success)"></div><div class="record-main"><div class="record-name">上课扣减 1 节</div><div class="record-meta">'+ds+' · '+r.coachName+'</div></div><div class="record-badge" style="background:var(--primary-bg);color:var(--primary)">余'+r.classesAfter+'节</div></div>';
+    const groups = groupByDay(records);
+    listEl.innerHTML = Object.entries(groups).map(([date, recs]) => {
+      const folded = recs.length > 5;
+      return '<div class="day-group">' +
+        '<div class="day-header">' + date + '<span class="day-count">' + recs.length + '条</span>' +
+        (folded ? '<button class="fold-btn" onclick="toggleFold(this)">展开</button>' : '') +
+        '</div>' +
+        '<div class="day-records' + (folded ? ' folded' : '') + '">' +
+        recs.map(r => renderRecordItem(r, 'parent')).join('') +
+        '</div></div>';
     }).join('');
   }
 }
