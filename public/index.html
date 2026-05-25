@@ -66,7 +66,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
 .record-badge{font-size:12px;padding:3px 10px;border-radius:20px;background:var(--danger-bg);color:var(--danger);font-weight:500;white-space:nowrap}
 .empty-state{text-align:center;padding:40px 20px;color:var(--g400)}
 .empty-state .empty-icon{font-size:40px;margin-bottom:12px}
-.empty-state p{font-size:14px}
+.empty-state p{font-size:14px}.match-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--g100);cursor:pointer;transition:background .2s}.match-item:last-child{border-bottom:none}.match-item:hover{background:var(--g50);margin:0 -20px;padding:14px 20px;border-radius:8px}.match-item .match-name{font-size:15px;font-weight:500;color:var(--g800)}.match-item .match-id{font-size:12px;color:var(--g400)}.match-item .match-classes{font-size:14px;font-weight:600;color:var(--primary)}
 .query-box{background:#fff;border-radius:16px;padding:24px;box-shadow:var(--sh);margin-bottom:20px}
 .query-input-row{display:flex;gap:10px}
 .query-input-row input{flex:1;padding:12px 14px;border:1.5px solid var(--g200);border-radius:10px;font-size:15px;outline:none}
@@ -203,7 +203,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
       <div class="section-title">📋 上课记录</div>
       <div class="card"><div id="parentRecordsList"></div><div class="empty-state" id="parentEmptyRecords" style="display:none"><div class="empty-icon">📝</div><p>暂无上课记录</p></div></div>
     </div>
-    <div id="parentNoResult" style="display:none"><div class="card"><div class="empty-state"><div class="empty-icon">🔍</div><p>未找到该学员，请检查编号</p></div></div></div>
+    <div id="parentMatchList" style="display:none">
+      <div class="section-title">🔍 找到多个学员</div>
+      <div class="card" id="parentMatchItems"></div>
+    </div>
+    <div id="parentNoResult" style="display:none"><div class="card"><div class="empty-state"><div class="empty-icon">🔍</div><p>未找到该学员，请检查姓名</p></div></div></div>
   </div>
 </div>
 
@@ -263,7 +267,7 @@ async function apiUpdate(updates) {
 function showPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 function showLanding() { showPage('landingPage'); }
 function showCoachLogin() { showPage('coachLoginPage'); document.getElementById('coachUsername').value = ''; document.getElementById('coachPassword').value = ''; }
-function showParentPage() { showPage('parentPage'); document.getElementById('parentQueryInput').value = ''; document.getElementById('parentResult').style.display = 'none'; document.getElementById('parentNoResult').style.display = 'none'; }
+function showParentPage() { showPage('parentPage'); document.getElementById('parentQueryInput').value = ''; document.getElementById('parentResult').style.display = 'none'; document.getElementById('parentMatchList').style.display = 'none'; document.getElementById('parentNoResult').style.display = 'none'; }
 
 // ===== Coach Auth =====
 async function coachLogin() {
@@ -444,28 +448,52 @@ async function parentQuery() {
   try {
     const db = await apiGet();
     const matches = db.students.filter(st => st.name.includes(input));
-    if (matches.length === 0) { document.getElementById('parentResult').style.display = 'none'; document.getElementById('parentNoResult').style.display = 'block'; return; }
-    const s = matches[0];
+    document.getElementById('parentResult').style.display = 'none';
+    document.getElementById('parentMatchList').style.display = 'none';
     document.getElementById('parentNoResult').style.display = 'none';
-    document.getElementById('parentResult').style.display = 'block';
-    document.getElementById('parentName').textContent = s.name;
-    document.getElementById('parentId').textContent = s.id;
-    document.getElementById('parentClasses').textContent = s.classes;
-    const emojis = ['👦','👧','🧒','👶','🧑'];
-    document.getElementById('parentAvatar').textContent = emojis[s.name.charCodeAt(0) % emojis.length];
-    const records = db.records.filter(r => r.studentId === s.id);
-    const listEl = document.getElementById('parentRecordsList');
-    const emptyEl = document.getElementById('parentEmptyRecords');
-    if (records.length === 0) { listEl.innerHTML = ''; emptyEl.style.display = 'block'; }
-    else {
-      emptyEl.style.display = 'none';
-      listEl.innerHTML = records.map(r => {
-        const d = new Date(r.time);
-        const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-        return `<div class="record-item"><div class="record-dot" style="background:var(--success)"></div><div class="record-main"><div class="record-name">上课扣减 1 节</div><div class="record-meta">${ds} · ${r.coachName}</div></div><div class="record-badge" style="background:var(--primary-bg);color:var(--primary)">余${r.classesAfter}节</div></div>`;
-      }).join('');
+    if (matches.length === 0) {
+      document.getElementById('parentNoResult').style.display = 'block';
+    } else if (matches.length === 1) {
+      showParentDetail(matches[0], db);
+    } else {
+      // Multiple matches - show list to pick
+      const items = document.getElementById('parentMatchItems');
+      items.innerHTML = matches.map(s => 
+        '<div class="match-item" onclick="pickStudent(\''+s.id+'\')">' +
+        '<div><div class="match-name">'+s.name+'</div><div class="match-id">'+s.id+'</div></div>' +
+        '<div class="match-classes">余'+s.classes+'节</div></div>'
+      ).join('');
+      document.getElementById('parentMatchList').style.display = 'block';
     }
   } catch(e) { showToast('查询失败', 'error'); }
+}
+
+function pickStudent(id) {
+  const s = cachedData.students.find(st => st.id === id);
+  if (s) showParentDetail(s, cachedData);
+}
+
+function showParentDetail(s, db) {
+  document.getElementById('parentMatchList').style.display = 'none';
+  document.getElementById('parentNoResult').style.display = 'none';
+  document.getElementById('parentResult').style.display = 'block';
+  document.getElementById('parentName').textContent = s.name;
+  document.getElementById('parentId').textContent = s.id;
+  document.getElementById('parentClasses').textContent = s.classes;
+  const emojis = ['👦','👧','🧒','👶','🧑'];
+  document.getElementById('parentAvatar').textContent = emojis[s.name.charCodeAt(0) % emojis.length];
+  const records = db.records.filter(r => r.studentId === s.id);
+  const listEl = document.getElementById('parentRecordsList');
+  const emptyEl = document.getElementById('parentEmptyRecords');
+  if (records.length === 0) { listEl.innerHTML = ''; emptyEl.style.display = 'block'; }
+  else {
+    emptyEl.style.display = 'none';
+    listEl.innerHTML = records.map(r => {
+      const d = new Date(r.time);
+      const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      return '<div class="record-item"><div class="record-dot" style="background:var(--success)"></div><div class="record-main"><div class="record-name">上课扣减 1 节</div><div class="record-meta">'+ds+' · '+r.coachName+'</div></div><div class="record-badge" style="background:var(--primary-bg);color:var(--primary)">余'+r.classesAfter+'节</div></div>';
+    }).join('');
+  }
 }
 
 // ===== Toast & Confirm =====
