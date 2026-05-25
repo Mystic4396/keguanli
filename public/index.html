@@ -66,7 +66,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
 .record-badge{font-size:12px;padding:3px 10px;border-radius:20px;background:var(--danger-bg);color:var(--danger);font-weight:500;white-space:nowrap}
 .empty-state{text-align:center;padding:40px 20px;color:var(--g400)}
 .empty-state .empty-icon{font-size:40px;margin-bottom:12px}
-.empty-state p{font-size:14px}.match-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--g100);cursor:pointer;transition:background .2s}.match-item:last-child{border-bottom:none}.match-item:hover{background:var(--g50);margin:0 -20px;padding:14px 20px;border-radius:8px}.match-item .match-name{font-size:15px;font-weight:500;color:var(--g800)}.match-item .match-id{font-size:12px;color:var(--g400)}.match-item .match-classes{font-size:14px;font-weight:600;color:var(--primary)}
+.empty-state p{font-size:14px}.match-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--g100);cursor:pointer;transition:background .2s}.match-item:last-child{border-bottom:none}.match-item:hover{background:var(--g50);margin:0 -20px;padding:14px 20px;border-radius:8px}.match-item .match-name{font-size:15px;font-weight:500;color:var(--g800)}.match-item .match-id{font-size:12px;color:var(--g400)}.match-item .match-classes{font-size:14px;font-weight:600;color:var(--primary)}#coachMatchList{max-height:240px;overflow-y:auto;margin:0 -20px;padding:0 20px}#coachMatchList .match-item{border-radius:8px;margin:0 -20px;padding:14px 20px}
 .query-box{background:#fff;border-radius:16px;padding:24px;box-shadow:var(--sh);margin-bottom:20px}
 .query-input-row{display:flex;gap:10px}
 .query-input-row input{flex:1;padding:12px 14px;border:1.5px solid var(--g200);border-radius:10px;font-size:15px;outline:none}
@@ -154,10 +154,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
     </div>
     <div class="section-title">⚡ 扣减课时</div>
     <div class="card deduct-area">
-      <div class="student-select-area">
-        <select id="studentSelect" onchange="onStudentSelect()"><option value="">— 选择学员 —</option></select>
+      <div class="query-input-row" style="margin-bottom:0">
+        <input type="text" id="coachSearchInput" placeholder="输入学员姓名搜索" oninput="coachSearchStudent()" onkeydown="if(event.key==='Enter')coachSearchStudent()">
       </div>
+      <div id="coachMatchList" style="display:none"></div>
       <div id="selectedStudentInfo" style="display:none">
+        <div class="student-info-row"><span class="info-label">学员姓名</span><span class="info-value" id="infoName">-</span></div>
         <div class="student-info-row"><span class="info-label">学员编号</span><span class="info-value" id="infoId">-</span></div>
         <div class="student-info-row"><span class="info-label">剩余课时</span><span class="info-value highlight" id="infoClasses">-</span></div>
       </div>
@@ -294,38 +296,64 @@ async function enterCoachDashboard() {
 }
 
 // ===== Coach Dashboard =====
+let selectedStudentId = null;
+
+async function coachSearchStudent() {
+  const input = document.getElementById('coachSearchInput').value.trim();
+  const listEl = document.getElementById('coachMatchList');
+  selectedStudentId = null;
+  document.getElementById('selectedStudentInfo').style.display = 'none';
+  document.getElementById('deductBtn').disabled = true;
+  if (!input) { listEl.style.display = 'none'; return; }
+  const db = cachedData;
+  const matches = db.students.filter(st => st.name.includes(input));
+  if (matches.length === 0) {
+    listEl.style.display = 'block';
+    listEl.innerHTML = '<div style="text-align:center;padding:12px;color:var(--g400);font-size:14px">未找到学员</div>';
+  } else {
+    listEl.style.display = 'block';
+    listEl.innerHTML = matches.map(s => 
+      '<div class="match-item" onclick="pickCoachStudent(\''+s.id+'\')">' +
+      '<div><div class="match-name">'+s.name+'</div><div class="match-id">'+s.id+'</div></div>' +
+      '<div class="match-classes">余'+s.classes+'节</div></div>'
+    ).join('');
+  }
+}
+
+function pickCoachStudent(id) {
+  const s = cachedData.students.find(st => st.id === id);
+  if (!s) return;
+  selectedStudentId = id;
+  document.getElementById('coachMatchList').style.display = 'none';
+  document.getElementById('coachSearchInput').value = s.name;
+  document.getElementById('infoName').textContent = s.name;
+  document.getElementById('infoId').textContent = s.id;
+  document.getElementById('infoClasses').textContent = s.classes + ' 节';
+  document.getElementById('selectedStudentInfo').style.display = 'block';
+  document.getElementById('deductBtn').disabled = s.classes <= 0;
+}
+
 async function refreshCoachData() {
   try {
     const db = await apiGet();
     document.getElementById('statStudents').textContent = db.students.length;
     const today = new Date().toISOString().slice(0, 10);
     document.getElementById('statToday').textContent = db.records.filter(r => r.time && r.time.startsWith(today)).length;
-    const sel = document.getElementById('studentSelect');
-    sel.innerHTML = '<option value="">— 选择学员 —</option>';
-    db.students.sort((a, b) => a.id.localeCompare(b.id)).forEach(s => {
-      sel.innerHTML += `<option value="${s.id}">${s.name}（${s.id}）- 余${s.classes}节</option>`;
-    });
+    document.getElementById('coachSearchInput').value = '';
+    document.getElementById('coachMatchList').style.display = 'none';
     document.getElementById('selectedStudentInfo').style.display = 'none';
     document.getElementById('deductBtn').disabled = true;
+    selectedStudentId = null;
     renderCoachRecords(db);
     renderStudentList(db);
   } catch(e) { showToast('数据加载失败', 'error'); console.error(e); }
 }
 
-function onStudentSelect() {
-  const id = document.getElementById('studentSelect').value;
-  if (!id) { document.getElementById('selectedStudentInfo').style.display = 'none'; document.getElementById('deductBtn').disabled = true; return; }
-  const s = cachedData.students.find(st => st.id === id);
-  if (!s) return;
-  document.getElementById('infoId').textContent = s.id;
-  document.getElementById('infoClasses').textContent = s.classes + ' 节';
-  document.getElementById('selectedStudentInfo').style.display = 'block';
-  document.getElementById('deductBtn').disabled = false;
-}
+
 
 async function deductClass() {
-  const id = document.getElementById('studentSelect').value;
-  if (!id) return;
+  if (!selectedStudentId) return;
+  const id = selectedStudentId;
   const s = cachedData.students.find(st => st.id === id);
   if (!s) return;
   if (s.classes <= 0) { showToast('该学员课时已为 0', 'warn'); return; }

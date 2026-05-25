@@ -14,7 +14,8 @@ function readData() {
     return {
       coaches: [
         { username: 'coach1', password: '123456', name: '王教练' },
-        { username: 'coach2', password: '123456', name: '李教练' }
+        { username: 'coach2', password: '123456', name: '李教练' },
+        { username: 'shutiao', password: '123456', name: '薯条教练' }
       ],
       students: [],
       records: [],
@@ -28,6 +29,24 @@ function writeData(data) {
 }
 
 if (!fs.existsSync(DATA_FILE)) writeData(readData());
+
+// Migration: ensure all coaches exist in data
+(function ensureCoaches() {
+  const data = readData();
+  const requiredCoaches = [
+    { username: 'coach1', password: '123456', name: '王教练' },
+    { username: 'coach2', password: '123456', name: '李教练' },
+    { username: 'shutiao', password: '123456', name: '薯条教练' }
+  ];
+  let changed = false;
+  for (const rc of requiredCoaches) {
+    if (!data.coaches.find(c => c.username === rc.username)) {
+      data.coaches.push(rc);
+      changed = true;
+    }
+  }
+  if (changed) writeData(data);
+})();
 
 app.use(express.static(path.join(__dirname, 'public')));
 
