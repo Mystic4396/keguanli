@@ -30,10 +30,10 @@ function redisReq(method, pathname, body) {
     };
     const req = https.request(opts, res => {
       let d = ''; res.on('data', c => d += c);
-      res.on('end', () => { try { resolve(JSON.parse(d)); } catch(e) { reject(e); } });
+      res.on('end', () => { try { resolve(JSON.parse(d)); } catch(e) { reject(new Error('Parse: '+d.slice(0,100))); } });
     });
     req.on('error', reject);
-    if (body) req.write(typeof body === 'string' ? body : JSON.stringify(body));
+    if (body) req.write(body);
     req.end();
   });
 }
@@ -41,14 +41,19 @@ function redisReq(method, pathname, body) {
 async function readData() {
   try {
     const r = await redisReq('GET', `/get/${DATA_KEY}`);
-    if (r.result) {
-      const data = typeof r.result === 'string' ? JSON.parse(r.result) : r.result;
-      let changed = false;
-      for (const rc of DEFAULT_DATA.coaches) {
-        if (!data.coaches.find(c => c.username === rc.username)) { data.coaches.push(rc); changed = true; }
+    if (r.result != null) {
+      // result from Upstash GET is always a string (the Redis value)
+      let data = typeof r.result === 'string' ? JSON.parse(r.result) : r.result;
+      // Safety: if still a string, parse again (handles old double-encoded data)
+      if (typeof data === 'string') data = JSON.parse(data);
+      if (data && data.coaches && Array.isArray(data.coaches)) {
+        let changed = false;
+        for (const rc of DEFAULT_DATA.coaches) {
+          if (!data.coaches.find(c => c.username === rc.username)) { data.coaches.push(rc); changed = true; }
+        }
+        if (changed) await writeData(data);
+        return data;
       }
-      if (changed) await writeData(data);
-      return data;
     }
   } catch(e) { console.error('Read error:', e.message); }
   await writeData(DEFAULT_DATA);
@@ -57,8 +62,9 @@ async function readData() {
 
 async function writeData(data) {
   try {
-    // Upstash SET: body must be JSON-string-of-string
-    const r = await redisReq('POST', `/set/${DATA_KEY}`, JSON.stringify(JSON.stringify(data)));
+    // Send data as JSON body. Upstash stores the JSON text as a Redis string.
+    const body = JSON.stringify(data);
+    const r = await redisReq('POST', `/set/${DATA_KEY}`, body);
     return r.result === 'OK';
   } catch(e) { console.error('Write error:', e.message); return false; }
 }
@@ -89,13 +95,12 @@ app.put('/api/data', async (req, res) => {
     const u = req.body.updates || {};
     if (u.students) data.students = u.students;
     if (u.records) data.records = u.records;
-    if (u.nextId) data.nextId = u.nextId;
-    await writeData(data);
-    res.json({ ok: true });
-  } catch(e) { res.status(500).json({ error: '保存失败' }); }
+    if (u.nextId !== undefined) data.nextId = u.nextId;
+    const ok = await writeData(data);
+    ok ? res.json({ ok: true }) : res.status(500).json({ error: '保存失败' });
+  } catch(e) { console.error('PUT error:', e.message); res.status(500).json({ error: '保存失败' }); }
 });
 
-// Export all data as JSON (for backup)
 app.get('/api/export', async (req, res) => {
   try {
     const data = await readData();
