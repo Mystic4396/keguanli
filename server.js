@@ -14,7 +14,9 @@ const DEFAULT_DATA = {
   coaches: [
     { username: 'coach1', password: '123456', name: '王教练' },
     { username: 'coach2', password: '123456', name: '李教练' },
-    { username: 'shutiao', password: '123456', name: '薯条教练' }
+    { username: 'shutiao', password: '123456', name: '薯条教练' },
+    { username: 'chenzhe', password: '123456', name: '小陈教练' },
+    { username: 'huyi', password: '123456', name: '胡教练' }
   ],
   students: [],
   records: [],
