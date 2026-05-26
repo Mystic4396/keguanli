@@ -416,14 +416,22 @@ function tFold(b){const c=b.closest('.dg').querySelector('.dr'),f=c.classList.co
 function renderStuList(){
   const a=document.getElementById('stuList');
   if(!db.students.length){a.innerHTML='<div class="empty"><div class="ei">👥</div><p>暂无学员</p></div>';return}
-  a.innerHTML=db.students.sort((a,b)=>a.id.localeCompare(b.id)).map(s=>`
-    <div class="sli">
-      <div class="sli-info"><div class="sav">${s.name[0]}</div><div><div class="sn">${s.name}</div><div class="sid">${s.id}${s.note?' · '+s.note:''}</div></div></div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <span class="scls">${s.classes}节</span>
-        <div class="sact"><button class="abtn" onclick="openEdit('${s.id}')">✏️</button><button class="abtn dng" onclick="delStu('${s.id}')">🗑️</button></div>
-      </div>
-    </div>`).join('');
+  const sorted=db.students.slice().sort((a,b)=>a.classes-b.classes||a.id.localeCompare(b.id));
+  const fold=sorted.length>5;
+  const show=fold?sorted.slice(0,5):sorted;
+  const rest=fold?sorted.slice(5):[];
+  let html=show.map(s=>renderSli(s)).join('');
+  if(fold){
+    html+=`<div id="stuFoldWrap"><button class="fb" style="width:100%;padding:8px;margin:6px 0" onclick="expandStuList()">展开全部 (${sorted.length}人)</button><div id="stuFolded" style="display:none">${rest.map(s=>renderSli(s)).join('')}</div></div>`;
+  }
+  a.innerHTML=html;
+}
+function renderSli(s){
+  return `<div class="sli"><div class="sli-info"><div class="sav">${s.name[0]}</div><div><div class="sn">${s.name}</div><div class="sid">${s.id}${s.note?' · '+s.note:''}</div></div></div><div style="display:flex;align-items:center;gap:10px"><span class="scls">${s.classes}节</span><div class="sact"><button class="abtn" onclick="openEdit('${s.id}')">✏️</button><button class="abtn dng" onclick="delStu('${s.id}')">🗑️</button></div></div></div>`;
+}
+function expandStuList(){
+  document.getElementById('stuFolded').style.display='block';
+  document.getElementById('stuFoldWrap').querySelector('button').outerHTML='';
 }
 
 // ===== Add Student =====
