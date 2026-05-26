@@ -144,7 +144,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
 .qr-card canvas{border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
 .qr-card p{font-size:13px;color:var(--g500);margin-top:8px}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
@@ -560,23 +560,26 @@ function showStuQR(id) {
   const url = window.location.origin + '/#parent?sid=' + id;
   const container = document.getElementById('qrCanvas');
   container.innerHTML = '';
-  QRCode.toCanvas(document.createElement('canvas'), url, { width: 180, margin: 2, color: { dark: '#1F2937' } }, function(err, canvas) {
-    if (!err) {
-      container.appendChild(canvas);
-    }
-  });
+  new QRCode(container, { text: url, width: 180, height: 180, colorDark: '#1F2937', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+  // qrcodejs 会自动生成 canvas + img
   document.getElementById('qrStuName').textContent = s.name;
   document.getElementById('qrStuId').textContent = s.id;
   document.getElementById('moQR').classList.add('on');
 }
 
 function downloadStuQR() {
-  const canvas = document.querySelector('#qrCanvas canvas');
-  if (!canvas) return;
   const name = document.getElementById('qrStuName').textContent;
+  const canvas = document.querySelector('#qrCanvas canvas');
+  const img = document.querySelector('#qrCanvas img');
   const link = document.createElement('a');
   link.download = name + '_二维码.png';
-  link.href = canvas.toDataURL('image/png');
+  if (canvas) {
+    link.href = canvas.toDataURL('image/png');
+  } else if (img && img.src) {
+    link.href = img.src;
+  } else {
+    toast('二维码未生成', 'no'); return;
+  }
   link.click();
 }
 
