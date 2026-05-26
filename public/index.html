@@ -133,7 +133,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
 .sp{width:14px;height:14px;border:2px solid var(--g200);border-top-color:var(--p);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:480px){.lc{width:100%;padding:28px 22px}.sg{grid-template-columns:1fr}}
+
+/* Scan QR */
+.scan-btn{width:44px;height:44px;border-radius:10px;border:1.5px solid var(--g200);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;transition:all .2s}
+.scan-btn:hover{background:var(--pb);border-color:var(--p)}
+#qrReader{width:100%;max-width:350px;margin:10px auto}
+#qrReader video{border-radius:10px!important}
+#qrReader img{display:none}
+.qr-card{text-align:center;padding:16px}
+.qr-card canvas{border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.qr-card p{font-size:13px;color:var(--g500);margin-top:8px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
 <div class="tc" id="tc"></div>
@@ -178,7 +190,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
     <!-- Deduct / Add Classes -->
     <div class="stitle">⚡ 课时操作</div>
     <div class="card">
-      <div class="search-row"><input id="cSearch" placeholder="搜索学员姓名" oninput="cSearchStu()"></div>
+      <div class="search-row"><input id="cSearch" placeholder="搜索学员姓名" oninput="cSearchStu()"><button class="scan-btn" onclick="openCoachScan()" title="扫一扫">📷</button></div>
       <div id="cMatchList" class="mlist" style="display:none"></div>
       <div id="selInfo" style="display:none">
         <div class="irow"><span class="il">姓名</span><span class="iv" id="iName">-</span></div>
@@ -229,7 +241,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
   </div>
   <div class="ctn">
     <div class="card">
-      <div class="search-row ok"><input id="pSearch" placeholder="输入学员姓名" onkeydown="if(event.key==='Enter')doPQuery()"></div>
+      <div class="search-row ok"><input id="pSearch" placeholder="输入学员姓名" onkeydown="if(event.key==='Enter')doPQuery()"><button class="scan-btn" onclick="openParentScan()" title="扫一扫" style="border-color:var(--ok)">📷</button></div>
       <div id="pMatchList" class="mlist" style="display:none"></div>
     </div>
     <div id="pResult" style="display:none">
@@ -427,7 +439,7 @@ function renderStuList(){
   a.innerHTML=html;
 }
 function renderSli(s){
-  return `<div class="sli"><div class="sli-info"><div class="sav">${s.name[0]}</div><div><div class="sn">${s.name}</div><div class="sid">${s.id}${s.note?' · '+s.note:''}</div></div></div><div style="display:flex;align-items:center;gap:10px"><span class="scls">${s.classes}节</span><div class="sact"><button class="abtn" onclick="openEdit('${s.id}')">✏️</button><button class="abtn dng" onclick="delStu('${s.id}')">🗑️</button></div></div></div>`;
+  return `<div class="sli"><div class="sli-info"><div class="sav">${s.name[0]}</div><div><div class="sn">${s.name}</div><div class="sid">${s.id}${s.note?' · '+s.note:''}</div></div></div><div style="display:flex;align-items:center;gap:10px"><span class="scls">${s.classes}节</span><div class="sact"><button class="abtn" onclick="showStuQR('${s.id}')">📋</button><button class="abtn" onclick="openEdit('${s.id}')">✏️</button><button class="abtn dng" onclick="delStu('${s.id}')">🗑️</button></div></div></div>`;
 }
 function expandStuList(){
   document.getElementById('stuFolded').style.display='block';
@@ -508,6 +520,129 @@ function clsMo(id){document.getElementById(id).classList.remove('on');if(id==='m
 const h=window.location.hash;
 if(h==='#coach')goCoachLogin();else if(h==='#parent')goParent();
 window.addEventListener('hashchange',()=>{const h2=window.location.hash;if(h2==='#coach')goCoachLogin();else if(h2==='#parent')goParent()});
+
+
+// ===== QR Code Functions =====
+let qrScanner = null;
+
+function showStuQR(id) {
+  const s = db.students.find(x => x.id === id);
+  if (!s) return;
+  const url = window.location.origin + '/#parent?sid=' + id;
+  const container = document.getElementById('qrCanvas');
+  container.innerHTML = '';
+  QRCode.toCanvas(document.createElement('canvas'), url, { width: 180, margin: 2, color: { dark: '#1F2937' } }, function(err, canvas) {
+    if (!err) {
+      container.appendChild(canvas);
+    }
+  });
+  document.getElementById('qrStuName').textContent = s.name;
+  document.getElementById('qrStuId').textContent = s.id;
+  document.getElementById('moQR').classList.add('on');
+}
+
+function downloadStuQR() {
+  const canvas = document.querySelector('#qrCanvas canvas');
+  if (!canvas) return;
+  const name = document.getElementById('qrStuName').textContent;
+  const link = document.createElement('a');
+  link.download = name + '_二维码.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+function closeQRMo() { clsMo('moQR'); }
+
+function openCoachScan() {
+  document.getElementById('scanTitle').textContent = '扫码识别学员';
+  document.getElementById('scanResult').style.display = 'none';
+  document.getElementById('moScan').classList.add('on');
+  startScanner('qrReader', function(sid) {
+    pickStu(sid);
+    stopScanner();
+    clsMo('moScan');
+    toast('已识别学员', 'ok');
+  });
+}
+
+function openParentScan() {
+  document.getElementById('scanTitle').textContent = '扫码查询课时';
+  document.getElementById('scanResult').style.display = 'none';
+  document.getElementById('moScan').classList.add('on');
+  startScanner('qrReader', function(sid) {
+    stopScanner();
+    clsMo('moScan');
+    const s = db.students.find(x => x.id === sid);
+    if (s) { showPDetail(s); toast('已识别: ' + s.name, 'ok'); }
+    else { toast('未找到该学员', 'no'); }
+  });
+}
+
+function startScanner(elId, onSuccess) {
+  stopScanner();
+  const el = document.getElementById(elId);
+  el.innerHTML = '';
+  qrScanner = new Html5Qrcode(elId);
+  qrScanner.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: { width: 220, height: 220 } },
+    function(text) {
+      // 解析: 可能是 URL#parent?sid=S001 或者直接是 S001
+      let sid = text;
+      try {
+        const u = new URL(text);
+        const h = u.hash; // #parent?sid=S001
+        const m = h.match(/sid=([^&]+)/);
+        if (m) sid = m[1];
+      } catch(e) {
+        // 如果不是 URL，检查是否是 sid=xxx
+        const m = text.match(/sid=([^&]+)/);
+        if (m) sid = m[1];
+      }
+      // 验证学员存在
+      const s = db.students.find(x => x.id === sid);
+      if (s) {
+        onSuccess(sid);
+      } else {
+        toast('未找到学员: ' + sid, 'no');
+      }
+    },
+    function() {} // scan error, ignore
+  ).catch(function(err) {
+    toast('无法打开相机，请检查权限', 'no');
+    console.error('Scanner start error:', err);
+  });
+}
+
+function stopScanner() {
+  if (qrScanner) {
+    try { qrScanner.stop(); } catch(e) {}
+    try { qrScanner.clear(); } catch(e) {}
+    qrScanner = null;
+  }
+}
+
+function closeScanMo() {
+  stopScanner();
+  clsMo('moScan');
+}
+
+// 家长端URL自动识别学员
+(function() {
+  const params = new URLSearchParams(window.location.hash.split('?')[1]);
+  const autoSid = params.get('sid');
+  if (autoSid && window.location.hash.includes('#parent')) {
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        loadDB().then(function() {
+          const s = db.students.find(x => x.id === autoSid);
+          if (s) { showPDetail(s); }
+        });
+      }, 500);
+    });
+  }
+})();
+
 </script>
 </body>
 </html>
