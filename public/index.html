@@ -44,6 +44,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
 .login-box h2{font-size:18px;text-align:center;margin-bottom:4px;font-weight:700;color:var(--g900)}.login-sub{text-align:center;color:var(--g500);font-size:12px;margin-bottom:22px}
 .fg{margin-bottom:14px}.fg label{display:block;font-size:12px;font-weight:500;color:var(--g700);margin-bottom:4px}
 .fg input,.fg select,.fg textarea{width:100%;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;font-size:14px;outline:none;background:#fff;transition:border .15s}
+.fg input[type="date"]{padding:8px 10px;height:40px}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(26,54,93,.08)}
 .fg textarea{resize:vertical;min-height:56px}
 .fg .hint{font-size:11px;color:var(--g400);margin-top:3px}
@@ -454,11 +455,11 @@ function daysUntil(dateStr){if(!dateStr)return 9999;const t=new Date(dateStr);t.
 function expDisplay(s){
   if(!isMonthly(s))return{html:`${s.classes}节`,cls:'scls'};
   const d=daysUntil(s.expiry),exp=s.expiry||'未设置';
-  if(d<0)return{html:`已过期 ${exp}`,cls:'sexp expired'};
-  if(d<=7)return{html:`${d}天后到期 ${exp}`,cls:'sexp soon'};
-  return{html:`${exp} 到期`,cls:'sexp ok'};
+  if(d<0)return{html:`已过期 ${Math.abs(d)}天`,cls:'sexp expired'};
+  if(d<=7)return{html:`余${d}天`,cls:'sexp soon'};
+  return{html:`余${d}天`,cls:'sexp ok'};
 }
-function fmtExp(dateStr){if(!dateStr)return'未设置';const d=daysUntil(dateStr);if(d<0)return`已过期 (${dateStr})`;return dateStr+(d<=7?` (${d}天后)`:'')}
+function fmtExp(dateStr){if(!dateStr)return'未设置';const d=daysUntil(dateStr);if(d<0)return`已过期 ${Math.abs(d)}天 (${dateStr})`;return`${dateStr} (余${d}天)`}
 
 async function refresh(){
   try{
@@ -571,16 +572,18 @@ async function doRenew(){
 // Records
 function getDayStr(t){const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function renderRI(r,mode){
+function renderRI(r,mode,showDate){
   const d=new Date(r.time),t=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  const ds=(d.getMonth()+1)+'/'+d.getDate();
+  const timeStr=showDate?`${ds} ${t}`:t;
   const isAdd=r.type==='充',isRenew=r.type==='续';
   if(mode==='coach'){
     const act=isRenew?`续期 ${r.n}个月`:(isAdd?`充值 ${r.n}节`:`扣减 ${r.n}节`);
     const after=isRenew?(`到期 ${r.after}`):(`余${r.after}节`);
-    return `<div class="ri"><div class="rd" style="background:${isRenew?'var(--adv)':isAdd?'var(--ok)':'var(--p)'}"></div><div class="rm"><div class="rn">${r.sname} · ${act}</div><div class="rmt">${t} · ${r.coach}</div></div><div class="rb ${isRenew?'rb-p':isAdd?'rb-ok':'rb-no'}">${after}</div></div>`;
+    return `<div class="ri"><div class="rd" style="background:${isRenew?'var(--adv)':isAdd?'var(--ok)':'var(--p)'}"></div><div class="rm"><div class="rn">${r.sname} · ${act}</div><div class="rmt">${timeStr} · ${r.coach}</div></div><div class="rb ${isRenew?'rb-p':isAdd?'rb-ok':'rb-no'}">${after}</div></div>`;
   }
   const act=isRenew?`续期 ${r.n}个月`:(isAdd?`充值 ${r.n}节`:`上课扣减 ${r.n}节`);
-  return `<div class="ri"><div class="rd" style="background:${isRenew?'var(--adv)':isAdd?'var(--ok)':'var(--p)'}"></div><div class="rm"><div class="rn">${act}</div><div class="rmt">${t} · ${r.coach}</div></div><div class="rb ${isRenew?'rb-p':isAdd?'rb-ok':'rb-p'}">${isRenew?'到期 '+r.after:'余'+r.after+'节'}</div></div>`;
+  return `<div class="ri"><div class="rd" style="background:${isRenew?'var(--adv)':isAdd?'var(--ok)':'var(--p)'}"></div><div class="rm"><div class="rn">${act}</div><div class="rmt">${timeStr} · ${r.coach}</div></div><div class="rb ${isRenew?'rb-p':isAdd?'rb-ok':'rb-p'}">${isRenew?'到期 '+r.after:'余'+r.after+'节'}</div></div>`;
 }
 function renderRecs(){
   const today=getTodayStr();
@@ -589,7 +592,7 @@ function renderRecs(){
   const tEl=document.getElementById('cTodayRecs'),tEm=document.getElementById('cTodayEmpty');
   if(!todayR.length){tEl.innerHTML='';tEm.style.display='block'}else{tEm.style.display='none';tEl.innerHTML=todayR.map(r=>renderRI(r,'coach')).join('')}
   const hEl=document.getElementById('cHistRecs'),hEm=document.getElementById('cHistEmpty');
-  if(!histR.length){hEl.innerHTML='';hEm.style.display='block'}else{hEm.style.display='none';hEl.innerHTML=histR.map(r=>renderRI(r,'coach')).join('')}
+  if(!histR.length){hEl.innerHTML='';hEm.style.display='block'}else{hEm.style.display='none';hEl.innerHTML=histR.map(r=>renderRI(r,'coach',true)).join('')}
   document.getElementById('histBtn').style.display=histR.length?'flex':'none';
   document.getElementById('cHistRecs').style.display='none';
 }
@@ -609,7 +612,9 @@ function renderStuList(){
   el.innerHTML=html;
 }
 function renderStuGroup(list){
-  return list.map(s=>renderSli(s)).join('');
+  if(list.length<=5)return list.map(s=>renderSli(s)).join('');
+  const show=list.slice(0,5),rest=list.slice(5);
+  return show.map(s=>renderSli(s)).join('')+`<button class="fb" style="width:100%;padding:8px;margin:6px 0" onclick="this.nextElementSibling.style.display='block';this.outerHTML=''">展开全部 (${list.length}人)</button><div style="display:none">${rest.map(s=>renderSli(s)).join('')}</div>`;
 }
 function renderSli(s){
   const t=stuType(s),avc=typeAvClass(t),ed=expDisplay(s);
