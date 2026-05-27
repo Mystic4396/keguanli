@@ -11,13 +11,10 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--g50);color:var(--g800);min-height:100vh;-webkit-font-smoothing:antialiased}
 .page{display:none;min-height:100vh}.page.active{display:block}
-
-/* Landing */
 .landing{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#0f2444,#1a365d 40%,#2a4a7f);padding:24px}
 .landing-logo{width:60px;height:60px;border-radius:14px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;margin-bottom:14px;border:1px solid rgba(255,255,255,.12)}
 .landing-logo svg{width:32px;height:32px;fill:#fff}
-.landing-title{color:#fff;font-size:22px;font-weight:700;letter-spacing:.5px}
-.landing-sub{color:rgba(255,255,255,.55);font-size:13px;margin-bottom:32px;letter-spacing:.3px}
+.landing-title{color:#fff;font-size:22px;font-weight:700}.landing-sub{color:rgba(255,255,255,.55);font-size:13px;margin-bottom:32px}
 .landing-cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:580px}
 .lc{background:#fff;border-radius:14px;padding:28px 24px;width:230px;text-align:center;cursor:pointer;transition:all .2s;box-shadow:0 6px 20px rgba(0,0,0,.15)}
 .lc:active{transform:scale(.97)}
@@ -25,91 +22,52 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
 .lc .lc-icon svg{width:22px;height:22px}
 .lc.c1 .lc-icon{background:var(--pb)}.lc.c1 .lc-icon svg{fill:var(--p)}
 .lc.c2 .lc-icon{background:var(--ob)}.lc.c2 .lc-icon svg{fill:var(--ok)}
-.lc h3{font-size:15px;margin-bottom:4px;font-weight:600;color:var(--g800)}
-.lc p{font-size:12px;color:var(--g500);line-height:1.5}
-
-/* Header */
+.lc h3{font-size:15px;margin-bottom:4px;font-weight:600}.lc p{font-size:12px;color:var(--g500);line-height:1.5}
 .header{background:#fff;border-bottom:1px solid var(--g200);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh)}
 .hleft{display:flex;align-items:center;gap:10px}
-.bbtn{width:32px;height:32px;border-radius:8px;border:1px solid var(--g200);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--g600);transition:background .15s}
+.bbtn{width:32px;height:32px;border-radius:8px;border:1px solid var(--g200);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--g600)}
 .bbtn:active{background:var(--g100)}.htitle{font-size:16px;font-weight:600}
 .badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
 .badge-c{background:var(--pb);color:var(--p)}.badge-p{background:var(--ob);color:var(--ok)}
-
-/* Container */
 .ctn{max-width:600px;margin:0 auto;padding:14px 14px 80px}
-
-/* Login */
 .login-box{max-width:360px;margin:40px auto;background:#fff;border-radius:14px;padding:30px 24px;box-shadow:0 6px 20px rgba(0,0,0,.07)}
-.login-box h2{font-size:18px;text-align:center;margin-bottom:4px;font-weight:700;color:var(--g900)}.login-sub{text-align:center;color:var(--g500);font-size:12px;margin-bottom:22px}
+.login-box h2{font-size:18px;text-align:center;font-weight:700;color:var(--g900)}.login-sub{text-align:center;color:var(--g500);font-size:12px;margin-bottom:22px}
 .fg{margin-bottom:14px}.fg label{display:block;font-size:12px;font-weight:500;color:var(--g700);margin-bottom:4px}
-.fg input,.fg select,.fg textarea{width:100%;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;font-size:14px;outline:none;background:#fff;transition:border .15s}
-.fg input[type="date"]{padding:8px 10px;height:40px}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;font-size:14px;outline:none;background:#fff;transition:border .15s;height:42px}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(26,54,93,.08)}
-.fg textarea{resize:vertical;min-height:56px}
+.fg textarea{resize:vertical;min-height:56px;height:auto}
 .fg .hint{font-size:11px;color:var(--g400);margin-top:3px}
-
-/* Buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .15s;width:100%;gap:6px}
 .btn:active{transform:scale(.97)}.btn-p{background:var(--p);color:#fff}.btn-p:hover{background:var(--pl)}.btn-p:disabled{background:var(--g300);cursor:not-allowed;transform:none}
-.btn-ok{background:var(--ok);color:#fff}.btn-ok:hover{background:#1e5e3a}
-.btn-no{background:var(--no);color:#fff}.btn-no:hover{background:#9b2c2c}
-.btn-o{background:#fff;color:var(--g700);border:1.5px solid var(--g200)}.btn-o:hover{background:var(--g50)}
+.btn-ok{background:var(--ok);color:#fff}.btn-no{background:var(--no);color:#fff}
+.btn-o{background:#fff;color:var(--g700);border:1.5px solid var(--g200)}
 .btn-sm{padding:7px 12px;font-size:12px;width:auto;border-radius:7px}
-
-/* Cards */
 .card{background:#fff;border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:12px}
 .stitle{font-size:14px;font-weight:600;color:var(--g800);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-
-/* Stats */
 .sg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
 .sc{background:#fff;border-radius:var(--r);padding:12px 10px;box-shadow:var(--sh);text-align:center}
 .sc .sv{font-size:20px;font-weight:700;color:var(--g900)}.sc .sl{font-size:10px;color:var(--g500);margin-top:2px}
-
-/* Search */
-.search-row{display:flex;gap:8px;margin-bottom:0}
-.search-row input{flex:1;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;font-size:14px;outline:none}
-.search-row input:focus{border-color:var(--p)}
-.search-row.ok input:focus{border-color:var(--ok)}
-
-/* Scan button - bigger, text label, clear */
+.search-row{display:flex;gap:8px}.search-row input{flex:1;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;font-size:14px;outline:none}
+.search-row input:focus{border-color:var(--p)}.search-row.ok input:focus{border-color:var(--ok)}
 .scan-btn{display:flex;align-items:center;gap:5px;padding:8px 14px;border:1.5px solid var(--p);border-radius:8px;background:var(--pb);cursor:pointer;color:var(--p);font-size:13px;font-weight:600;white-space:nowrap;transition:all .15s;flex-shrink:0}
 .scan-btn:active{background:var(--p);color:#fff}
 .scan-btn svg{width:16px;height:16px;fill:currentColor}
 .scan-btn.ok-style{border-color:var(--ok);background:var(--ob);color:var(--ok)}
 .scan-btn.ok-style:active{background:var(--ok);color:#fff}
-
-/* Match items */
 .mlist{max-height:200px;overflow-y:auto;margin-top:8px;-webkit-overflow-scrolling:touch}
-.mi{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--g100);cursor:pointer;transition:background .1s}
+.mi{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--g100);cursor:pointer}
 .mi:last-child{border-bottom:none}.mi:active{background:var(--g50)}
-.mi .mn{font-size:14px;font-weight:500}.mi .mid{font-size:11px;color:var(--g400)}
-.mi .mc{font-size:13px;font-weight:600;color:var(--p)}
-
-/* Info rows */
+.mi .mn{font-size:14px;font-weight:500}.mi .mid{font-size:11px;color:var(--g400)}.mi .mc{font-size:13px;font-weight:600;color:var(--p)}
 .irow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--g100)}.irow:last-child{border-bottom:none}
 .il{font-size:13px;color:var(--g500)}.iv{font-size:14px;font-weight:600;color:var(--g800)}.iv.hl{color:var(--p);font-size:18px}
-
-/* Type tag */
-.ttag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;margin-left:6px;vertical-align:middle}
-.ttag-ck{background:var(--pb);color:var(--p)}
-.ttag-mk{background:var(--tcb);color:var(--tc)}
-.ttag-adv{background:var(--advb);color:var(--adv)}
-
-/* Action buttons */
+.ttag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;vertical-align:middle}
+.ttag-ck{background:var(--pb);color:var(--p)}.ttag-mk{background:var(--tcb);color:var(--tc)}.ttag-adv{background:var(--advb);color:var(--adv)}
 .act-row{display:flex;gap:8px;margin-top:8px}.act-row .btn{flex:1}
-
-/* Record items */
 .ri{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--g100);gap:8px}.ri:last-child{border-bottom:none}
 .rd{width:5px;height:5px;border-radius:50%;background:var(--p);flex-shrink:0}
 .rm{flex:1;min-width:0}.rn{font-size:13px;font-weight:500}.rmt{font-size:11px;color:var(--g400);margin-top:1px}
 .rb{font-size:10px;padding:2px 6px;border-radius:10px;font-weight:500;white-space:nowrap}
 .rb-no{background:var(--nb);color:var(--no)}.rb-p{background:var(--pb);color:var(--p)}.rb-ok{background:var(--ob);color:var(--ok)}
-
-/* Student list sections */
-.slist-section{margin-bottom:4px}
-.slist-section-title{font-size:12px;font-weight:600;color:var(--g500);padding:8px 0 4px;display:flex;align-items:center;gap:6px}
-.slist-section-title .scount{font-size:11px;font-weight:400;color:var(--g400)}
 .sli{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--g100)}.sli:last-child{border-bottom:none}
 .sli-info{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
 .sav{width:32px;height:32px;border-radius:8px;background:var(--pb);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--p);flex-shrink:0}
@@ -119,36 +77,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
 .sexp{font-size:12px;font-weight:500;white-space:nowrap}
 .sexp.expired{color:var(--no)}.sexp.soon{color:var(--wn)}.sexp.ok{color:var(--ok)}
 .sact{display:flex;gap:3px;flex-shrink:0}
-.abtn{width:28px;height:28px;border-radius:6px;border:1px solid var(--g200);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--g600);transition:background .1s}
+.abtn{width:28px;height:28px;border-radius:6px;border:1px solid var(--g200);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--g600)}
 .abtn:active{background:var(--g100)}.abtn.dng:active{background:var(--nb);border-color:var(--no)}
 .abtn svg{width:13px;height:13px}
-
-/* Tabs */
-.tabs{display:flex;background:var(--g100);border-radius:8px;padding:3px;margin-bottom:14px}
-.tab{flex:1;padding:8px;text-align:center;font-size:13px;font-weight:500;border:none;background:transparent;cursor:pointer;border-radius:6px;color:var(--g500);transition:all .15s}
-.tab.on{background:#fff;color:var(--g800);box-shadow:var(--sh)}
-
-/* Result */
+.tabs4{display:flex;background:var(--g100);border-radius:8px;padding:3px;margin-bottom:14px;gap:2px}
+.tabs4 .t4{flex:1;padding:7px 2px;text-align:center;font-size:12px;font-weight:500;border:none;background:transparent;cursor:pointer;border-radius:6px;color:var(--g500);transition:all .15s;white-space:nowrap}
+.tabs4 .t4.on{background:#fff;color:var(--g800);box-shadow:var(--sh);font-weight:600}
+.tabs4 .t4 .t4c{font-size:10px;font-weight:400;color:var(--g400);margin-left:2px}
+.tabs4 .t4.on .t4c{color:var(--g600)}
 .rh{display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .rav{width:44px;height:44px;border-radius:12px;background:var(--pb);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--p)}
 .rname{font-size:16px;font-weight:600}.rinfo{font-size:12px;color:var(--g500)}
-
-/* Empty & Toast */
 .empty{text-align:center;padding:24px 0;color:var(--g400);font-size:13px}
 .tc{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:5px;pointer-events:none}
 .tst{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,.12);animation:tin .25s ease;pointer-events:auto}
 .tst.ok{background:#d4edda;color:#155724}.tst.no{background:#f8d7da;color:#721c24}.tst.wn{background:#fef3c7;color:#856404}
 @keyframes tin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-
-/* Modal */
 .mo{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;padding:16px}
 .mo.on{display:flex}
 .md{background:#fff;border-radius:14px;padding:22px 18px;width:100%;max-width:380px;box-shadow:0 12px 32px rgba(0,0,0,.15);max-height:90vh;overflow-y:auto}
 .md h3{font-size:15px;font-weight:600;margin-bottom:14px;text-align:center}
 .md-acts{display:flex;gap:8px;margin-top:14px}.md-acts .btn{flex:1}
 .md-body{font-size:14px;color:var(--g600);line-height:1.6}
-
-/* Type selector */
 .type-sel{display:flex;gap:6px;margin-bottom:14px}
 .type-opt{flex:1;padding:10px 6px;border:2px solid var(--g200);border-radius:10px;text-align:center;cursor:pointer;transition:all .15s;font-size:13px;font-weight:500;background:#fff}
 .type-opt:active{transform:scale(.97)}
@@ -156,82 +106,38 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
 .type-opt.sel-mk{border-color:var(--tc);background:var(--tcb);color:var(--tc)}
 .type-opt.sel-adv{border-color:var(--adv);background:var(--advb);color:var(--adv)}
 .type-opt .to-label{font-size:13px;font-weight:600}.type-opt .to-desc{font-size:10px;opacity:.7;margin-top:2px}
-
-/* History button */
-.hist-btn{width:100%;padding:10px;background:var(--g100);border:1px solid var(--g200);border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--g600);display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+.hist-btn{width:100%;padding:10px;background:var(--g100);border:1px solid var(--g200);border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--g600);display:flex;align-items:center;justify-content:center;gap:6px}
 .hist-btn:active{background:var(--g200)}.hist-btn svg{width:14px;height:14px;fill:currentColor}
 .hist-body{margin-top:10px;max-height:400px;overflow-y:auto;-webkit-overflow-scrolling:touch}
-
-/* QR */
 .qr-card{text-align:center;padding:12px}
 .qr-card canvas,.qr-card img{border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
 .qr-card p{font-size:12px;color:var(--g500);margin-top:8px}
 </style>
 </head>
 <body>
-
-<!-- Landing -->
 <div class="page active" id="pgLand">
   <div class="landing">
-    <div class="landing-logo">
-      <svg viewBox="0 0 24 24"><path d="M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9l1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1l-5.2 2.2v4.7h2v-3.4l1.8-.7-1.6 8.1-4.9-1-.4 2 7 1.4z"/></svg>
-    </div>
-    <div class="landing-title">锐力体育</div>
-    <div class="landing-sub">管理系统</div>
+    <div class="landing-logo"><svg viewBox="0 0 24 24"><path d="M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9l1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1l-5.2 2.2v4.7h2v-3.4l1.8-.7-1.6 8.1-4.9-1-.4 2 7 1.4z"/></svg></div>
+    <div class="landing-title">锐力体育</div><div class="landing-sub">管理系统</div>
     <div class="landing-cards">
-      <div class="lc c1" onclick="goCoachLogin()">
-        <div class="lc-icon"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
-        <h3>教练入口</h3>
-        <p>扣减课时 / 充值 / 学员管理</p>
-      </div>
-      <div class="lc c2" onclick="goParent()">
-        <div class="lc-icon"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
-        <h3>家长入口</h3>
-        <p>查询课时 / 上课记录</p>
-      </div>
+      <div class="lc c1" onclick="goCoachLogin()"><div class="lc-icon"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><h3>教练入口</h3><p>扣减课时 / 充值 / 学员管理</p></div>
+      <div class="lc c2" onclick="goParent()"><div class="lc-icon"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div><h3>家长入口</h3><p>查询课时 / 上课记录</p></div>
     </div>
   </div>
 </div>
-
-<!-- Coach Login -->
 <div class="page" id="pgLogin">
   <div class="header"><div class="hleft"><button class="bbtn" onclick="goLand()">&#8592;</button><span class="htitle">教练登录</span></div></div>
-  <div class="ctn">
-    <div class="login-box">
-      <h2>锐力体育</h2>
-      <div class="login-sub">教练登录</div>
-      <div class="fg"><label>账号</label><input id="lUser" placeholder="输入账号"></div>
-      <div class="fg"><label>密码</label><input id="lPwd" type="password" placeholder="输入密码"></div>
-      <button class="btn btn-p" onclick="doLogin()">登 录</button>
-    </div>
-  </div>
+  <div class="ctn"><div class="login-box"><h2>锐力体育</h2><div class="login-sub">教练登录</div>
+    <div class="fg"><label>账号</label><input id="lUser" placeholder="输入账号"></div>
+    <div class="fg"><label>密码</label><input id="lPwd" type="password" placeholder="输入密码"></div>
+    <button class="btn btn-p" onclick="doLogin()">登 录</button>
+  </div></div>
 </div>
-
-<!-- Coach Main -->
 <div class="page" id="pgCoach">
-  <div class="header">
-    <div class="hleft"><button class="bbtn" onclick="doLogout()">&#8592;</button><span class="htitle">锐力体育</span></div>
-    <span class="badge badge-c" id="coachBadge"></span>
-  </div>
+  <div class="header"><div class="hleft"><button class="bbtn" onclick="doLogout()">&#8592;</button><span class="htitle">锐力体育</span></div><span class="badge badge-c" id="coachBadge"></span></div>
   <div class="ctn">
-    <div class="sg">
-      <div class="sc"><div class="sv" id="sCk">0</div><div class="sl">次卡学员</div></div>
-      <div class="sc"><div class="sv" id="sMk">0</div><div class="sl">月卡学员</div></div>
-      <div class="sc"><div class="sv" id="sAdv">0</div><div class="sl">提高班</div></div>
-    </div>
-
-    <div class="card">
-      <div class="stitle">查找学员</div>
-      <div class="search-row">
-        <input id="cSearch" placeholder="输入学员姓名" oninput="cSearchStu()">
-        <button class="scan-btn" onclick="openCoachScan()">
-          <svg viewBox="0 0 24 24"><path d="M3 5h2V3H3v2zm4-2v2h2V3H7zm4 0v2h2V3h-2zm4 0v2h2V3h-2zm4 0v2h2V3h-2zM3 9h2V7H3v2zm16 0h2V7h-2v2zM3 13h2v-2H3v2zm16 0h2v-2h-2v2zM3 17h2v-2H3v2zm16 0h2v-2h-2v2zM3 21h2v-2H3v2zm4 0h2v-2H7v2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zM7 15v-2h2v2h2v-2h2v2h2v-2h2v2h-2v2h-2v-2h-2v2H9v-2H7z"/></svg>
-          扫码
-        </button>
-      </div>
-      <div id="cMatchList" class="mlist" style="display:none"></div>
-    </div>
-
+    <div class="sg"><div class="sc"><div class="sv" id="sCk">0</div><div class="sl">次卡</div></div><div class="sc"><div class="sv" id="sMk">0</div><div class="sl">月卡</div></div><div class="sc"><div class="sv" id="sAdv">0</div><div class="sl">提高班</div></div></div>
+    <div class="card"><div class="stitle">查找学员</div><div class="search-row"><input id="cSearch" placeholder="输入学员姓名" oninput="cSearchStu()"><button class="scan-btn" onclick="openCoachScan()"><svg viewBox="0 0 24 24"><path d="M3 5h2V3H3v2zm4-2v2h2V3H7zm4 0v2h2V3h-2zm4 0v2h2V3h-2zm4 0v2h2V3h-2zM3 9h2V7H3v2zm16 0h2V7h-2v2zM3 13h2v-2H3v2zm16 0h2v-2h-2v2zM3 17h2v-2H3v2zm16 0h2v-2h-2v2zM3 21h2v-2H3v2zm4 0h2v-2H7v2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zM7 15v-2h2v2h2v-2h2v2h2v-2h2v2h-2v2h-2v-2h-2v2H9v-2H7z"/></svg>扫码</button></div><div id="cMatchList" class="mlist" style="display:none"></div></div>
     <div class="card" id="selInfo" style="display:none">
       <div class="irow"><span class="il">姓名</span><span class="iv" id="iName"></span></div>
       <div class="irow"><span class="il">类型</span><span class="iv" id="iType"></span></div>
@@ -239,20 +145,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
       <div class="irow" id="iClsRow"><span class="il">剩余课时</span><span class="iv hl" id="iCls"></span></div>
       <div class="irow" id="iExpRow" style="display:none"><span class="il">到期日期</span><span class="iv hl" id="iExp"></span></div>
       <div class="irow"><span class="il">备注</span><span class="iv" id="iNote"></span></div>
-      <div class="act-row" id="actCk">
-        <button class="btn btn-no" id="btnDeduct" onclick="doDeduct()" disabled>扣 1 节</button>
-        <button class="btn btn-ok" id="btnAdd" onclick="doAddClass()" disabled>充 1 节</button>
-      </div>
+      <div class="act-row" id="actCk"><button class="btn btn-no" id="btnDeduct" onclick="doDeduct()" disabled>扣 1 节</button><button class="btn btn-ok" id="btnAdd" onclick="doAddClass()" disabled>充 1 节</button></div>
       <div class="act-row" id="actCk2"><button class="btn btn-p btn-sm" id="btnAddN" onclick="showAddNModal()" disabled style="width:100%">充 N 节</button></div>
       <div class="act-row" id="actMk" style="display:none"><button class="btn btn-ok btn-sm" id="btnRenew" onclick="showRenewModal()" disabled style="width:100%">续期月卡</button></div>
     </div>
-
     <div class="card">
-      <div class="tabs">
-        <button class="tab on" onclick="swTab('list',this)">学员列表</button>
-        <button class="tab" onclick="swTab('add',this)">添加学员</button>
+      <div class="tabs4" id="mainTabs">
+        <button class="t4 on" onclick="swMainTab('ck',this)">次卡<span class="t4c" id="t4Ck"></span></button>
+        <button class="t4" onclick="swMainTab('mk',this)">月卡<span class="t4c" id="t4Mk"></span></button>
+        <button class="t4" onclick="swMainTab('adv',this)">提高班<span class="t4c" id="t4Adv"></span></button>
+        <button class="t4" onclick="swMainTab('add',this)">添加</button>
       </div>
-      <div id="tabList"><div id="stuList"></div></div>
+      <div id="tabCk"><div id="ckList"></div></div>
+      <div id="tabMk" style="display:none"><div id="mkList"></div></div>
+      <div id="tabAdv" style="display:none"><div id="advList"></div></div>
       <div id="tabAdd" style="display:none">
         <div class="stitle" style="margin-bottom:6px">卡类型</div>
         <div class="type-sel" id="addTypeSel">
@@ -260,527 +166,104 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
           <div class="type-opt" onclick="selAddType('月卡',this)"><div class="to-label">月卡</div><div class="to-desc">按月到期</div></div>
           <div class="type-opt" onclick="selAddType('提高班',this)"><div class="to-label">提高班</div><div class="to-desc">按月到期</div></div>
         </div>
-        <div id="addCkFields">
-          <div class="fg"><label>课时数</label><input id="nCls" type="number" placeholder="20"></div>
-        </div>
-        <div id="addMkFields" style="display:none">
-          <div class="fg"><label>到期日期</label><input id="nExp" type="date"></div>
-        </div>
+        <div id="addCkFields"><div class="fg"><label>课时数</label><input id="nCls" type="number" placeholder="20"></div></div>
+        <div id="addMkFields" style="display:none"><div class="fg"><label>到期日期</label><input id="nExp" type="date"></div></div>
         <div class="fg"><label>姓名</label><input id="nName" placeholder="学员姓名"></div>
         <div class="fg"><label>编号</label><input id="nId" placeholder="自动生成"><div class="hint">可自定义，默认自动递增</div></div>
         <div class="fg"><label>备注</label><input id="nNote" placeholder="可选"></div>
         <button class="btn btn-p" onclick="doAddStu()">添加学员</button>
       </div>
     </div>
-
     <div class="card">
       <div class="stitle">今日操作</div>
-      <div id="cTodayRecs"></div>
-      <div id="cTodayEmpty" class="empty" style="display:none">今日暂无操作</div>
-      <button class="hist-btn" id="histBtn" onclick="toggleHist()" style="margin-top:10px">
-        <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-        历史记录
-      </button>
-      <div class="hist-body" id="cHistRecs" style="display:none"></div>
-      <div id="cHistEmpty" class="empty" style="display:none">暂无历史记录</div>
+      <div id="cTodayRecs"></div><div id="cTodayEmpty" class="empty" style="display:none">今日暂无操作</div>
+      <button class="hist-btn" id="histBtn" onclick="toggleHist()" style="margin-top:10px;display:none"><svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>历史记录</button>
+      <div class="hist-body" id="cHistRecs" style="display:none"></div><div id="cHistEmpty" class="empty" style="display:none">暂无历史记录</div>
     </div>
-
-    <div class="card">
-      <div class="stitle">数据备份</div>
-      <p style="font-size:12px;color:var(--g500);margin-bottom:10px">导出数据备份，以防万一</p>
-      <div style="display:flex;gap:8px">
-        <a href="/api/export" download="keguanli_backup.json" class="btn btn-o" style="text-decoration:none;flex:1;font-size:13px">JSON</a>
-        <a href="/api/export-html" download="keguanli_backup.html" class="btn btn-o" style="text-decoration:none;flex:1;font-size:13px">可读报表</a>
-      </div>
-    </div>
+    <div class="card"><div class="stitle">数据备份</div><p style="font-size:12px;color:var(--g500);margin-bottom:10px">导出数据备份，以防万一</p><div style="display:flex;gap:8px"><a href="/api/export" download="keguanli_backup.json" class="btn btn-o" style="text-decoration:none;flex:1;font-size:13px">JSON</a><a href="/api/export-html" download="keguanli_backup.html" class="btn btn-o" style="text-decoration:none;flex:1;font-size:13px">可读报表</a></div></div>
   </div>
 </div>
-
-<!-- Parent -->
 <div class="page" id="pgParent">
-  <div class="header">
-    <div class="hleft"><button class="bbtn" onclick="goLand()">&#8592;</button><span class="htitle">锐力体育</span></div>
-    <span class="badge badge-p">家长</span>
-  </div>
+  <div class="header"><div class="hleft"><button class="bbtn" onclick="goLand()">&#8592;</button><span class="htitle">锐力体育</span></div><span class="badge badge-p">家长</span></div>
   <div class="ctn">
-    <div class="card">
-      <div class="stitle">查询课时</div>
-      <div class="search-row ok">
-        <input id="pSearch" placeholder="输入学员姓名" onkeydown="if(event.key==='Enter')doPQuery()">
-        <button class="scan-btn ok-style" onclick="openParentScan()">
-          <svg viewBox="0 0 24 24"><path d="M3 5h2V3H3v2zm4-2v2h2V3H7zm4 0v2h2V3h-2zm4 0v2h2V3h-2zm4 0v2h2V3h-2zM3 9h2V7H3v2zm16 0h2V7h-2v2zM3 13h2v-2H3v2zm16 0h2v-2h-2v2zM3 17h2v-2H3v2zm16 0h2v-2h-2v2zM3 21h2v-2H3v2zm4 0h2v-2H7v2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zM7 15v-2h2v2h2v-2h2v2h2v-2h2v2h-2v2h-2v-2h-2v2H9v-2H7z"/></svg>
-          扫码
-        </button>
-      </div>
-      <button class="btn btn-ok btn-sm" style="width:100%;margin-top:10px" onclick="doPQuery()">查 询</button>
-    </div>
+    <div class="card"><div class="stitle">查询课时</div><div class="search-row ok"><input id="pSearch" placeholder="输入学员姓名" onkeydown="if(event.key==='Enter')doPQuery()"><button class="scan-btn ok-style" onclick="openParentScan()"><svg viewBox="0 0 24 24"><path d="M3 5h2V3H3v2zm4-2v2h2V3H7zm4 0v2h2V3h-2zm4 0v2h2V3h-2zm4 0v2h2V3h-2zM3 9h2V7H3v2zm16 0h2V7h-2v2zM3 13h2v-2H3v2zm16 0h2v-2h-2v2zM3 17h2v-2H3v2zm16 0h2v-2h-2v2zM3 21h2v-2H3v2zm4 0h2v-2H7v2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zM7 15v-2h2v2h2v-2h2v2h2v-2h2v2h-2v2h-2v-2h-2v2H9v-2H7z"/></svg>扫码</button></div><button class="btn btn-ok btn-sm" style="width:100%;margin-top:10px" onclick="doPQuery()">查 询</button></div>
     <div id="pMatchList" class="card" style="display:none"></div>
     <div id="pNoRes" class="card" style="display:none"><div class="empty">未找到该学员</div></div>
     <div id="pResult" style="display:none">
-      <div class="card">
-        <div class="rh"><div class="rav" id="pAv"></div><div><div class="rname" id="pName"></div><div class="rinfo">编号: <span id="pId"></span></div></div></div>
-        <div class="irow" id="pClsRow"><span class="il">剩余课时</span><span class="iv hl" id="pCls"></span></div>
-        <div class="irow" id="pExpRow" style="display:none"><span class="il">到期日期</span><span class="iv hl" id="pExp"></span></div>
-      </div>
-      <div class="card">
-        <div class="stitle">上课记录</div>
-        <div id="pRecList"></div>
-        <div id="pRecEmpty" class="empty" style="display:none">暂无记录</div>
-      </div>
+      <div class="card"><div class="rh"><div class="rav" id="pAv"></div><div><div class="rname" id="pName"></div><div class="rinfo">编号: <span id="pId"></span></div></div></div><div class="irow" id="pClsRow"><span class="il">剩余课时</span><span class="iv hl" id="pCls"></span></div><div class="irow" id="pExpRow" style="display:none"><span class="il">到期日期</span><span class="iv hl" id="pExp"></span></div></div>
+      <div class="card"><div class="stitle">上课记录</div><div id="pRecList"></div><div id="pRecEmpty" class="empty" style="display:none">暂无记录</div></div>
     </div>
   </div>
 </div>
-
-<!-- QR Modal -->
-<div class="mo" id="moQR">
-  <div class="md" style="max-width:300px;text-align:center">
-    <div class="qr-card">
-      <div style="font-size:15px;font-weight:600;margin-bottom:4px" id="qrStuName"></div>
-      <div style="font-size:12px;color:var(--g400);margin-bottom:12px" id="qrStuId"></div>
-      <div id="qrCanvas" style="display:flex;justify-content:center"></div>
-      <p>家长扫码即可查看课时</p>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button class="btn btn-o" onclick="closeQRMo()">关闭</button>
-      <button class="btn btn-p" onclick="downloadStuQR()">下载二维码</button>
-    </div>
-  </div>
-</div>
-
-<!-- Scan Modal -->
-<div class="mo" id="moScan">
-  <div class="md" style="max-width:400px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <h3 style="font-size:15px;font-weight:600;margin:0" id="scanTitle">扫码识别</h3>
-      <button class="bbtn" onclick="closeScanMo()">&#10005;</button>
-    </div>
-    <div id="qrReader" style="width:100%"></div>
-    <p style="font-size:12px;color:var(--g400);text-align:center;margin-top:8px">将学员二维码对准摄像头</p>
-  </div>
-</div>
-
-<!-- Confirm Modal -->
-<div class="mo" id="moConf">
-  <div class="md">
-    <h3 id="confTitle">确认</h3>
-    <div class="md-body" id="confBody"></div>
-    <div class="md-acts"><button class="btn btn-o" onclick="clsMo('moConf')">取消</button><button class="btn btn-no" onclick="doConf()">确认</button></div>
-  </div>
-</div>
-
-<!-- Edit Modal -->
-<div class="mo" id="moEdit">
-  <div class="md">
-    <h3>编辑学员</h3>
-    <div class="stitle" style="margin-bottom:6px">卡类型</div>
-    <div class="type-sel" id="editTypeSel">
-      <div class="type-opt" onclick="selEditType('次卡',this)"><div class="to-label">次卡</div><div class="to-desc">按课时扣减</div></div>
-      <div class="type-opt" onclick="selEditType('月卡',this)"><div class="to-label">月卡</div><div class="to-desc">按月到期</div></div>
-      <div class="type-opt" onclick="selEditType('提高班',this)"><div class="to-label">提高班</div><div class="to-desc">按月到期</div></div>
-    </div>
-    <div id="editCkFields">
-      <div class="fg"><label>课时数</label><input id="eCls" type="number"></div>
-    </div>
-    <div id="editMkFields" style="display:none">
-      <div class="fg"><label>到期日期</label><input id="eExp" type="date"></div>
-    </div>
-    <div class="fg"><label>姓名</label><input id="eName"></div>
-    <div class="fg"><label>备注</label><input id="eNote"></div>
-    <div class="md-acts"><button class="btn btn-o" onclick="clsMo('moEdit')">取消</button><button class="btn btn-p" onclick="doSaveEdit()">保存</button></div>
-  </div>
-</div>
-
-<!-- Add N Modal -->
-<div class="mo" id="moAddN">
-  <div class="md">
-    <h3>充值课时</h3>
-    <div class="fg"><label>充值节数</label><input id="addNVal" type="number" value="5"></div>
-    <div class="md-acts"><button class="btn btn-o" onclick="clsMo('moAddN')">取消</button><button class="btn btn-p" onclick="doAddN()">确认充值</button></div>
-  </div>
-</div>
-
-<!-- Renew Modal -->
-<div class="mo" id="moRenew">
-  <div class="md">
-    <h3>续期月卡</h3>
-    <div class="irow" style="margin-bottom:12px"><span class="il">当前到期</span><span class="iv" id="renewCur"></span></div>
-    <div class="fg"><label>续期时长</label>
-      <select id="renewMonths">
-        <option value="1">1个月</option>
-        <option value="3" selected>3个月</option>
-        <option value="6">6个月</option>
-        <option value="12">12个月</option>
-      </select>
-    </div>
-    <div class="irow" style="margin-bottom:4px"><span class="il">续期后到期</span><span class="iv" id="renewNew"></span></div>
-    <div class="md-acts"><button class="btn btn-o" onclick="clsMo('moRenew')">取消</button><button class="btn btn-p" onclick="doRenew()">确认续期</button></div>
-  </div>
-</div>
-
+<div class="mo" id="moQR"><div class="md" style="max-width:300px;text-align:center"><div class="qr-card"><div style="font-size:15px;font-weight:600;margin-bottom:4px" id="qrStuName"></div><div style="font-size:12px;color:var(--g400);margin-bottom:12px" id="qrStuId"></div><div id="qrCanvas" style="display:flex;justify-content:center"></div><p>家长扫码即可查看课时</p></div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-o" onclick="closeQRMo()">关闭</button><button class="btn btn-p" onclick="downloadStuQR()">下载二维码</button></div></div></div>
+<div class="mo" id="moScan"><div class="md" style="max-width:400px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-size:15px;font-weight:600;margin:0" id="scanTitle">扫码识别</h3><button class="bbtn" onclick="closeScanMo()">&#10005;</button></div><div id="qrReader" style="width:100%"></div><p style="font-size:12px;color:var(--g400);text-align:center;margin-top:8px">将学员二维码对准摄像头</p></div></div>
+<div class="mo" id="moConf"><div class="md"><h3 id="confTitle">确认</h3><div class="md-body" id="confBody"></div><div class="md-acts"><button class="btn btn-o" onclick="clsMo('moConf')">取消</button><button class="btn btn-no" onclick="doConf()">确认</button></div></div></div>
+<div class="mo" id="moEdit"><div class="md"><h3>编辑学员</h3><div class="stitle" style="margin-bottom:6px">卡类型</div><div class="type-sel" id="editTypeSel"><div class="type-opt" onclick="selEditType('次卡',this)"><div class="to-label">次卡</div><div class="to-desc">按课时扣减</div></div><div class="type-opt" onclick="selEditType('月卡',this)"><div class="to-label">月卡</div><div class="to-desc">按月到期</div></div><div class="type-opt" onclick="selEditType('提高班',this)"><div class="to-label">提高班</div><div class="to-desc">按月到期</div></div></div><div id="editCkFields"><div class="fg"><label>课时数</label><input id="eCls" type="number"></div></div><div id="editMkFields" style="display:none"><div class="fg"><label>到期日期</label><input id="eExp" type="date"></div></div><div class="fg"><label>姓名</label><input id="eName"></div><div class="fg"><label>备注</label><input id="eNote"></div><div class="md-acts"><button class="btn btn-o" onclick="clsMo('moEdit')">取消</button><button class="btn btn-p" onclick="doSaveEdit()">保存</button></div></div></div>
+<div class="mo" id="moAddN"><div class="md"><h3>充值课时</h3><div class="fg"><label>充值节数</label><input id="addNVal" type="number" value="5"></div><div class="md-acts"><button class="btn btn-o" onclick="clsMo('moAddN')">取消</button><button class="btn btn-p" onclick="doAddN()">确认充值</button></div></div></div>
+<div class="mo" id="moRenew"><div class="md"><h3>续期月卡</h3><div class="irow" style="margin-bottom:12px"><span class="il">当前到期</span><span class="iv" id="renewCur"></span></div><div class="fg"><label>续期时长</label><select id="renewMonths"><option value="1">1个月</option><option value="3" selected>3个月</option><option value="6">6个月</option><option value="12">12个月</option></select></div><div class="irow" style="margin-bottom:4px"><span class="il">续期后到期</span><span class="iv" id="renewNew"></span></div><div class="md-acts"><button class="btn btn-o" onclick="clsMo('moRenew')">取消</button><button class="btn btn-p" onclick="doRenew()">确认续期</button></div></div></div>
 <div class="tc" id="tc"></div>
-
 <script>
 let db={},coach=null,selId=null,editId=null,confCb=null,addType='次卡',editTypeVal='次卡';
-
 function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active')}
 function goLand(){go('pgLand')}
 function goCoachLogin(){go('pgLogin');document.getElementById('lUser').value='';document.getElementById('lPwd').value=''}
 function goParent(){go('pgParent');document.getElementById('pSearch').value='';['pResult','pNoRes','pMatchList'].forEach(id=>document.getElementById(id).style.display='none')}
-
-async function api(method,path,body){
-  const r=await fetch(path,{method,headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
-  if(!r.ok){const e=await r.json().catch(()=>({error:'网络错误'}));throw new Error(e.error||'操作失败')}
-  return r.json();
-}
-
-async function doLogin(){
-  const u=document.getElementById('lUser').value.trim(),p=document.getElementById('lPwd').value,b=document.querySelector('.login-box .btn');
-  if(!u||!p){toast('请输入账号密码','wn');return}
-  b.disabled=true;b.textContent='登录中...';
-  try{const r=await api('POST','/api/login',{username:u,password:p});coach={...r,_pwd:p};toast('欢迎 '+r.name,'ok');enterCoach()}
-  catch(e){toast(e.message,'no')}finally{b.disabled=false;b.textContent='登 录'}
-}
+async function api(method,path,body){const r=await fetch(path,{method,headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});if(!r.ok){const e=await r.json().catch(()=>({error:'网络错误'}));throw new Error(e.error||'操作失败')}return r.json()}
+async function doLogin(){const u=document.getElementById('lUser').value.trim(),p=document.getElementById('lPwd').value,b=document.querySelector('.login-box .btn');if(!u||!p){toast('请输入账号密码','wn');return}b.disabled=true;b.textContent='登录中...';try{const r=await api('POST','/api/login',{username:u,password:p});coach={...r,_pwd:p};toast('欢迎 '+r.name,'ok');enterCoach()}catch(e){toast(e.message,'no')}finally{b.disabled=false;b.textContent='登 录'}}
 function doLogout(){coach=null;goLand()}
 async function enterCoach(){go('pgCoach');document.getElementById('coachBadge').textContent=coach.name;await refresh()}
-
 async function loadDB(){db=await api('GET','/api/data');return db}
 async function save(updates){await api('PUT','/api/data',{auth:{username:coach.username,password:coach._pwd},updates})}
-
-// Type helpers
-function stuType(s){return s.type||'次卡'} // backward compat
-function isMonthly(s){const t=stuType(s);return t==='月卡'||t==='提高班'}
-function typeTag(t){const c={次卡:'ttag-ck',月卡:'ttag-mk',提高班:'ttag-adv'};return `<span class="ttag ${c[t]||'ttag-ck'}">${t}</span>`}
+function stuType(s){return s.type||'次卡'}
+function isMonthly(s){return stuType(s)==='月卡'||stuType(s)==='提高班'}
+function typeTag(t){return '<span class="ttag '+(t==='月卡'?'ttag-mk':t==='提高班'?'ttag-adv':'ttag-ck')+'">'+t+'</span>'}
 function typeAvClass(t){return t==='月卡'?'mk':t==='提高班'?'adv':''}
-function daysUntil(dateStr){if(!dateStr)return 9999;const t=new Date(dateStr);t.setHours(23,59,59);const now=new Date();return Math.ceil((t-now)/(1000*60*60*24))}
-function expDisplay(s){
-  if(!isMonthly(s))return{html:`${s.classes}节`,cls:'scls'};
-  const d=daysUntil(s.expiry),exp=s.expiry||'未设置';
-  if(d<0)return{html:`已过期 ${Math.abs(d)}天`,cls:'sexp expired'};
-  if(d<=7)return{html:`余${d}天`,cls:'sexp soon'};
-  return{html:`余${d}天`,cls:'sexp ok'};
-}
-function fmtExp(dateStr){if(!dateStr)return'未设置';const d=daysUntil(dateStr);if(d<0)return`已过期 ${Math.abs(d)}天 (${dateStr})`;return`${dateStr} (余${d}天)`}
-
-async function refresh(){
-  try{
-    await loadDB();
-    const cks=db.students.filter(s=>stuType(s)==='次卡'),mks=db.students.filter(s=>stuType(s)==='月卡'),advs=db.students.filter(s=>stuType(s)==='提高班');
-    document.getElementById('sCk').textContent=cks.length;
-    document.getElementById('sMk').textContent=mks.length;
-    document.getElementById('sAdv').textContent=advs.length;
-    document.getElementById('cSearch').value='';document.getElementById('cMatchList').style.display='none';
-    document.getElementById('selInfo').style.display='none';selId=null;
-    renderRecs();
-    renderStuList();
-  }catch(e){toast('加载失败','no');console.error(e)}
-}
-
-function cSearchStu(){
-  const q=document.getElementById('cSearch').value.trim(),ml=document.getElementById('cMatchList');
-  selId=null;document.getElementById('selInfo').style.display='none';
-  if(!q){ml.style.display='none';return}
-  const m=db.students.filter(s=>s.name.includes(q));
-  if(!m.length){ml.style.display='block';ml.innerHTML='<div style="text-align:center;padding:10px;color:var(--g400);font-size:13px">未找到学员</div>';return}
-  ml.style.display='block';
-  ml.innerHTML=m.map(s=>{
-    const ed=expDisplay(s);
-    return `<div class="mi" onclick="pickStu('${s.id}')"><div><div class="mn">${s.name} ${typeTag(stuType(s))}</div><div class="mid">${s.id}${s.note?' · '+s.note:''}</div></div><div class="mc">${ed.html}</div></div>`;
-  }).join('');
-}
-function pickStu(id){
-  const s=db.students.find(x=>x.id===id);if(!s)return;selId=id;
-  const t=stuType(s);
-  document.getElementById('cMatchList').style.display='none';document.getElementById('cSearch').value=s.name;
-  document.getElementById('iName').textContent=s.name;document.getElementById('iId').textContent=s.id;
-  document.getElementById('iType').innerHTML=typeTag(t);
-  document.getElementById('iNote').textContent=s.note||'无';
-  if(isMonthly(s)){
-    document.getElementById('iClsRow').style.display='none';
-    document.getElementById('iExpRow').style.display='flex';
-    document.getElementById('iExp').textContent=fmtExp(s.expiry);
-    document.getElementById('actCk').style.display='none';document.getElementById('actCk2').style.display='none';
-    document.getElementById('actMk').style.display='flex';document.getElementById('btnRenew').disabled=false;
-  }else{
-    document.getElementById('iClsRow').style.display='flex';document.getElementById('iCls').textContent=s.classes+' 节';
-    document.getElementById('iExpRow').style.display='none';
-    document.getElementById('actCk').style.display='flex';document.getElementById('actCk2').style.display='flex';
-    document.getElementById('actMk').style.display='none';
-    document.getElementById('btnDeduct').disabled=s.classes<=0;document.getElementById('btnAdd').disabled=false;document.getElementById('btnAddN').disabled=false;
-  }
-  document.getElementById('selInfo').style.display='block';
-}
-
-// Deduct / Add / AddN (次卡 only)
-function doDeduct(){
-  if(!selId)return;const s=db.students.find(x=>x.id===selId);
-  if(!s||s.classes<=0){toast('课时不足','wn');return}
-  showConf('确认扣课',`为 <strong>${s.name}</strong> 扣减 1 节课？<br>剩余：${s.classes} → ${s.classes-1}`,async()=>{
-    const st=db.students.find(x=>x.id===selId);st.classes-=1;
-    db.records.unshift({sid:selId,sname:st.name,coach:coach.name,time:new Date().toISOString(),after:st.classes,type:'扣',n:1});
-    await save({students:db.students,records:db.records});toast('已扣减 1 节','ok');await refresh();pickStu(selId);
-  });
-}
-async function doAddClass(){
-  if(!selId)return;const s=db.students.find(x=>x.id===selId);if(!s)return;
-  showConf('确认充值',`为 <strong>${s.name}</strong> 充值 1 节课？<br>剩余：${s.classes} → ${s.classes+1}`,async()=>{
-    const st=db.students.find(x=>x.id===selId);st.classes+=1;
-    db.records.unshift({sid:selId,sname:st.name,coach:coach.name,time:new Date().toISOString(),after:st.classes,type:'充',n:1});
-    await save({students:db.students,records:db.records});toast('已充值 1 节','ok');await refresh();pickStu(selId);
-  });
-}
+function daysUntil(d){if(!d)return 9999;const t=new Date(d);t.setHours(23,59,59);return Math.ceil((t-new Date())/864e5)}
+function expDisplay(s){if(!isMonthly(s))return{html:s.classes+'节',cls:'scls'};const d=daysUntil(s.expiry);if(d<0)return{html:'已过期'+Math.abs(d)+'天',cls:'sexp expired'};if(d<=7)return{html:'余'+d+'天',cls:'sexp soon'};return{html:'余'+d+'天',cls:'sexp ok'}}
+function fmtExp(d){if(!d)return'未设置';const n=daysUntil(d);if(n<0)return'已过期'+Math.abs(n)+'天 ('+d+')';return d+' (余'+n+'天)'}
+async function refresh(){try{await loadDB();const cks=db.students.filter(s=>stuType(s)==='次卡'),mks=db.students.filter(s=>stuType(s)==='月卡'),advs=db.students.filter(s=>stuType(s)==='提高班');document.getElementById('sCk').textContent=cks.length;document.getElementById('sMk').textContent=mks.length;document.getElementById('sAdv').textContent=advs.length;document.getElementById('t4Ck').textContent=cks.length?'('+cks.length+')':'';document.getElementById('t4Mk').textContent=mks.length?'('+mks.length+')':'';document.getElementById('t4Adv').textContent=advs.length?'('+advs.length+')':'';document.getElementById('cSearch').value='';document.getElementById('cMatchList').style.display='none';document.getElementById('selInfo').style.display='none';selId=null;renderRecs();renderStuLists()}catch(e){toast('加载失败','no');console.error(e)}}
+function cSearchStu(){const q=document.getElementById('cSearch').value.trim(),ml=document.getElementById('cMatchList');selId=null;document.getElementById('selInfo').style.display='none';if(!q){ml.style.display='none';return}const m=db.students.filter(s=>s.name.includes(q));if(!m.length){ml.style.display='block';ml.innerHTML='<div style="text-align:center;padding:10px;color:var(--g400);font-size:13px">未找到学员</div>';return}ml.style.display='block';ml.innerHTML=m.map(s=>{const ed=expDisplay(s);return '<div class="mi" onclick="pickStu(\''+s.id+'\')"><div><div class="mn">'+s.name+' '+typeTag(stuType(s))+'</div><div class="mid">'+s.id+(s.note?' · '+s.note:'')+'</div></div><div class="mc">'+ed.html+'</div></div>'}).join('')}
+function pickStu(id){const s=db.students.find(x=>x.id===id);if(!s)return;selId=id;const t=stuType(s);document.getElementById('cMatchList').style.display='none';document.getElementById('cSearch').value=s.name;document.getElementById('iName').textContent=s.name;document.getElementById('iId').textContent=s.id;document.getElementById('iType').innerHTML=typeTag(t);document.getElementById('iNote').textContent=s.note||'无';if(isMonthly(s)){document.getElementById('iClsRow').style.display='none';document.getElementById('iExpRow').style.display='flex';document.getElementById('iExp').textContent=fmtExp(s.expiry);document.getElementById('actCk').style.display='none';document.getElementById('actCk2').style.display='none';document.getElementById('actMk').style.display='flex';document.getElementById('btnRenew').disabled=false}else{document.getElementById('iClsRow').style.display='flex';document.getElementById('iCls').textContent=s.classes+' 节';document.getElementById('iExpRow').style.display='none';document.getElementById('actCk').style.display='flex';document.getElementById('actCk2').style.display='flex';document.getElementById('actMk').style.display='none';document.getElementById('btnDeduct').disabled=s.classes<=0;document.getElementById('btnAdd').disabled=false;document.getElementById('btnAddN').disabled=false}document.getElementById('selInfo').style.display='block'}
+function doDeduct(){if(!selId)return;const s=db.students.find(x=>x.id===selId);if(!s||s.classes<=0){toast('课时不足','wn');return}showConf('确认扣课','为 <strong>'+s.name+'</strong> 扣减 1 节课？<br>剩余：'+s.classes+' → '+(s.classes-1),async()=>{const st=db.students.find(x=>x.id===selId);st.classes-=1;db.records.unshift({sid:selId,sname:st.name,coach:coach.name,time:new Date().toISOString(),after:st.classes,type:'扣',n:1});await save({students:db.students,records:db.records});toast('已扣减 1 节','ok');await refresh();pickStu(selId)})}
+function doAddClass(){if(!selId)return;const s=db.students.find(x=>x.id===selId);if(!s)return;showConf('确认充值','为 <strong>'+s.name+'</strong> 充值 1 节课？<br>剩余：'+s.classes+' → '+(s.classes+1),async()=>{const st=db.students.find(x=>x.id===selId);st.classes+=1;db.records.unshift({sid:selId,sname:st.name,coach:coach.name,time:new Date().toISOString(),after:st.classes,type:'充',n:1});await save({students:db.students,records:db.records});toast('已充值 1 节','ok');await refresh();pickStu(selId)})}
 function showAddNModal(){document.getElementById('addNVal').value=5;document.getElementById('moAddN').classList.add('on')}
-async function doAddN(){
-  const n=parseInt(document.getElementById('addNVal').value)||0;if(n<=0){toast('请输入正数','wn');return}
-  if(!selId)return;const s=db.students.find(x=>x.id===selId);if(!s)return;clsMo('moAddN');
-  showConf('确认充值',`为 <strong>${s.name}</strong> 充值 ${n} 节课？<br>剩余：${s.classes} → ${s.classes+n}`,async()=>{
-    const st=db.students.find(x=>x.id===selId);st.classes+=n;
-    db.records.unshift({sid:selId,sname:st.name,coach:coach.name,time:new Date().toISOString(),after:st.classes,type:'充',n:n});
-    await save({students:db.students,records:db.records});toast(`已充值 ${n} 节`,'ok');await refresh();pickStu(selId);
-  });
-}
-
-// Renew (月卡/提高班)
-function showRenewModal(){
-  if(!selId)return;const s=db.students.find(x=>x.id===selId);if(!s)return;
-  const curExp=s.expiry||new Date().toISOString().slice(0,10);
-  document.getElementById('renewCur').textContent=curExp;
-  document.getElementById('renewMonths').value='3';
-  updateRenewNew();
-  document.getElementById('moRenew').classList.add('on');
-}
-function updateRenewNew(){
-  const s=db.students.find(x=>x.id===selId);if(!s)return;
-  const base=s.expiry&&daysUntil(s.expiry)>0?new Date(s.expiry):new Date();
-  const m=parseInt(document.getElementById('renewMonths').value)||1;
-  base.setMonth(base.getMonth()+m);
-  document.getElementById('renewNew').textContent=base.toISOString().slice(0,10);
-}
+async function doAddN(){const n=parseInt(document.getElementById('addNVal').value)||0;if(n<=0){toast('请输入正数','wn');return}if(!selId)return;const s=db.students.find(x=>x.id===selId);if(!s)return;clsMo('moAddN');showConf('确认充值','为 <strong>'+s.name+'</strong> 充值 '+n+' 节课？<br>剩余：'+s.classes+' → '+(s.classes+n),async()=>{const st=db.students.find(x=>x.id===selId);st.classes+=n;db.records.unshift({sid:selId,sname:st.name,coach:coach.name,time:new Date().toISOString(),after:st.classes,type:'充',n:n});await save({students:db.students,records:db.records});toast('已充值 '+n+' 节','ok');await refresh();pickStu(selId)})}
+function showRenewModal(){if(!selId)return;const s=db.students.find(x=>x.id===selId);if(!s)return;document.getElementById('renewCur').textContent=fmtExp(s.expiry);document.getElementById('renewMonths').value='3';updateRenewNew();document.getElementById('moRenew').classList.add('on')}
+function updateRenewNew(){const s=db.students.find(x=>x.id===selId);if(!s)return;const base=s.expiry&&daysUntil(s.expiry)>0?new Date(s.expiry):new Date();const m=parseInt(document.getElementById('renewMonths').value)||1;base.setMonth(base.getMonth()+m);document.getElementById('renewNew').textContent=base.toISOString().slice(0,10)}
 document.getElementById('renewMonths').addEventListener('change',updateRenewNew);
-async function doRenew(){
-  if(!selId)return;const s=db.students.find(x=>x.id===selId);if(!s)return;
-  const base=s.expiry&&daysUntil(s.expiry)>0?new Date(s.expiry):new Date();
-  const m=parseInt(document.getElementById('renewMonths').value)||m;
-  base.setMonth(base.getMonth()+m);const newExp=base.toISOString().slice(0,10);
-  clsMo('moRenew');
-  showConf('确认续期',`为 <strong>${s.name}</strong>（${stuType(s)}）续期 ${m} 个月？<br>新到期日：${newExp}`,async()=>{
-    const st=db.students.find(x=>x.id===selId);st.expiry=newExp;
-    db.records.unshift({sid:selId,sname:st.name,coach:coach.name,time:new Date().toISOString(),after:newExp,type:'续',n:m,subtype:stuType(st)});
-    await save({students:db.students,records:db.records});toast(`已续期 ${m} 个月`,'ok');await refresh();pickStu(selId);
-  });
-}
-
-// Records
-function getDayStr(t){const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+async function doRenew(){if(!selId)return;const s=db.students.find(x=>x.id===selId);if(!s)return;const base=s.expiry&&daysUntil(s.expiry)>0?new Date(s.expiry):new Date();const m=parseInt(document.getElementById('renewMonths').value)||1;base.setMonth(base.getMonth()+m);const newExp=base.toISOString().slice(0,10);clsMo('moRenew');showConf('确认续期','为 <strong>'+s.name+'</strong>（'+stuType(s)+'）续期 '+m+' 个月？<br>新到期日：'+newExp,async()=>{const st=db.students.find(x=>x.id===selId);st.expiry=newExp;db.records.unshift({sid:selId,sname:st.name,coach:coach.name,time:new Date().toISOString(),after:newExp,type:'续',n:m,subtype:stuType(st)});await save({students:db.students,records:db.records});toast('已续期 '+m+' 个月','ok');await refresh();pickStu(selId)})}
 function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function renderRI(r,mode,showDate){
-  const d=new Date(r.time),t=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-  const ds=(d.getMonth()+1)+'/'+d.getDate();
-  const timeStr=showDate?`${ds} ${t}`:t;
-  const isAdd=r.type==='充',isRenew=r.type==='续';
-  if(mode==='coach'){
-    const act=isRenew?`续期 ${r.n}个月`:(isAdd?`充值 ${r.n}节`:`扣减 ${r.n}节`);
-    const after=isRenew?(`到期 ${r.after}`):(`余${r.after}节`);
-    return `<div class="ri"><div class="rd" style="background:${isRenew?'var(--adv)':isAdd?'var(--ok)':'var(--p)'}"></div><div class="rm"><div class="rn">${r.sname} · ${act}</div><div class="rmt">${timeStr} · ${r.coach}</div></div><div class="rb ${isRenew?'rb-p':isAdd?'rb-ok':'rb-no'}">${after}</div></div>`;
-  }
-  const act=isRenew?`续期 ${r.n}个月`:(isAdd?`充值 ${r.n}节`:`上课扣减 ${r.n}节`);
-  return `<div class="ri"><div class="rd" style="background:${isRenew?'var(--adv)':isAdd?'var(--ok)':'var(--p)'}"></div><div class="rm"><div class="rn">${act}</div><div class="rmt">${timeStr} · ${r.coach}</div></div><div class="rb ${isRenew?'rb-p':isAdd?'rb-ok':'rb-p'}">${isRenew?'到期 '+r.after:'余'+r.after+'节'}</div></div>`;
-}
-function renderRecs(){
-  const today=getTodayStr();
-  const todayR=db.records.filter(r=>r.time&&r.time.startsWith(today));
-  const histR=db.records.filter(r=>r.time&&!r.time.startsWith(today));
-  const tEl=document.getElementById('cTodayRecs'),tEm=document.getElementById('cTodayEmpty');
-  if(!todayR.length){tEl.innerHTML='';tEm.style.display='block'}else{tEm.style.display='none';tEl.innerHTML=todayR.map(r=>renderRI(r,'coach')).join('')}
-  const hEl=document.getElementById('cHistRecs'),hEm=document.getElementById('cHistEmpty');
-  if(!histR.length){hEl.innerHTML='';hEm.style.display='block'}else{hEm.style.display='none';hEl.innerHTML=histR.map(r=>renderRI(r,'coach',true)).join('')}
-  document.getElementById('histBtn').style.display=histR.length?'flex':'none';
-  document.getElementById('cHistRecs').style.display='none';
-}
+function renderRI(r,mode,showDate){const d=new Date(r.time),t=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');const ds=(d.getMonth()+1)+'/'+d.getDate(),timeStr=showDate?ds+' '+t:t;const isAdd=r.type==='充',isRenew=r.type==='续',cn=r.coach||'';if(mode==='coach'){const act=isRenew?'续期 '+r.n+'个月':(isAdd?'充值 '+r.n+'节':'扣减 '+r.n+'节');const after=isRenew?'到期 '+r.after:'余'+r.after+'节';return '<div class="ri"><div class="rd" style="background:'+(isRenew?'var(--adv)':isAdd?'var(--ok)':'var(--p)')+'"></div><div class="rm"><div class="rn">'+r.sname+' · '+act+'</div><div class="rmt">'+timeStr+' · <span style="color:var(--g700);font-weight:500">'+cn+'</span></div></div><div class="rb '+(isRenew?'rb-p':isAdd?'rb-ok':'rb-no')+'">'+after+'</div></div>'}const act=isRenew?'续期 '+r.n+'个月':(isAdd?'充值 '+r.n+'节':'上课扣减 '+r.n+'节');return '<div class="ri"><div class="rd" style="background:'+(isRenew?'var(--adv)':isAdd?'var(--ok)':'var(--p)')+'"></div><div class="rm"><div class="rn">'+act+'</div><div class="rmt">'+timeStr+' · <span style="color:var(--g700);font-weight:500">'+cn+'</span></div></div><div class="rb '+(isRenew?'rb-p':isAdd?'rb-ok':'rb-p')+'">'+(isRenew?'到期 '+r.after:'余'+r.after+'节')+'</div></div>'}
+function renderRecs(){const today=getTodayStr();const todayR=db.records.filter(r=>r.time&&r.time.startsWith(today)),histR=db.records.filter(r=>r.time&&!r.time.startsWith(today));const tEl=document.getElementById('cTodayRecs'),tEm=document.getElementById('cTodayEmpty');if(!todayR.length){tEl.innerHTML='';tEm.style.display='block'}else{tEm.style.display='none';tEl.innerHTML=todayR.map(r=>renderRI(r,'coach')).join('')}const hEl=document.getElementById('cHistRecs'),hEm=document.getElementById('cHistEmpty');if(!histR.length){hEl.innerHTML='';hEm.style.display='block'}else{hEm.style.display='none';hEl.innerHTML=histR.map(r=>renderRI(r,'coach',true)).join('')}document.getElementById('histBtn').style.display=histR.length?'flex':'none';document.getElementById('cHistRecs').style.display='none'}
 function toggleHist(){const el=document.getElementById('cHistRecs'),btn=document.getElementById('histBtn');if(el.style.display==='none'){el.style.display='block';btn.innerHTML='<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg> 收起历史'}else{el.style.display='none';btn.innerHTML='<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg> 历史记录'}}
-
-// Student list - grouped by type
-function renderStuList(){
-  const el=document.getElementById('stuList');
-  if(!db.students.length){el.innerHTML='<div class="empty">暂无学员</div>';return}
-  const cks=db.students.filter(s=>stuType(s)==='次卡').sort((a,b)=>a.classes-b.classes||a.id.localeCompare(b.id));
-  const mks=db.students.filter(s=>stuType(s)==='月卡').sort((a,b)=>daysUntil(a.expiry)-daysUntil(b.expiry));
-  const advs=db.students.filter(s=>stuType(s)==='提高班').sort((a,b)=>daysUntil(a.expiry)-daysUntil(b.expiry));
-  let html='';
-  if(cks.length)html+=`<div class="slist-section"><div class="slist-section-title">次卡 <span class="scount">${cks.length}人</span></div>${renderStuGroup(cks)}</div>`;
-  if(mks.length)html+=`<div class="slist-section"><div class="slist-section-title" style="color:var(--tc)">月卡 <span class="scount">${mks.length}人</span></div>${renderStuGroup(mks)}</div>`;
-  if(advs.length)html+=`<div class="slist-section"><div class="slist-section-title" style="color:var(--adv)">提高班 <span class="scount">${advs.length}人</span></div>${renderStuGroup(advs)}</div>`;
-  el.innerHTML=html;
-}
-function renderStuGroup(list){
-  if(list.length<=5)return list.map(s=>renderSli(s)).join('');
-  const show=list.slice(0,5),rest=list.slice(5);
-  return show.map(s=>renderSli(s)).join('')+`<button class="fb" style="width:100%;padding:8px;margin:6px 0" onclick="this.nextElementSibling.style.display='block';this.outerHTML=''">展开全部 (${list.length}人)</button><div style="display:none">${rest.map(s=>renderSli(s)).join('')}</div>`;
-}
-function renderSli(s){
-  const t=stuType(s),avc=typeAvClass(t),ed=expDisplay(s);
-  return `<div class="sli"><div class="sli-info"><div class="sav ${avc}">${s.name[0]}</div><div style="min-width:0"><div class="sn">${s.name}</div><div class="sid">${s.id}${s.note?' · '+s.note:''}</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="${ed.cls}">${ed.html}</span><div class="sact"><button class="abtn" onclick="showStuQR('${s.id}')" title="二维码"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zm8-2v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm13-2h-2v4h-2v2h2v2h2v-2h2v-2h-2v-4zm0 6h-2v2h2v-2zm-4-2h-2v4h2v-4z"/></svg></button><button class="abtn" onclick="openEdit('${s.id}')" title="编辑"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button><button class="abtn dng" onclick="delStu('${s.id}')" title="删除"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div></div></div>`;
-}
-
-// Tabs
-function swTab(t,el){
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));el.classList.add('on');
-  document.getElementById('tabList').style.display=t==='list'?'block':'none';document.getElementById('tabAdd').style.display=t==='add'?'block':'none';
-  if(t==='add'){addType='次卡';document.getElementById('nName').value='';document.getElementById('nId').value='S'+String(db.nextId).padStart(3,'0');document.getElementById('nCls').value='20';document.getElementById('nExp').value='';document.getElementById('nNote').value='';selAddType('次卡',document.querySelector('#addTypeSel .type-opt'))}
-}
-
-// Add type selector
-function selAddType(t,el){
-  addType=t;
-  document.querySelectorAll('#addTypeSel .type-opt').forEach(o=>{o.className='type-opt'});
-  const cls={次卡:'sel-ck',月卡:'sel-mk',提高班:'sel-adv'};
-  el.classList.add(cls[t]);
-  document.getElementById('addCkFields').style.display=t==='次卡'?'block':'none';
-  document.getElementById('addMkFields').style.display=t!=='次卡'?'block':'none';
-}
-
-// Edit type selector
-function selEditType(t,el){
-  editTypeVal=t;
-  document.querySelectorAll('#editTypeSel .type-opt').forEach(o=>{o.className='type-opt'});
-  const cls={次卡:'sel-ck',月卡:'sel-mk',提高班:'sel-adv'};
-  el.classList.add(cls[t]);
-  document.getElementById('editCkFields').style.display=t==='次卡'?'block':'none';
-  document.getElementById('editMkFields').style.display=t!=='次卡'?'block':'none';
-}
-
-async function doAddStu(){
-  const name=document.getElementById('nName').value.trim(),id=document.getElementById('nId').value.trim(),note=document.getElementById('nNote').value.trim();
-  if(!name){toast('请输入姓名','wn');return}if(!id){toast('请输入编号','wn');return}
-  if(db.students.find(s=>s.id===id)){toast('编号已存在','no');return}
-  const stu={id,name,note:note||'',type:addType};
-  if(addType==='次卡'){stu.classes=parseInt(document.getElementById('nCls').value)||0}
-  else{stu.classes=0;stu.expiry=document.getElementById('nExp').value||'';if(!stu.expiry){toast('请设置到期日期','wn');return}}
-  db.students.push(stu);db.nextId=Math.max(db.nextId,parseInt(id.replace(/\D/g,''))+1);
-  try{await save({students:db.students,nextId:db.nextId});toast(name+' 添加成功','ok');await refresh()}catch(e){toast('添加失败','no')}
-}
-function openEdit(id){
-  const s=db.students.find(x=>x.id===id);if(!s)return;editId=id;editTypeVal=stuType(s);
-  document.getElementById('eName').value=s.name;document.getElementById('eNote').value=s.note||'';
-  document.getElementById('eCls').value=s.classes||0;document.getElementById('eExp').value=s.expiry||'';
-  // Set type selector
-  const opts=document.querySelectorAll('#editTypeSel .type-opt');
-  opts.forEach(o=>{o.className='type-opt'});
-  const cls={次卡:'sel-ck',月卡:'sel-mk',提高班:'sel-adv'};
-  const idx={次卡:0,月卡:1,提高班:2};
-  opts[idx[editTypeVal]].classList.add(cls[editTypeVal]);
-  document.getElementById('editCkFields').style.display=editTypeVal==='次卡'?'block':'none';
-  document.getElementById('editMkFields').style.display=editTypeVal!=='次卡'?'block':'none';
-  document.getElementById('moEdit').classList.add('on');
-}
-async function doSaveEdit(){
-  const name=document.getElementById('eName').value.trim(),note=document.getElementById('eNote').value.trim();
-  if(!name){toast('姓名不能空','wn');return}
-  const s=db.students.find(x=>x.id===editId);
-  s.name=name;s.note=note;s.type=editTypeVal;
-  if(editTypeVal==='次卡'){s.classes=parseInt(document.getElementById('eCls').value)||0;delete s.expiry}
-  else{s.expiry=document.getElementById('eExp').value||'';if(!s.expiry){toast('请设置到期日期','wn');return}s.classes=s.classes||0}
-  try{await save({students:db.students});clsMo('moEdit');toast('已保存','ok');await refresh()}catch(e){toast('保存失败','no')}
-}
-function delStu(id){
-  const s=db.students.find(x=>x.id===id);if(!s)return;
-  showConf('删除学员',`确认删除 <strong>${s.name}</strong>（${s.id}）？<br>此操作不可恢复`,async()=>{
-    db.students=db.students.filter(x=>x.id!==id);db.records=db.records.filter(r=>r.sid!==id);
-    try{await save({students:db.students,records:db.records});toast('已删除','ok');await refresh()}catch(e){toast('删除失败','no')}
-  });
-}
-
-// Parent
-async function doPQuery(){
-  const q=document.getElementById('pSearch').value.trim();if(!q){toast('请输入姓名','wn');return}
-  try{
-    await loadDB();const m=db.students.filter(s=>s.name.includes(q));
-    document.getElementById('pResult').style.display='none';document.getElementById('pNoRes').style.display='none';document.getElementById('pMatchList').style.display='none';
-    if(!m.length){document.getElementById('pNoRes').style.display='block';return}
-    if(m.length===1){showPDetail(m[0])}else{
-      document.getElementById('pMatchList').style.display='block';
-      document.getElementById('pMatchList').innerHTML=m.map(s=>{const ed=expDisplay(s);return `<div class="mi" onclick="showPDetail(db.students.find(x=>x.id==='${s.id}'))"><div><div class="mn">${s.name} ${typeTag(stuType(s))}</div><div class="mid">${s.id}</div></div><div class="mc">${ed.html}</div></div>`}).join('');
-    }
-  }catch(e){toast('查询失败','no')}
-}
-function showPDetail(s){
-  document.getElementById('pMatchList').style.display='none';document.getElementById('pNoRes').style.display='none';
-  document.getElementById('pResult').style.display='block';
-  document.getElementById('pName').textContent=s.name;document.getElementById('pId').textContent=s.id;
-  const av=document.getElementById('pAv');av.textContent=s.name[0];av.className='rav'+(typeAvClass(stuType(s))?' '+typeAvClass(stuType(s)):'');
-  if(isMonthly(s)){
-    document.getElementById('pClsRow').style.display='none';document.getElementById('pExpRow').style.display='flex';
-    document.getElementById('pExp').textContent=fmtExp(s.expiry);
-  }else{
-    document.getElementById('pClsRow').style.display='flex';document.getElementById('pExpRow').style.display='none';
-    document.getElementById('pCls').textContent=s.classes;
-  }
-  renderPRecs(db.records.filter(r=>r.sid===s.id));
-}
-function renderPRecs(recs){
-  const el=document.getElementById('pRecList'),em=document.getElementById('pRecEmpty');
-  if(!recs.length){el.innerHTML='';em.style.display='block';return}em.style.display='none';
-  el.innerHTML=recs.map(r=>renderRI(r,'parent')).join('');
-}
-
-// Toast / Confirm / Modal
-function toast(m,t=''){const c=document.getElementById('tc'),e=document.createElement('div');e.className='tst '+t;e.textContent=m;c.appendChild(e);setTimeout(()=>e.remove(),2400)}
+function renderStuLists(){const cks=db.students.filter(s=>stuType(s)==='次卡').sort((a,b)=>a.classes-b.classes||a.id.localeCompare(b.id)),mks=db.students.filter(s=>stuType(s)==='月卡').sort((a,b)=>daysUntil(a.expiry)-daysUntil(b.expiry)),advs=db.students.filter(s=>stuType(s)==='提高班').sort((a,b)=>daysUntil(a.expiry)-daysUntil(b.expiry));document.getElementById('ckList').innerHTML=renderGroup(cks);document.getElementById('mkList').innerHTML=renderGroup(mks);document.getElementById('advList').innerHTML=renderGroup(advs)}
+function renderGroup(list){if(!list.length)return '<div class="empty">暂无学员</div>';if(list.length<=5)return list.map(s=>renderSli(s)).join('');const show=list.slice(0,5),rest=list.slice(5);return show.map(s=>renderSli(s)).join('')+'<button class="fb" style="width:100%;padding:8px;margin:6px 0" onclick="this.nextElementSibling.style.display=\'block\';this.outerHTML=\'\'">展开全部 ('+list.length+'人)</button><div style="display:none">'+rest.map(s=>renderSli(s)).join('')+'</div>'}
+function renderSli(s){const t=stuType(s),avc=typeAvClass(t),ed=expDisplay(s);return '<div class="sli"><div class="sli-info"><div class="sav '+avc+'">'+s.name[0]+'</div><div style="min-width:0"><div class="sn">'+s.name+'</div><div class="sid">'+s.id+(s.note?' · '+s.note:'')+'</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="'+ed.cls+'">'+ed.html+'</span><div class="sact"><button class="abtn" onclick="showStuQR(\''+s.id+'\')" title="二维码"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zm8-2v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm13-2h-2v4h-2v2h2v2h2v-2h2v-2h-2v-4zm0 6h-2v2h2v-2zm-4-2h-2v4h2v-4z"/></svg></button><button class="abtn" onclick="openEdit(\''+s.id+'\')" title="编辑"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button><button class="abtn dng" onclick="delStu(\''+s.id+'\')" title="删除"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div></div></div>'}
+function swMainTab(tab,el){document.querySelectorAll('#mainTabs .t4').forEach(x=>x.classList.remove('on'));el.classList.add('on');document.getElementById('tabCk').style.display=tab==='ck'?'block':'none';document.getElementById('tabMk').style.display=tab==='mk'?'block':'none';document.getElementById('tabAdv').style.display=tab==='adv'?'block':'none';document.getElementById('tabAdd').style.display=tab==='add'?'block':'none';if(tab==='add'){addType='次卡';document.getElementById('nName').value='';document.getElementById('nId').value='S'+String(db.nextId).padStart(3,'0');document.getElementById('nCls').value='20';document.getElementById('nExp').value='';document.getElementById('nNote').value='';selAddType('次卡',document.querySelector('#addTypeSel .type-opt'))}}
+function selAddType(t,el){addType=t;document.querySelectorAll('#addTypeSel .type-opt').forEach(o=>{o.className='type-opt'});el.classList.add(t==='月卡'?'sel-mk':t==='提高班'?'sel-adv':'sel-ck');document.getElementById('addCkFields').style.display=t==='次卡'?'block':'none';document.getElementById('addMkFields').style.display=t!=='次卡'?'block':'none'}
+function selEditType(t,el){editTypeVal=t;document.querySelectorAll('#editTypeSel .type-opt').forEach(o=>{o.className='type-opt'});el.classList.add(t==='月卡'?'sel-mk':t==='提高班'?'sel-adv':'sel-ck');document.getElementById('editCkFields').style.display=t==='次卡'?'block':'none';document.getElementById('editMkFields').style.display=t!=='次卡'?'block':'none'}
+async function doAddStu(){const name=document.getElementById('nName').value.trim(),id=document.getElementById('nId').value.trim(),note=document.getElementById('nNote').value.trim();if(!name){toast('请输入姓名','wn');return}if(!id){toast('请输入编号','wn');return}if(db.students.find(s=>s.id===id)){toast('编号已存在','no');return}const stu={id,name,note:note||'',type:addType};if(addType==='次卡'){stu.classes=parseInt(document.getElementById('nCls').value)||0}else{stu.classes=0;stu.expiry=document.getElementById('nExp').value||'';if(!stu.expiry){toast('请设置到期日期','wn');return}}db.students.push(stu);db.nextId=Math.max(db.nextId,parseInt(id.replace(/\D/g,''))+1);try{await save({students:db.students,nextId:db.nextId});toast(name+' 添加成功','ok');if(addType==='次卡')swMainTab('ck',document.querySelectorAll('#mainTabs .t4')[0]);else if(addType==='月卡')swMainTab('mk',document.querySelectorAll('#mainTabs .t4')[1]);else swMainTab('adv',document.querySelectorAll('#mainTabs .t4')[2]);await refresh()}catch(e){toast('添加失败','no')}}
+function openEdit(id){const s=db.students.find(x=>x.id===id);if(!s)return;editId=id;editTypeVal=stuType(s);document.getElementById('eName').value=s.name;document.getElementById('eNote').value=s.note||'';document.getElementById('eCls').value=s.classes||0;document.getElementById('eExp').value=s.expiry||'';const opts=document.querySelectorAll('#editTypeSel .type-opt');opts.forEach(o=>{o.className='type-opt'});const idx={次卡:0,月卡:1,提高班:2};opts[idx[editTypeVal]].classList.add(editTypeVal==='月卡'?'sel-mk':editTypeVal==='提高班'?'sel-adv':'sel-ck');document.getElementById('editCkFields').style.display=editTypeVal==='次卡'?'block':'none';document.getElementById('editMkFields').style.display=editTypeVal!=='次卡'?'block':'none';document.getElementById('moEdit').classList.add('on')}
+async function doSaveEdit(){const name=document.getElementById('eName').value.trim(),note=document.getElementById('eNote').value.trim();if(!name){toast('姓名不能空','wn');return}const s=db.students.find(x=>x.id===editId);s.name=name;s.note=note;s.type=editTypeVal;if(editTypeVal==='次卡'){s.classes=parseInt(document.getElementById('eCls').value)||0;delete s.expiry}else{s.expiry=document.getElementById('eExp').value||'';if(!s.expiry){toast('请设置到期日期','wn');return}s.classes=s.classes||0}try{await save({students:db.students});clsMo('moEdit');toast('已保存','ok');await refresh()}catch(e){toast('保存失败','no')}}
+function delStu(id){const s=db.students.find(x=>x.id===id);if(!s)return;showConf('删除学员','确认删除 <strong>'+s.name+'</strong>（'+s.id+'）？<br>此操作不可恢复',async()=>{db.students=db.students.filter(x=>x.id!==id);db.records=db.records.filter(r=>r.sid!==id);try{await save({students:db.students,records:db.records});toast('已删除','ok');await refresh()}catch(e){toast('删除失败','no')}})}
+async function doPQuery(){const q=document.getElementById('pSearch').value.trim();if(!q){toast('请输入姓名','wn');return}try{await loadDB();const m=db.students.filter(s=>s.name.includes(q));document.getElementById('pResult').style.display='none';document.getElementById('pNoRes').style.display='none';document.getElementById('pMatchList').style.display='none';if(!m.length){document.getElementById('pNoRes').style.display='block';return}if(m.length===1){showPDetail(m[0])}else{document.getElementById('pMatchList').style.display='block';document.getElementById('pMatchList').innerHTML=m.map(s=>{const ed=expDisplay(s);return '<div class="mi" onclick="showPDetail(db.students.find(x=>x.id===\''+s.id+'\'))"><div><div class="mn">'+s.name+' '+typeTag(stuType(s))+'</div><div class="mid">'+s.id+'</div></div><div class="mc">'+ed.html+'</div></div>'}).join('')}}catch(e){toast('查询失败','no')}}
+function showPDetail(s){document.getElementById('pMatchList').style.display='none';document.getElementById('pNoRes').style.display='none';document.getElementById('pResult').style.display='block';document.getElementById('pName').textContent=s.name;document.getElementById('pId').textContent=s.id;const av=document.getElementById('pAv');av.textContent=s.name[0];av.className='rav'+(typeAvClass(stuType(s))?' '+typeAvClass(stuType(s)):'');if(isMonthly(s)){document.getElementById('pClsRow').style.display='none';document.getElementById('pExpRow').style.display='flex';document.getElementById('pExp').textContent=fmtExp(s.expiry)}else{document.getElementById('pClsRow').style.display='flex';document.getElementById('pExpRow').style.display='none';document.getElementById('pCls').textContent=s.classes}const recs=db.records.filter(r=>r.sid===s.id);const el=document.getElementById('pRecList'),em=document.getElementById('pRecEmpty');if(!recs.length){el.innerHTML='';em.style.display='block'}else{em.style.display='none';el.innerHTML=recs.map(r=>renderRI(r,'parent',true)).join('')}}
+function toast(m,t){const c=document.getElementById('tc'),e=document.createElement('div');e.className='tst '+(t||'');e.textContent=m;c.appendChild(e);setTimeout(()=>e.remove(),2400)}
 function showConf(title,body,cb){document.getElementById('confTitle').textContent=title;document.getElementById('confBody').innerHTML=body;confCb=cb;document.getElementById('moConf').classList.add('on')}
 function doConf(){if(confCb)confCb();clsMo('moConf')}
 function clsMo(id){document.getElementById(id).classList.remove('on');if(id==='moConf')confCb=null}
-
-// Hash routing
-const h=window.location.hash;
-if(h==='#coach')goCoachLogin();else if(h==='#parent')goParent();
+const h=window.location.hash;if(h==='#coach')goCoachLogin();else if(h==='#parent')goParent();
 window.addEventListener('hashchange',()=>{const h2=window.location.hash;if(h2==='#coach')goCoachLogin();else if(h2==='#parent')goParent()});
-
-// QR
 let qrScanner=null;
-function showStuQR(id){
-  const s=db.students.find(x=>x.id===id);if(!s)return;
-  const url=window.location.origin+'/#parent?sid='+id;
-  const ct=document.getElementById('qrCanvas');ct.innerHTML='';
-  new QRCode(ct,{text:url,width:180,height:180,colorDark:'#1F2937',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
-  document.getElementById('qrStuName').textContent=s.name;document.getElementById('qrStuId').textContent=s.id;
-  document.getElementById('moQR').classList.add('on');
-}
-function downloadStuQR(){
-  const name=document.getElementById('qrStuName').textContent;
-  const canvas=document.querySelector('#qrCanvas canvas'),img=document.querySelector('#qrCanvas img');
-  const link=document.createElement('a');link.download=name+'_二维码.png';
-  if(canvas)link.href=canvas.toDataURL('image/png');
-  else if(img&&img.src)link.href=img.src;
-  else{toast('二维码未生成','no');return}
-  link.click();
-}
+function showStuQR(id){const s=db.students.find(x=>x.id===id);if(!s)return;const url=window.location.origin+'/#parent?sid='+id;const ct=document.getElementById('qrCanvas');ct.innerHTML='';new QRCode(ct,{text:url,width:180,height:180,colorDark:'#1F2937',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});document.getElementById('qrStuName').textContent=s.name;document.getElementById('qrStuId').textContent=s.id;document.getElementById('moQR').classList.add('on')}
+function downloadStuQR(){const name=document.getElementById('qrStuName').textContent;const canvas=document.querySelector('#qrCanvas canvas'),img=document.querySelector('#qrCanvas img');const link=document.createElement('a');link.download=name+'_二维码.png';if(canvas)link.href=canvas.toDataURL('image/png');else if(img&&img.src)link.href=img.src;else{toast('二维码未生成','no');return}link.click()}
 function closeQRMo(){clsMo('moQR')}
-function openCoachScan(){
-  document.getElementById('scanTitle').textContent='扫码识别学员';
-  document.getElementById('moScan').classList.add('on');
-  startScanner('qrReader',function(sid){pickStu(sid);stopScanner();clsMo('moScan');toast('已识别学员','ok')});
-}
-function openParentScan(){
-  document.getElementById('scanTitle').textContent='扫码查询课时';
-  document.getElementById('moScan').classList.add('on');
-  startScanner('qrReader',function(sid){stopScanner();clsMo('moScan');const s=db.students.find(x=>x.id===sid);if(s){showPDetail(s);toast('已识别: '+s.name,'ok')}else{toast('未找到该学员','no')}});
-}
-function startScanner(elId,onSuccess){
-  stopScanner();const el=document.getElementById(elId);el.innerHTML='';
-  qrScanner=new Html5Qrcode(elId);
-  qrScanner.start({facingMode:"environment"},{fps:10,qrbox:{width:220,height:220}},function(text){
-    let sid=text;try{const u=new URL(text);const m=u.hash.match(/sid=([^&]+)/);if(m)sid=m[1]}catch(e){const m=text.match(/sid=([^&]+)/);if(m)sid=m[1]}
-    const s=db.students.find(x=>x.id===sid);if(s)onSuccess(sid);else toast('未找到学员: '+sid,'no');
-  },function(){}).catch(function(err){toast('无法打开相机，请检查权限','no');console.error(err)});
-}
+function openCoachScan(){document.getElementById('scanTitle').textContent='扫码识别学员';document.getElementById('moScan').classList.add('on');startScanner('qrReader',function(sid){pickStu(sid);stopScanner();clsMo('moScan');toast('已识别学员','ok')})}
+function openParentScan(){document.getElementById('scanTitle').textContent='扫码查询课时';document.getElementById('moScan').classList.add('on');startScanner('qrReader',function(sid){stopScanner();clsMo('moScan');const s=db.students.find(x=>x.id===sid);if(s){showPDetail(s);toast('已识别: '+s.name,'ok')}else{toast('未找到该学员','no')}})}
+function startScanner(elId,onSuccess){stopScanner();const el=document.getElementById(elId);el.innerHTML='';qrScanner=new Html5Qrcode(elId);qrScanner.start({facingMode:"environment"},{fps:10,qrbox:{width:220,height:220}},function(text){let sid=text;try{const u=new URL(text);const m=u.hash.match(/sid=([^&]+)/);if(m)sid=m[1]}catch(e){const m=text.match(/sid=([^&]+)/);if(m)sid=m[1]}const s=db.students.find(x=>x.id===sid);if(s)onSuccess(sid);else toast('未找到学员: '+sid,'no')},function(){}).catch(function(err){toast('无法打开相机，请检查权限','no');console.error(err)})}
 function stopScanner(){if(qrScanner){try{qrScanner.stop()}catch(e){}try{qrScanner.clear()}catch(e){}qrScanner=null}}
 function closeScanMo(){stopScanner();clsMo('moScan')}
-
-// Auto-load parent from URL
-(function(){
-  const params=new URLSearchParams(window.location.hash.split('?')[1]),autoSid=params.get('sid');
-  if(autoSid&&window.location.hash.includes('#parent')){
-    window.addEventListener('load',function(){setTimeout(function(){loadDB().then(function(){const s=db.students.find(x=>x.id===autoSid);if(s)showPDetail(s)})},500)});
-  }
-})();
+(function(){const params=new URLSearchParams(window.location.hash.split('?')[1]),autoSid=params.get('sid');if(autoSid&&window.location.hash.includes('#parent')){window.addEventListener('load',function(){setTimeout(function(){loadDB().then(function(){const s=db.students.find(x=>x.id===autoSid);if(s)showPDetail(s)})},500)})}})();
 </script>
 </body>
 </html>
