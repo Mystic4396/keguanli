@@ -313,7 +313,9 @@ const DEFAULT_PERF = {
   // 店长提成比例
   managerRate: 0.3,
   // 固定成本
-  fixedCost: 5500
+  fixedCost: 5500,
+  // 自定义教练列表（店长可编辑）
+  customCoaches: ['王教练', '李教练', '薯条教练', '小陈教练', '胡教练']
 };
 
 async function readPerf() {
@@ -395,6 +397,7 @@ app.put('/api/perf', async (req, res) => {
     if (u.shoeCost) perf.shoeCost = u.shoeCost;
     if (u.managerRate !== undefined) perf.managerRate = u.managerRate;
     if (u.fixedCost !== undefined) perf.fixedCost = u.fixedCost;
+    if (u.customCoaches) perf.customCoaches = u.customCoaches;
     const ok = await writePerfData(perf);
     ok ? res.json({ ok: true }) : res.status(500).json({ error: '保存失败' });
   } catch(e) {
