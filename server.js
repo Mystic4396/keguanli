@@ -289,3 +289,116 @@ app.get('/api/export-html', async (req, res) => {
 initRedisIfNeeded().then(() => {
   app.listen(PORT, () => console.log('Running on ' + PORT));
 });
+
+// ========== 业绩管理系统（独立数据，不影响原有学员数据）==========
+const PERF_KEY = 'classmanager:perf';
+const PERF_BACKUP_KEY = 'classmanager:perf:backup';
+
+const DEFAULT_PERF = {
+  managerPassword: 'admin888',
+  // 当月营业额（手动录入）
+  monthlyRevenue: {},
+  // 教练底薪设置 { username: salary }
+  coachBaseSalary: {
+    coach1: 0, coach2: 0, shutiao: 0, chenzhe: 0, huyi: 0
+  },
+  // 兼职工时 { name: hours }
+  partTimeHours: {},
+  // 兼职时薪
+  partTimeRate: 20,
+  // 业绩记录
+  perfRecords: [],
+  // 鞋子成本
+  shoeCost: { junior: 200, senior: 750 },
+  // 店长提成比例
+  managerRate: 0.3,
+  // 固定成本
+  fixedCost: 5500
+};
+
+async function readPerf() {
+  try {
+    const r = await redisReq('GET', `/get/${PERF_KEY}`);
+    if (r.result == null || r.result === '') {
+      await writePerfData(DEFAULT_PERF);
+      return JSON.parse(JSON.stringify(DEFAULT_PERF));
+    }
+    let data = typeof r.result === 'string' ? JSON.parse(r.result) : r.result;
+    if (typeof data === 'string') data = JSON.parse(data);
+    // 补充缺失字段
+    const defaults = DEFAULT_PERF;
+    for (const k of Object.keys(defaults)) {
+      if (data[k] === undefined) data[k] = defaults[k];
+    }
+    return data;
+  } catch(e) {
+    console.error('Read perf error:', e.message);
+    return JSON.parse(JSON.stringify(DEFAULT_PERF));
+  }
+}
+
+async function writePerfData(data) {
+  try {
+    // Backup first
+    const cur = await redisReq('GET', `/get/${PERF_KEY}`);
+    if (cur.result != null && cur.result !== '') {
+      await _rawWrite(PERF_BACKUP_KEY, cur.result);
+    }
+    return await _rawWrite(PERF_KEY, data);
+  } catch(e) {
+    console.error('Write perf error:', e.message);
+    return false;
+  }
+}
+
+// 店长登录
+app.post('/api/perf/login', async (req, res) => {
+  try {
+    const data = await readPerf();
+    if (req.body.password === data.managerPassword) {
+      res.json({ ok: true, role: 'manager' });
+    } else {
+      res.status(401).json({ error: '密码错误' });
+    }
+  } catch(e) {
+    res.status(500).json({ error: '登录失败' });
+  }
+});
+
+// 读取业绩数据
+app.get('/api/perf', async (req, res) => {
+  try {
+    const data = await readPerf();
+    // 不返回密码
+    const safe = { ...data };
+    delete safe.managerPassword;
+    res.json(safe);
+  } catch(e) {
+    res.status(500).json({ error: '读取失败' });
+  }
+});
+
+// 更新业绩数据
+app.put('/api/perf', async (req, res) => {
+  try {
+    const perf = await readPerf();
+    // 验证密码
+    if (req.body.password !== perf.managerPassword) {
+      return res.status(401).json({ error: '密码错误' });
+    }
+    const u = req.body.updates || {};
+    if (u.perfRecords) perf.perfRecords = u.perfRecords;
+    if (u.monthlyRevenue) perf.monthlyRevenue = u.monthlyRevenue;
+    if (u.coachBaseSalary) perf.coachBaseSalary = u.coachBaseSalary;
+    if (u.partTimeHours) perf.partTimeHours = u.partTimeHours;
+    if (u.partTimeRate !== undefined) perf.partTimeRate = u.partTimeRate;
+    if (u.shoeCost) perf.shoeCost = u.shoeCost;
+    if (u.managerRate !== undefined) perf.managerRate = u.managerRate;
+    if (u.fixedCost !== undefined) perf.fixedCost = u.fixedCost;
+    const ok = await writePerfData(perf);
+    ok ? res.json({ ok: true }) : res.status(500).json({ error: '保存失败' });
+  } catch(e) {
+    console.error('PUT perf error:', e.message);
+    res.status(500).json({ error: '保存失败' });
+  }
+});

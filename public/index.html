@@ -22,6 +22,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
 .lc .lc-icon svg{width:22px;height:22px}
 .lc.c1 .lc-icon{background:var(--pb)}.lc.c1 .lc-icon svg{fill:var(--p)}
 .lc.c2 .lc-icon{background:var(--ob)}.lc.c2 .lc-icon svg{fill:var(--ok)}
+.lc.c3 .lc-icon{background:#fef3c7}.lc.c3 .lc-icon svg{fill:#92400e}
 .lc h3{font-size:15px;margin-bottom:4px;font-weight:600}.lc p{font-size:12px;color:var(--g500);line-height:1.5}
 .header{background:#fff;border-bottom:1px solid var(--g200);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh)}
 .hleft{display:flex;align-items:center;gap:10px}
@@ -122,6 +123,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
     <div class="landing-cards">
       <div class="lc c1" onclick="goCoachLogin()"><div class="lc-icon"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><h3>教练入口</h3><p>扣减课时 / 充值 / 学员管理</p></div>
       <div class="lc c2" onclick="goParent()"><div class="lc-icon"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div><h3>家长入口</h3><p>查询课时 / 上课记录</p></div>
+      <div class="lc c3" onclick="goMgrLogin()" style="cursor:pointer">
+        <div class="lc-icon" style="background:#fef3c7"><svg viewBox="0 0 24 24" style="fill:#92400e"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg></div>
+        <h3>店长入口</h3><p>业绩管理 / 收入统计</p>
+      </div>
     </div>
   </div>
 </div>
@@ -201,6 +206,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
 <div class="mo" id="moEdit"><div class="md"><h3>编辑学员</h3><div class="stitle" style="margin-bottom:6px">卡类型</div><div class="type-sel" id="editTypeSel"><div class="type-opt" onclick="selEditType('次卡',this)"><div class="to-label">次卡</div><div class="to-desc">按课时扣减</div></div><div class="type-opt" onclick="selEditType('月卡',this)"><div class="to-label">月卡</div><div class="to-desc">按月到期</div></div><div class="type-opt" onclick="selEditType('提高班',this)"><div class="to-label">提高班</div><div class="to-desc">按月到期</div></div></div><div id="editCkFields"><div class="fg"><label>课时数</label><input id="eCls" type="number"></div></div><div id="editMkFields" style="display:none"><div class="fg"><label>到期日期</label><input id="eExp" type="date"></div></div><div class="fg"><label>姓名</label><input id="eName"></div><div class="fg"><label>备注</label><input id="eNote"></div><div class="md-acts"><button class="btn btn-o" onclick="clsMo('moEdit')">取消</button><button class="btn btn-p" onclick="doSaveEdit()">保存</button></div></div></div>
 <div class="mo" id="moAddN"><div class="md"><h3>充值课时</h3><div class="fg"><label>充值节数</label><input id="addNVal" type="number" value="5"></div><div class="md-acts"><button class="btn btn-o" onclick="clsMo('moAddN')">取消</button><button class="btn btn-p" onclick="doAddN()">确认充值</button></div></div></div>
 <div class="mo" id="moRenew"><div class="md"><h3>续期月卡</h3><div class="irow" style="margin-bottom:12px"><span class="il">当前到期</span><span class="iv" id="renewCur"></span></div><div class="fg"><label>续期时长</label><select id="renewMonths"><option value="1">1个月</option><option value="3" selected>3个月</option><option value="6">6个月</option><option value="12">12个月</option></select></div><div class="irow" style="margin-bottom:4px"><span class="il">续期后到期</span><span class="iv" id="renewNew"></span></div><div class="md-acts"><button class="btn btn-o" onclick="clsMo('moRenew')">取消</button><button class="btn btn-p" onclick="doRenew()">确认续期</button></div></div></div>
+
+<!-- Report Modal -->
+<div class="mo" id="moReport"><div class="md"><h3>汇报业绩</h3><div id="rptModalBody"></div><div class="md-acts"><button class="btn btn-o" onclick="clsMo('moReport')">取消</button><button class="btn btn-p" onclick="doReport()">提交</button></div></div></div>
 <div class="tc" id="tc"></div>
 <script>
 let db={},coach=null,selId=null,editId=null,confCb=null,addType='次卡',editTypeVal='次卡';
@@ -264,6 +272,166 @@ function startScanner(elId,onSuccess){stopScanner();const el=document.getElement
 function stopScanner(){if(qrScanner){try{qrScanner.stop()}catch(e){}try{qrScanner.clear()}catch(e){}qrScanner=null}}
 function closeScanMo(){stopScanner();clsMo('moScan')}
 (function(){const params=new URLSearchParams(window.location.hash.split('?')[1]),autoSid=params.get('sid');if(autoSid&&window.location.hash.includes('#parent')){window.addEventListener('load',function(){setTimeout(function(){loadDB().then(function(){const s=db.students.find(x=>x.id===autoSid);if(s)showPDetail(s)})},500)})}})();
+
+// ========== 店长业绩管理 ==========
+let perfData=null, mgrPwd='';
+
+function goMgrLogin(){go('pgMgrLogin');document.getElementById('mPwd').value=''}
+async function doMgrLogin(){
+  const p=document.getElementById('mPwd').value;
+  if(!p){toast('请输入密码','wn');return}
+  try{const r=await api('POST','/api/perf/login',{password:p});if(r.ok){mgrPwd=p;toast('欢迎店长','ok');enterMgr()}}catch(e){toast(e.message,'no')}
+}
+function doMgrLogout(){mgrPwd='';goLand()}
+async function enterMgr(){go('pgMgr');await refreshPerf()}
+
+async function loadPerf(){const r=await fetch('/api/perf');perfData=await r.json();return perfData}
+async function savePerf(updates){await api('PUT','/api/perf',{password:mgrPwd,updates})}
+
+function getMonthKey(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+
+async function refreshPerf(){
+  try{
+    await loadPerf();
+    const mk=getMonthKey();
+    document.getElementById('mRevInput').value=perfData.monthlyRevenue[mk]||'';
+    document.getElementById('ptRate').value=perfData.partTimeRate||20;
+    calcAll();
+    renderPerfList();
+    renderCoachIncome();
+    renderPartTime();
+  }catch(e){toast('加载失败','no')}
+}
+
+function calcAll(){
+  if(!perfData)return;
+  const mk=getMonthKey();
+  const rev=parseFloat(document.getElementById('mRevInput').value)||0;
+  perfData.monthlyRevenue[mk]=rev;
+  
+  // 当月业绩记录
+  const monthRecs=(perfData.perfRecords||[]).filter(r=>r.date&&r.date.startsWith(mk));
+  const totalComm=monthRecs.reduce((s,r)=>s+(parseFloat(r.commission)||0),0);
+  const shoeCost=monthRecs.reduce((s,r)=>{
+    if(r.shoe==='初级')return s+200;
+    if(r.shoe==='中级')return s+750;
+    return s;
+  },0);
+  const coachBaseTotal=Object.values(perfData.coachBaseSalary||{}).reduce((s,v)=>s+(parseFloat(v)||0),0);
+  
+  // 月利润=营业额-5500-提成-鞋子成本-教练底薪
+  const profit=rev-(perfData.fixedCost||5500)-totalComm-shoeCost-coachBaseTotal;
+  
+  document.getElementById('mRev').textContent=rev.toFixed(0);
+  document.getElementById('mProfit').textContent=profit.toFixed(0);
+  
+  // 店长收入=利润×0.3+提成合计
+  const mgrProfitShare=Math.max(0,profit)*0.3;
+  document.getElementById('mgrProfit').textContent=mgrProfitShare.toFixed(0);
+  document.getElementById('mgrComm').textContent=totalComm.toFixed(0);
+  document.getElementById('mgrTotal').textContent=(mgrProfitShare+totalComm).toFixed(0);
+  
+  // 自动保存营业额
+  clearTimeout(window._revTimer);
+  window._revTimer=setTimeout(async()=>{
+    try{await savePerf({monthlyRevenue:perfData.monthlyRevenue,partTimeRate:parseFloat(document.getElementById('ptRate').value)||20})}catch(e){}
+  },800);
+}
+
+function renderPerfList(){
+  const recs=(perfData.perfRecords||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
+  const el=document.getElementById('perfList'),em=document.getElementById('perfEmpty');
+  if(!recs.length){el.innerHTML='';em.style.display='block';return}
+  em.style.display='none';
+  const show=recs.slice(0,5),rest=recs.slice(5);
+  let html=show.map(r=>`<div class="ri"><div class="rd" style="background:var(--wn)"></div><div class="rm"><div class="rn">${r.childName} · ${r.courseType}${r.shoe!=='无'?' · '+r.shoe+'鞋':''}</div><div class="rmt">${r.date} · ${r.coach} · ${r.orderId}</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:600;color:var(--ok)">¥${r.amount}</div><div style="font-size:10px;color:var(--g400)">提成¥${r.commission}</div></div></div>`).join('');
+  if(rest.length)html+=`<button class="fb" style="width:100%;padding:8px;margin:6px 0" onclick="this.nextElementSibling.style.display='block';this.outerHTML=''">展开全部 (${recs.length}条)</button><div style="display:none">${rest.map(r=>`<div class="ri"><div class="rd" style="background:var(--wn)"></div><div class="rm"><div class="rn">${r.childName} · ${r.courseType}${r.shoe!=='无'?' · '+r.shoe+'鞋':''}</div><div class="rmt">${r.date} · ${r.coach} · ${r.orderId}</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:600;color:var(--ok)">¥${r.amount}</div><div style="font-size:10px;color:var(--g400)">提成¥${r.commission}</div></div></div>`).join('')}</div>`;
+  el.innerHTML=html;
+}
+
+function renderCoachIncome(){
+  const mk=getMonthKey();
+  const recs=(perfData.perfRecords||[]).filter(r=>r.date&&r.date.startsWith(mk));
+  const coaches=perfData.coachBaseSalary||{};
+  const el=document.getElementById('coachIncomeList');
+  const salInputs=document.getElementById('coachSalaryInputs');
+  
+  // Get coach names from the main system
+  const coachNames=['王教练','李教练','薯条教练','小陈教练','胡教练'];
+  const coachUsers=['coach1','coach2','shutiao','chenzhe','huyi'];
+  
+  let inHtml='',salHtml='';
+  coachNames.forEach((name,i)=>{
+    const user=coachUsers[i];
+    const base=parseFloat(coaches[user])||0;
+    const comm=recs.filter(r=>r.coach===name).reduce((s,r)=>s+(parseFloat(r.commission)||0),0);
+    inHtml+=`<div class="irow"><span class="il">${name}</span><span class="iv">底薪${base} + 提成${comm.toFixed(0)} = <strong>${(base+comm).toFixed(0)}</strong></span></div>`;
+    salHtml+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="width:60px;font-size:12px">${name}</span><input type="number" value="${base}" data-coach="${user}" class="sal-input" style="flex:1;padding:6px 8px;border:1px solid var(--g200);border-radius:6px;font-size:13px;height:32px"></div>`;
+  });
+  el.innerHTML=inHtml;
+  salInputs.innerHTML=salHtml;
+}
+
+async function saveCoachSalary(){
+  const inputs=document.querySelectorAll('.sal-input');
+  const sal={};
+  inputs.forEach(inp=>{sal[inp.dataset.coach]=parseFloat(inp.value)||0});
+  try{await savePerf({coachBaseSalary:sal});toast('底薪已保存','ok');refreshPerf()}catch(e){toast('保存失败','no')}
+}
+
+function renderPartTime(){
+  const pts=perfData.partTimeHours||{};
+  const rate=parseFloat(document.getElementById('ptRate').value)||20;
+  const el=document.getElementById('ptList');
+  if(!Object.keys(pts).length){el.innerHTML='<div class="empty">暂无兼职</div>';return}
+  let html='';
+  for(const[name,hours] of Object.entries(pts)){
+    const pay=(parseFloat(hours)||0)*rate;
+    html+=`<div class="irow"><span class="il">${name} (${hours}时×${rate})</span><span class="iv">¥${pay.toFixed(0)}</span></div>`;
+  }
+  el.innerHTML=html;
+}
+
+async function addPartTime(){
+  const name=document.getElementById('ptName').value.trim(),hours=parseFloat(document.getElementById('ptHours').value)||0;
+  if(!name){toast('请输入姓名','wn');return}
+  const pts=perfData.partTimeHours||{};
+  pts[name]=hours;
+  try{await savePerf({partTimeHours:pts,partTimeRate:parseFloat(document.getElementById('ptRate').value)||20});document.getElementById('ptName').value='';document.getElementById('ptHours').value='';toast('已添加','ok');refreshPerf()}catch(e){toast('添加失败','no')}
+}
+
+function showReportModal(){
+  // Build modal content
+  const today=new Date().toISOString().slice(0,10);
+  const coachNames=['王教练','李教练','薯条教练','小陈教练','胡教练'];
+  const coachOpts=coachNames.map(c=>`<option value="${c}">${c}</option>`).join('');
+  document.getElementById('rptModalBody').innerHTML=`
+    <div class="fg"><label>日期</label><input id="rptDate" type="date" value="${today}"></div>
+    <div class="fg"><label>订单编号</label><input id="rptOrderId" placeholder="订单编号"></div>
+    <div class="fg"><label>金额</label><input id="rptAmount" type="number" placeholder="金额"></div>
+    <div class="fg"><label>课程类型</label><select id="rptCourse"><option value="次卡">次卡</option><option value="月卡">月卡</option><option value="提高班">提高班</option></select></div>
+    <div class="fg"><label>搭配鞋子</label><select id="rptShoe"><option value="无">无</option><option value="初级">初级 (成本¥200)</option><option value="中级">中级 (成本¥750)</option></select></div>
+    <div class="fg"><label>小朋友名字</label><input id="rptChild" placeholder="小朋友名字"></div>
+    <div class="fg"><label>业绩提成金额</label><input id="rptComm" type="number" placeholder="提成金额"></div>
+    <div class="fg"><label>所属教练</label><select id="rptCoach">${coachOpts}</select></div>
+  `;
+  document.getElementById('moReport').classList.add('on');
+}
+
+async function doReport(){
+  const date=document.getElementById('rptDate').value;
+  const orderId=document.getElementById('rptOrderId').value.trim();
+  const amount=parseFloat(document.getElementById('rptAmount').value)||0;
+  const courseType=document.getElementById('rptCourse').value;
+  const shoe=document.getElementById('rptShoe').value;
+  const childName=document.getElementById('rptChild').value.trim();
+  const commission=parseFloat(document.getElementById('rptComm').value)||0;
+  const coach=document.getElementById('rptCoach').value;
+  if(!date||!orderId||!amount||!childName){toast('请填写完整信息','wn');return}
+  const rec={date,orderId,amount,courseType,shoe,childName,commission,coach,time:new Date().toISOString()};
+  perfData.perfRecords.push(rec);
+  try{await savePerf({perfRecords:perfData.perfRecords});clsMo('moReport');toast('业绩已提交','ok');refreshPerf()}catch(e){toast('提交失败','no')}
+}
 </script>
 </body>
 </html>
