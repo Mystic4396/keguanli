@@ -261,7 +261,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
           <div class="info-cell ic-run"><div class="ic-label">成绩3</div><div class="ic-val" id="p1000m">-</div></div>
           <div class="info-cell ic-fit info-full"><div class="ic-label">综合体能</div><div class="ic-val" id="pFitness">-<span class="ic-unit">小时</span></div></div>
           <div class="info-cell ic-tech info-full"><div class="ic-label">专项技术</div><div class="ic-val" id="pTech">-<span class="ic-unit">小时</span></div></div>
-          <div class="info-cell ic-status info-full"><div class="ic-label">训练状态</div><div class="ic-val" id="pStatus">-</div></div>
+          <div class="info-cell ic-status info-full"><div class="ic-label">训练建议</div><div class="ic-val" id="pStatus">-</div></div>
         </div>
         <div style="margin-top:12px;text-align:center"><button class="btn btn-p btn-sm" onclick="showParentEditModal()" style="font-size:12px">编辑基本信息</button></div>
       </div>
@@ -339,7 +339,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
 <div class="fg"><label>综合体能(小时)</label><input id="eFitness" type="number" step="0.5"></div>
 <div class="fg"><label>专项技术(小时)</label><input id="eTech" type="number" step="0.5"></div>
 </div>
-<div class="fg"><label>训练状态</label><input id="eStatus" placeholder="如：正常/暂停/休假"></div>
+<div class="fg"><label>训练建议</label><input id="eStatus" placeholder="如：正常/暂停/休假"></div>
 <div class="md-acts"><button class="btn btn-o" onclick="clsMo('moEdit')">取消</button><button class="btn btn-p" onclick="doSaveEdit()">保存</button></div></div></div>
 <div class="mo" id="moAddN"><div class="md"><h3>充值课时</h3><div class="fg"><label>充值节数</label><input id="addNVal" type="number" value="5"></div><div class="md-acts"><button class="btn btn-o" onclick="clsMo('moAddN')">取消</button><button class="btn btn-p" onclick="doAddN()">确认充值</button></div></div></div>
 <div class="mo" id="moRenew"><div class="md"><h3>续期月卡</h3><div class="irow" style="margin-bottom:12px"><span class="il">当前到期</span><span class="iv" id="renewCur"></span></div><div class="fg"><label>续期时长</label><select id="renewMonths"><option value="1">1个月</option><option value="3" selected>3个月</option><option value="6">6个月</option><option value="12">12个月</option></select></div><div class="irow" style="margin-bottom:4px"><span class="il">续期后到期</span><span class="iv" id="renewNew"></span></div><div class="md-acts"><button class="btn btn-o" onclick="clsMo('moRenew')">取消</button><button class="btn btn-p" onclick="doRenew()">确认续期</button></div></div></div>
