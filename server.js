@@ -8,8 +8,12 @@ const PORT = process.env.PORT || 3000;
 
 const REDIS_URL = 'https://enhanced-gecko-136149.upstash.io';
 const REDIS_TOKEN = 'gQAAAAAAAhPVAAIgcDE2ZWVhMDNiZTI5OTM0YjlkYTA3MzQ0Y2VmOTZmZmIxNQ';
-const DATA_KEY = 'classmanager:db';
-const BACKUP_KEY = 'classmanager:db:backup';
+
+// 多门店Redis Key映射
+function getDataKey(store) { return store === 'baolong' ? 'classmanager:db:baolong' : 'classmanager:db'; }
+function getBackupKey(store) { return store === 'baolong' ? 'classmanager:db:baolong:backup' : 'classmanager:db:backup'; }
+function getPerfKey(store) { return store === 'baolong' ? 'classmanager:perf:baolong' : 'classmanager:perf'; }
+function getPerfBackupKey(store) { return store === 'baolong' ? 'classmanager:perf:baolong:backup' : 'classmanager:perf:backup'; }
 
 const DEFAULT_DATA = {
   coaches: [
@@ -41,7 +45,6 @@ function redisReq(method, pathname, body) {
   });
 }
 
-// 验证数据结构完整性：必须有 students 和 coaches 数组
 function isValidData(data) {
   return data
     && typeof data === 'object'
@@ -51,16 +54,13 @@ function isValidData(data) {
     && typeof data.nextId === 'number';
 }
 
-// 安全解析：支持从损坏数据中提取有效JSON
 function safeParse(raw) {
   if (raw == null || raw === '') return null;
-  // 第一次尝试直接解析
   try {
     let data = typeof raw === 'string' ? JSON.parse(raw) : raw;
-    if (typeof data === 'string') data = JSON.parse(data); // 兼容双重编码
+    if (typeof data === 'string') data = JSON.parse(data);
     if (isValidData(data)) return data;
   } catch(e) {}
-  // 第二次尝试：从字符串中找第一个 { 开始的JSON对象
   if (typeof raw === 'string') {
     const idx = raw.indexOf('{');
     if (idx > 0) {
@@ -77,13 +77,13 @@ function safeParse(raw) {
   return null;
 }
 
-// 只读，永远不写入Redis
-async function readData() {
+async function readData(store) {
+  const DATA_KEY = getDataKey(store);
+  const BACKUP_KEY = getBackupKey(store);
   try {
     const r = await redisReq('GET', `/get/${DATA_KEY}`);
     const data = safeParse(r.result);
     if (data) {
-      // 补充缺失的默认教练（仅内存，不写入Redis）
       for (const rc of DEFAULT_DATA.coaches) {
         if (!data.coaches.find(c => c.username === rc.username)) {
           data.coaches.push(rc);
@@ -94,7 +94,6 @@ async function readData() {
   } catch(e) {
     console.error('Read error:', e.message);
   }
-  // 尝试从备份恢复
   console.warn('⚠️ Main data unreadable, trying backup...');
   try {
     const rb = await redisReq('GET', `/get/${BACKUP_KEY}`);
@@ -111,20 +110,19 @@ async function readData() {
   } catch(e) {
     console.error('Backup read error:', e.message);
   }
-  // 最终兜底：返回内存默认值，绝不写回Redis
   console.error('❌ Both main and backup failed, using in-memory defaults. Redis NOT overwritten.');
   return JSON.parse(JSON.stringify(DEFAULT_DATA));
 }
 
-// 首次部署初始化：仅在Redis完全为空时写入
-async function initRedisIfNeeded() {
+async function initRedisIfNeeded(store) {
+  const DATA_KEY = getDataKey(store);
+  const BACKUP_KEY = getBackupKey(store);
   try {
     const r = await redisReq('GET', `/get/${DATA_KEY}`);
     if (r.result == null || r.result === '') {
-      console.log('Redis is empty, initializing default data...');
-      await writeData(DEFAULT_DATA);
+      console.log(`Redis is empty (${store}), initializing default data...`);
+      await writeData(DEFAULT_DATA, store);
     } else {
-      // 验证现有数据是否有效
       const data = safeParse(r.result);
       if (!data) {
         console.warn('⚠️ Existing data is corrupted, trying backup...');
@@ -135,7 +133,7 @@ async function initRedisIfNeeded() {
           await _rawWrite(DATA_KEY, backup);
         }
       } else {
-        console.log('Redis has valid data, skipping init.');
+        console.log(`Redis has valid data (${store}), skipping init.`);
       }
     }
   } catch(e) {
@@ -143,23 +141,20 @@ async function initRedisIfNeeded() {
   }
 }
 
-// 底层写入（不验证，用于内部恢复）
 async function _rawWrite(key, data) {
   const body = JSON.stringify(data);
   const r = await redisReq('POST', `/set/${key}`, body);
   return r.result === 'OK';
 }
 
-// 安全写入：验证数据完整性 → 备份旧数据 → 写入新数据
-async function writeData(data) {
-  // 第一道防线：写入前必须验证数据结构
+async function writeData(data, store) {
+  const DATA_KEY = getDataKey(store);
+  const BACKUP_KEY = getBackupKey(store);
   if (!isValidData(data)) {
     console.error('❌ BLOCKED write: data validation failed. Students count:', data?.students?.length);
     return false;
   }
-  // 第二道防线：students 为空时额外警告（防止误清空）
   if (data.students.length === 0) {
-    // 检查 Redis 里现有数据是否有学员
     try {
       const r = await redisReq('GET', `/get/${DATA_KEY}`);
       const existing = safeParse(r.result);
@@ -169,16 +164,14 @@ async function writeData(data) {
       }
     } catch(e) {}
   }
-  // 第三道防线：先备份当前数据
   try {
     const current = await redisReq('GET', `/get/${DATA_KEY}`);
     if (current.result != null && current.result !== '') {
-      await _rawWrite(BACKUP_KEY, current.result); // 原样备份
+      await _rawWrite(BACKUP_KEY, current.result);
     }
   } catch(e) {
     console.warn('Backup before write failed (non-fatal):', e.message);
   }
-  // 执行写入
   try {
     return await _rawWrite(DATA_KEY, data);
   } catch(e) {
@@ -189,9 +182,11 @@ async function writeData(data) {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+// 所有数据API都支持store参数
 app.get('/api/data', async (req, res) => {
+  const store = req.query.store || 'henglicheng';
   try {
-    const data = await readData();
+    const data = await readData(store);
     res.json({ ...data, coaches: data.coaches.map(c => ({ username: c.username, name: c.name })) });
   } catch(e) {
     res.status(500).json({ error: '读取失败' });
@@ -199,8 +194,9 @@ app.get('/api/data', async (req, res) => {
 });
 
 app.post('/api/login', async (req, res) => {
+  const store = req.body.store || 'henglicheng';
   try {
-    const data = await readData();
+    const data = await readData(store);
     const coach = data.coaches.find(c => c.username === req.body.username && c.password === req.body.password);
     if (!coach) return res.status(401).json({ error: '账号或密码错误' });
     res.json({ name: coach.name, username: coach.username });
@@ -210,15 +206,16 @@ app.post('/api/login', async (req, res) => {
 });
 
 app.put('/api/data', async (req, res) => {
+  const store = req.body.store || 'henglicheng';
   try {
-    const data = await readData();
+    const data = await readData(store);
     const coach = data.coaches.find(c => c.username === (req.body.auth||{}).username && c.password === (req.body.auth||{}).password);
     if (!coach) return res.status(401).json({ error: '未授权' });
     const u = req.body.updates || {};
     if (u.students) data.students = u.students;
     if (u.records) data.records = u.records;
     if (u.nextId !== undefined) data.nextId = u.nextId;
-    const ok = await writeData(data);
+    const ok = await writeData(data, store);
     ok ? res.json({ ok: true }) : res.status(500).json({ error: '保存失败' });
   } catch(e) {
     console.error('PUT error:', e.message);
@@ -227,9 +224,10 @@ app.put('/api/data', async (req, res) => {
 });
 
 app.get('/api/export', async (req, res) => {
+  const store = req.query.store || 'henglicheng';
   try {
-    const data = await readData();
-    res.setHeader('Content-Disposition', 'attachment; filename=keguanli_backup.json');
+    const data = await readData(store);
+    res.setHeader('Content-Disposition', `attachment; filename=keguanli_${store}_backup.json`);
     res.json(data);
   } catch(e) {
     res.status(500).json({ error: '导出失败' });
@@ -237,8 +235,9 @@ app.get('/api/export', async (req, res) => {
 });
 
 app.get('/api/export-html', async (req, res) => {
+  const store = req.query.store || 'henglicheng';
   try {
-    const data = await readData();
+    const data = await readData(store);
     const now = new Date().toLocaleString('zh-CN', {timeZone:'Asia/Shanghai'});
     const stuMap = {};
     data.students.forEach(s => { stuMap[s.id] = { ...s, recs: [] }; });
@@ -274,11 +273,13 @@ app.get('/api/export-html', async (req, res) => {
           });
         });
       }
-      stuHtml += `<div style="margin-bottom:24px;background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden"><div style="background:#4F46E5;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:600">${s.name}</span><span style="background:rgba(255,255,255,.2);padding:3px 12px;border-radius:20px;font-size:14px">剩余 ${s.classes} 节</span></div><div style="padding:8px 16px;color:#666;font-size:13px">编号：${s.id}${s.note ? '　备注：' + s.note : ''}</div><table style="width:100%;border-collapse:collapse;font-size:14px"><tr style="background:#f9fafb;color:#666;font-size:12px"><th style="padding:6px 10px;text-align:left">时间</th><th style="padding:6px 10px;text-align:left">操作</th><th style="padding:6px 10px;text-align:left">教练</th><th style="padding:6px 10px;text-align:left">结果</th></tr>${recHtml}</table></div>`;
+      const storeLabel = store === 'baolong' ? '宝龙店' : '恒力城店';
+      stuHtml += `<div style="margin-bottom:24px;background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden"><div style="background:#4F46E5;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:600">${s.name}</span><span style="background:rgba(255,255,255,.2);padding:3px 12px;border-radius:20px;font-size:14px">剩余 ${s.classes} 节</span></div><div style="padding:8px 16px;color:#666;font-size:13px">编号：${s.id}${s.note ? '　备注：' + s.note : ''}　门店：${storeLabel}</div><table style="width:100%;border-collapse:collapse;font-size:14px"><tr style="background:#f9fafb;color:#666;font-size:12px"><th style="padding:6px 10px;text-align:left">时间</th><th style="padding:6px 10px;text-align:left">操作</th><th style="padding:6px 10px;text-align:left">教练</th><th style="padding:6px 10px;text-align:left">结果</th></tr>${recHtml}</table></div>`;
     });
 
-    const html = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>课时管理备份报表</title><style>body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#f3f4f6;margin:0;padding:20px;color:#1f2937}h1{text-align:center;font-size:22px;margin-bottom:4px}.sub{text-align:center;color:#666;font-size:13px;margin-bottom:24px}.summary{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;justify-content:center}.scard{background:#fff;border-radius:10px;padding:14px 24px;box-shadow:0 1px 3px rgba(0,0,0,.08);text-align:center}.scard .v{font-size:24px;font-weight:700;color:#4F46E5}.scard .l{font-size:12px;color:#666;margin-top:2px}</style></head><body><h1>📊 课时管理备份报表</h1><div class="sub">导出时间：${now}</div><div class="summary"><div class="scard"><div class="v">${data.students.length}</div><div class="l">学员总数</div></div><div class="scard"><div class="v">${data.records.length}</div><div class="l">操作记录</div></div><div class="scard"><div class="v">${data.records.filter(r=>r.type==='扣').reduce((a,r)=>a+r.n,0)}</div><div class="l">累计扣减</div></div><div class="scard"><div class="v">${data.records.filter(r=>r.type==='充').reduce((a,r)=>a+r.n,0)}</div><div class="l">累计充值</div></div></div>${stuHtml}</body></html>`;
-    res.setHeader('Content-Disposition', 'attachment; filename=keguanli_backup.html');
+    const storeLabel = store === 'baolong' ? '宝龙店' : '恒力城店';
+    const html = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>课时管理备份报表 - ${storeLabel}</title><style>body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#f3f4f6;margin:0;padding:20px;color:#1f2937}h1{text-align:center;font-size:22px;margin-bottom:4px}.sub{text-align:center;color:#666;font-size:13px;margin-bottom:24px}.summary{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;justify-content:center}.scard{background:#fff;border-radius:10px;padding:14px 24px;box-shadow:0 1px 3px rgba(0,0,0,.08);text-align:center}.scard .v{font-size:24px;font-weight:700;color:#4F46E5}.scard .l{font-size:12px;color:#666;margin-top:2px}</style></head><body><h1>📊 课时管理备份报表</h1><div class="sub">门店：${storeLabel}　导出时间：${now}</div><div class="summary"><div class="scard"><div class="v">${data.students.length}</div><div class="l">学员总数</div></div><div class="scard"><div class="v">${data.records.length}</div><div class="l">操作记录</div></div><div class="scard"><div class="v">${data.records.filter(r=>r.type==='扣').reduce((a,r)=>a+r.n,0)}</div><div class="l">累计扣减</div></div><div class="scard"><div class="v">${data.records.filter(r=>r.type==='充').reduce((a,r)=>a+r.n,0)}</div><div class="l">累计充值</div></div></div>${stuHtml}</body></html>`;
+    res.setHeader('Content-Disposition', `attachment; filename=keguanli_${store}_backup.html`);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.send(html);
   } catch(e) {
@@ -286,48 +287,33 @@ app.get('/api/export-html', async (req, res) => {
   }
 });
 
-initRedisIfNeeded().then(() => {
-  app.listen(PORT, () => console.log('Running on ' + PORT));
-});
-
 // ========== 业绩管理系统（独立数据，不影响原有学员数据）==========
-const PERF_KEY = 'classmanager:perf';
-const PERF_BACKUP_KEY = 'classmanager:perf:backup';
-
 const DEFAULT_PERF = {
   managerPassword: 'admin888',
-  // 当月营业额（手动录入）
   monthlyRevenue: {},
-  // 教练底薪设置 { username: salary }
   coachBaseSalary: {
     coach1: 0, coach2: 0, shutiao: 0, chenzhe: 0, huyi: 0
   },
-  // 兼职工时 { name: hours }
   partTimeHours: {},
-  // 兼职时薪
   partTimeRate: 20,
-  // 业绩记录
   perfRecords: [],
-  // 鞋子成本
   shoeCost: { junior: 200, senior: 750 },
-  // 店长提成比例
   managerRate: 0.3,
-  // 固定成本
   fixedCost: 5500,
-  // 自定义教练列表（店长可编辑）
   customCoaches: ['王教练', '李教练', '薯条教练', '小陈教练', '胡教练']
 };
 
-async function readPerf() {
+async function readPerf(store) {
+  const PERF_KEY = getPerfKey(store);
+  const PERF_BACKUP_KEY = getPerfBackupKey(store);
   try {
     const r = await redisReq('GET', `/get/${PERF_KEY}`);
     if (r.result == null || r.result === '') {
-      await writePerfData(DEFAULT_PERF);
+      await writePerfData(DEFAULT_PERF, store);
       return JSON.parse(JSON.stringify(DEFAULT_PERF));
     }
     let data = typeof r.result === 'string' ? JSON.parse(r.result) : r.result;
     if (typeof data === 'string') data = JSON.parse(data);
-    // 补充缺失字段
     const defaults = DEFAULT_PERF;
     for (const k of Object.keys(defaults)) {
       if (data[k] === undefined) data[k] = defaults[k];
@@ -339,9 +325,10 @@ async function readPerf() {
   }
 }
 
-async function writePerfData(data) {
+async function writePerfData(data, store) {
+  const PERF_KEY = getPerfKey(store);
+  const PERF_BACKUP_KEY = getPerfBackupKey(store);
   try {
-    // Backup first
     const cur = await redisReq('GET', `/get/${PERF_KEY}`);
     if (cur.result != null && cur.result !== '') {
       await _rawWrite(PERF_BACKUP_KEY, cur.result);
@@ -353,10 +340,10 @@ async function writePerfData(data) {
   }
 }
 
-// 店长登录
 app.post('/api/perf/login', async (req, res) => {
+  const store = req.body.store || 'henglicheng';
   try {
-    const data = await readPerf();
+    const data = await readPerf(store);
     if (req.body.password === data.managerPassword) {
       res.json({ ok: true, role: 'manager' });
     } else {
@@ -367,11 +354,10 @@ app.post('/api/perf/login', async (req, res) => {
   }
 });
 
-// 读取业绩数据
 app.get('/api/perf', async (req, res) => {
+  const store = req.query.store || 'henglicheng';
   try {
-    const data = await readPerf();
-    // 不返回密码
+    const data = await readPerf(store);
     const safe = { ...data };
     delete safe.managerPassword;
     res.json(safe);
@@ -380,11 +366,10 @@ app.get('/api/perf', async (req, res) => {
   }
 });
 
-// 更新业绩数据
 app.put('/api/perf', async (req, res) => {
+  const store = req.body.store || 'henglicheng';
   try {
-    const perf = await readPerf();
-    // 验证密码
+    const perf = await readPerf(store);
     if (req.body.password !== perf.managerPassword) {
       return res.status(401).json({ error: '密码错误' });
     }
@@ -398,10 +383,20 @@ app.put('/api/perf', async (req, res) => {
     if (u.managerRate !== undefined) perf.managerRate = u.managerRate;
     if (u.fixedCost !== undefined) perf.fixedCost = u.fixedCost;
     if (u.customCoaches) perf.customCoaches = u.customCoaches;
-    const ok = await writePerfData(perf);
+    const ok = await writePerfData(perf, store);
     ok ? res.json({ ok: true }) : res.status(500).json({ error: '保存失败' });
   } catch(e) {
     console.error('PUT perf error:', e.message);
     res.status(500).json({ error: '保存失败' });
   }
+});
+
+// 初始化两个门店
+async function initAllStores() {
+  await initRedisIfNeeded('henglicheng');
+  await initRedisIfNeeded('baolong');
+}
+
+initAllStores().then(() => {
+  app.listen(PORT, () => console.log('Running on ' + PORT));
 });
