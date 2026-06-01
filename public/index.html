@@ -11,19 +11,19 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC','Helvetica Neue',sans-serif;background:var(--g50);color:var(--g800);min-height:100vh;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-.01em}
 .page{display:none;min-height:100vh}.page.active{display:block}
-.landing{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f2f2f7;padding:24px}
+.landing{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000000;padding:24px}
 .landing-logo{width:60px;height:60px;border-radius:14px;background:rgba(29,78,216,.06);display:flex;align-items:center;justify-content:center;margin-bottom:14px;border:1px solid rgba(29,78,216,.08)}
 .landing-logo svg{width:32px;height:32px;fill:#fff}
-.landing-title{color:#fff;font-size:22px;font-weight:700}.landing-sub{color:rgba(0,0,0,.38);font-size:13px;margin-bottom:32px}
+.landing-title{color:#fff;font-size:22px;font-weight:700}.landing-sub{color:rgba(255,255,255,.45);font-size:13px;margin-bottom:32px}
 .landing-cards{display:flex;gap:14px;margin-top:20px;flex-wrap:wrap;justify-content:center;max-width:720px}
-.lc{background:#fff;border-radius:20px;padding:32px 26px;width:200px;text-align:center;cursor:pointer;transition:all .2s;box-shadow:0 2px 16px rgba(0,0,0,.06)}
+.lc{background:#1c1c1e;border-radius:20px;padding:32px 26px;width:200px;text-align:center;cursor:pointer;transition:all .2s;box-shadow:0 2px 20px rgba(0,0,0,.4)}
 .lc:active{transform:scale(.97)}
 .lc .lc-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
 .lc .lc-icon svg{width:24px;height:24px}
-.lc.c1 .lc-icon{background:var(--pb)}.lc.c1 .lc-icon svg{fill:var(--p)}
-.lc.c2 .lc-icon{background:var(--ob)}.lc.c2 .lc-icon svg{fill:var(--ok)}
-.lc.c3 .lc-icon{background:var(--mgb)}.lc.c3 .lc-icon svg{fill:var(--mg)}
-.lc h3{font-size:18px;font-weight:600;letter-spacing:.02em}.lc p{font-size:11px;color:var(--g500);line-height:1.4}
+.lc.c1 .lc-icon{background:#1d4ed8}.lc.c1 .lc-icon svg{fill:#fff}
+.lc.c2 .lc-icon{background:#16a34a}.lc.c2 .lc-icon svg{fill:#fff}
+.lc.c3 .lc-icon{background:#d97706}.lc.c3 .lc-icon svg{fill:#fff}
+.lc h3{font-size:18px;font-weight:600;color:#fff;letter-spacing:.02em}.lc p{font-size:11px;color:var(--g500);line-height:1.4}
 .header{background:rgba(255,255,255,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:.5px solid rgba(0,0,0,.08);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .hleft{display:flex;align-items:center;gap:10px}
 .bbtn{width:32px;height:32px;border-radius:8px;border:1px solid var(--g200);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--g600)}
@@ -130,17 +130,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
 .p-header .p-name{font-size:22px;font-weight:700;color:var(--g900);letter-spacing:-.02em}
 .p-header .p-meta{font-size:13px;color:var(--g500);margin-top:3px;font-weight:400}
 
-.store-page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f2f2f7;padding:24px}
-.store-title{color:#1d1d1f;font-size:20px;font-weight:700;margin-bottom:6px}
-.store-sub{color:rgba(0,0,0,.38);font-size:13px;margin-bottom:28px}
+.store-page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000000;padding:24px}
+.store-title{color:#fff;font-size:20px;font-weight:700;margin-bottom:6px}
+.store-sub{color:rgba(255,255,255,.45);font-size:13px;margin-bottom:28px}
 .store-cards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
-.store-card{background:#fff;border-radius:20px;padding:36px 28px;width:220px;text-align:center;cursor:pointer;transition:all .2s;box-shadow:0 2px 16px rgba(0,0,0,.06)}
+.store-card{background:#1c1c1e;border-radius:20px;padding:36px 28px;width:220px;text-align:center;cursor:pointer;transition:all .2s;box-shadow:0 2px 20px rgba(0,0,0,.4)}
 .store-card:active{transform:scale(.97)}
 .store-card .store-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:24px}
-.store-card.s1 .store-icon{background:#eff6ff;color:#1d4ed8}
-.store-card.s2 .store-icon{background:#f0fdf4;color:#16a34a}
-.store-card h3{font-size:17px;font-weight:600;color:#1d1d1f;letter-spacing:.02em;margin-bottom:4px}
-.store-card p{font-size:12px;color:rgba(0,0,0,.35);line-height:1.4}
+.store-card.s1 .store-icon{background:#1d4ed8;color:#fff}
+.store-card.s2 .store-icon{background:#16a34a;color:#fff}
+.store-card h3{font-size:17px;font-weight:600;color:#fff;letter-spacing:.02em;margin-bottom:4px}
+.store-card p{font-size:12px;color:rgba(255,255,255,.4);line-height:1.4}
 </style>
 </head>
 <body>
