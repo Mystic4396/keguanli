@@ -21,7 +21,8 @@ const DEFAULT_DATA = {
     { username: 'coach2', password: '123456', name: '李教练' },
     { username: 'shutiao', password: '123456', name: '薯条教练' },
     { username: 'chenzhe', password: '123456', name: '小陈教练' },
-    { username: 'huyi', password: '123456', name: '胡教练' }
+    { username: 'huyi', password: '123456', name: '胡教练' },
+    { username: 'bin', password: '123456', name: '熊猫教练' }
   ],
   students: [],
   records: [],
@@ -292,7 +293,7 @@ const DEFAULT_PERF = {
   managerPassword: 'admin888',
   monthlyRevenue: {},
   coachBaseSalary: {
-    coach1: 0, coach2: 0, shutiao: 0, chenzhe: 0, huyi: 0
+    coach1: 0, coach2: 0, shutiao: 0, chenzhe: 0, huyi: 0, bin: 0
   },
   partTimeHours: {},
   partTimeRate: 20,
@@ -300,7 +301,7 @@ const DEFAULT_PERF = {
   shoeCost: { junior: 200, senior: 750 },
   managerRate: 0.3,
   fixedCost: 5500,
-  customCoaches: ['王教练', '李教练', '薯条教练', '小陈教练', '胡教练']
+  customCoaches: ['王教练', '李教练', '薯条教练', '小陈教练', '胡教练', '熊猫教练']
 };
 
 async function readPerf(store) {
