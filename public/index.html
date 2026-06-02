@@ -314,6 +314,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
       <div class="fg" style="margin-bottom:8px"><label>时薪（元）</label><input id="ptRate" type="number" value="20" oninput="calcAll()" style="width:120px"></div>
       <div id="ptList"></div>
       <div class="fg" style="margin-top:8px;margin-bottom:0"><label>添加兼职</label><div style="display:flex;gap:6px"><input id="ptName" placeholder="姓名" style="flex:1"><input id="ptHours" type="number" placeholder="工时" style="width:80px"><button class="btn btn-p btn-sm" onclick="addPartTime()">添加</button></div></div>
+    <div class="card">
+      <div class="stitle">历史月报</div>
+      <div id="monthlyReports"><div class="empty">暂无历史月报</div></div>
     </div>
   </div>
 </div>
@@ -344,7 +347,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
 <div class="mo" id="moAddN"><div class="md"><h3>充值课时</h3><div class="fg"><label>充值节数</label><input id="addNVal" type="number" value="5"></div><div class="md-acts"><button class="btn btn-o" onclick="clsMo('moAddN')">取消</button><button class="btn btn-p" onclick="doAddN()">确认充值</button></div></div></div>
 <div class="mo" id="moRenew"><div class="md"><h3>续期月卡</h3><div class="irow" style="margin-bottom:12px"><span class="il">当前到期</span><span class="iv" id="renewCur"></span></div><div class="fg"><label>续期时长</label><select id="renewMonths"><option value="1">1个月</option><option value="3" selected>3个月</option><option value="6">6个月</option><option value="12">12个月</option></select></div><div class="irow" style="margin-bottom:4px"><span class="il">续期后到期</span><span class="iv" id="renewNew"></span></div><div class="md-acts"><button class="btn btn-o" onclick="clsMo('moRenew')">取消</button><button class="btn btn-p" onclick="doRenew()">确认续期</button></div></div></div>
 <div class="mo" id="moParentEdit"><div class="md"><h3>编辑基本信息</h3><div class="fg"><label>年龄</label><input id="peAge" type="number" placeholder="岁"></div><div class="fg"><label>体重 (kg)</label><input id="peWeight" type="number" placeholder="kg"></div><div class="fg"><label>身高 (cm)</label><input id="peHeight" type="number" placeholder="cm"></div><div class="md-acts"><button class="btn btn-o" onclick="clsMo('moParentEdit')">取消</button><button class="btn btn-p" onclick="doParentEditSave()">保存</button></div></div></div>
-<div class="mo" id="moReport"><div class="md"><h3>汇报业绩</h3><div id="rptModalBody"></div><div class="md-acts"><button class="btn btn-o" onclick="clsMo('moReport')">取消</button><button class="btn btn-mg" onclick="doReport()">提交</button></div></div></div>
+<div class="mo" id="moReport"><div class="md"><h3>汇报业绩</h3><div id="rptModalBody"></div><div class="md-acts"><button class="btn btn-o" onclick="clsMo('moReport')">取消</button><button class="btn btn-mg" onclick="doReport()">提交</button>
+    <button id="rptDelBtn" class="btn" style="display:none;margin-top:8px;background:#ef4444;color:#fff;width:100%" onclick="deletePerfRec(window._editPerfIdx);clsMo('moReport')">删除此记录</button></div></div></div>
 
 <div class="tc" id="tc"></div>
 
