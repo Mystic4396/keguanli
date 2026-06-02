@@ -301,7 +301,8 @@ const DEFAULT_PERF = {
   shoeCost: { junior: 200, senior: 750 },
   managerRate: 0.3,
   fixedCost: 5500,
-  customCoaches: ['王教练', '李教练', '薯条教练', '小陈教练', '胡教练', '熊猫教练']
+  customCoaches: ['王教练', '李教练', '薯条教练', '小陈教练', '胡教练', '熊猫教练'],
+  monthlyReports: {}
 };
 
 async function readPerf(store) {
@@ -384,6 +385,7 @@ app.put('/api/perf', async (req, res) => {
     if (u.managerRate !== undefined) perf.managerRate = u.managerRate;
     if (u.fixedCost !== undefined) perf.fixedCost = u.fixedCost;
     if (u.customCoaches) perf.customCoaches = u.customCoaches;
+    if (u.monthlyReports) perf.monthlyReports = u.monthlyReports;
     const ok = await writePerfData(perf, store);
     ok ? res.json({ ok: true }) : res.status(500).json({ error: '保存失败' });
   } catch(e) {

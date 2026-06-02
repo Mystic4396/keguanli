@@ -359,6 +359,71 @@ function goLand(){go('pgLand')}
 function doExportJSON(){window.location.href='/api/export?store='+currentStore}
 function doExportHTML(){window.location.href='/api/export-html?store='+currentStore}
 
+
+async function deletePerfRec(idx){
+  if(!confirm('确定删除该业绩记录？'))return;
+  perfData.perfRecords.splice(idx,1);
+  try{await savePerf({perfRecords:perfData.perfRecords});toast('已删除','ok');refreshPerf()}catch(e){toast('删除失败','no')}
+}
+
+
+function generateMonthlyReport(mk){
+  if(!perfData)return null;
+  const recs=(perfData.perfRecords||[]).filter(r=>r.date&&r.date.startsWith(mk));
+  if(!recs.length)return null;
+  const rev=recs.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  const totalComm=recs.reduce((s,r)=>s+(parseFloat(r.commission)||0),0);
+  const mgrComm=recs.reduce((s,r)=>{const cs=r.coaches||[r.coach];const n=cs.filter(Boolean).length;if(cs.includes('店长'))return s+(parseFloat(r.commission)||0)/(n||1);return s},0);
+  const shoeCost=recs.reduce((s,r)=>{if(r.shoe==='初级')return s+200;if(r.shoe==='中级')return s+750;return s},0);
+  const coachBaseTotal=Object.values(perfData.coachBaseSalary||{}).reduce((s,v)=>s+(parseFloat(v)||0),0);
+  const ptRate=perfData.partTimeRate||20;
+  const ptTotal=Object.values(perfData.partTimeHours||{}).reduce((s,h)=>s+(parseFloat(h)||0)*ptRate,0);
+  const profit=rev-(perfData.fixedCost||5500)-totalComm-shoeCost-coachBaseTotal-ptTotal;
+  const mgrPShare=Math.max(0,profit)*0.3;
+  const coaches=perfData.customCoaches||[];
+  const bases=perfData.coachBaseSalary||{};
+  const coachIncomes=coaches.map(name=>{
+    const base=parseFloat(bases[name])||0;
+    const comm=recs.reduce((s,r)=>{const cs=r.coaches||[r.coach];const n=cs.filter(Boolean).length;if(cs.includes(name))return s+(parseFloat(r.commission)||0)/(n||1);return s},0);
+    return{name,base,comm,total:base+comm};
+  });
+  return{mk,rev,totalComm,shoeCost,coachBaseTotal,ptTotal,profit,mgrPShare,mgrComm,mgrTotal:mgrPShare+mgrComm,coachIncomes,recCount:recs.length,generatedAt:new Date().toISOString()};
+}
+
+function autoArchive(){
+  if(!perfData)return;
+  const d=new Date();
+  const prevMk=d.getMonth()===0?((d.getFullYear()-1)+'-12'):(d.getFullYear()+'-'+String(d.getMonth()).padStart(2,'0'));
+  if(!perfData.monthlyReports)perfData.monthlyReports={};
+  if(!perfData.monthlyReports[prevMk]){
+    const report=generateMonthlyReport(prevMk);
+    if(report&&report.recCount>0){
+      perfData.monthlyReports[prevMk]=report;
+      savePerf({monthlyReports:perfData.monthlyReports}).then(()=>{renderMonthlyReports();toast(prevMk+'月报已自动归档','ok')}).catch(()=>{});
+    }
+  }
+}
+
+function renderMonthlyReports(){
+  const reports=perfData.monthlyReports||{};
+  const el=document.getElementById('monthlyReports');
+  const keys=Object.keys(reports).sort().reverse();
+  if(!keys.length){el.innerHTML='<div class="empty">暂无历史月报</div>';return}
+  let html='';
+  keys.forEach(mk=>{
+    const r=reports[mk];
+    html+='<div class="card" style="margin-bottom:10px;background:var(--g50)"><div class="stitle" style="font-size:14px">'+mk+' 月报</div>';
+    html+='<div class="sg sg3" style="margin-bottom:8px"><div class="sc"><div class="sv" style="font-size:16px">'+r.rev.toFixed(0)+'</div><div class="sl">营业额</div></div><div class="sc"><div class="sv" style="font-size:16px;color:'+(r.profit>=0?'var(--ok)':'var(--no)')+'">'+r.profit.toFixed(0)+'</div><div class="sl">利润</div></div><div class="sc"><div class="sv" style="font-size:16px;color:var(--p)">'+r.mgrTotal.toFixed(0)+'</div><div class="sl">店长收入</div></div></div>';
+    if(r.coachIncomes&&r.coachIncomes.length){
+      html+='<div style="font-size:12px;color:var(--g500);margin-bottom:4px">教练收入</div>';
+      r.coachIncomes.forEach(c=>{html+='<div class="irow"><span class="il">'+c.name+'</span><span class="iv">底薪'+c.base+' + 提成'+c.comm.toFixed(0)+' = <strong>'+c.total.toFixed(0)+'</strong></span></div>'});
+    }
+    html+='<div style="font-size:11px;color:var(--g400);margin-top:6px">共'+r.recCount+'条业绩记录</div>';
+    html+='</div>';
+  });
+  el.innerHTML=html;
+}
+
 function goStoreSelect(action){
   pendingAction=action;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -436,16 +501,16 @@ async function doParentEditSave(){if(!parentEditId)return;const s=db.students.fi
 // ===== Manager / Performance system =====
 async function doMgrLogin(){const p=document.getElementById('mPwd').value;if(!p){toast('请输入密码','wn');return}try{const r=await api('POST','/api/perf/login',{password:p});if(r.ok){mgrPwd=p;toast('欢迎店长','ok');enterMgr()}}catch(e){toast(e.message,'no')}}
 function doMgrLogout(){mgrPwd='';goLand()}
-async function enterMgr(){go('pgMgr');await refreshPerf()}
+async function enterMgr(){go('pgMgr');await refreshPerf();autoArchive()}
 async function loadPerf(){perfData=await api('GET','/api/perf');return perfData}
 async function savePerf(updates){await api('PUT','/api/perf',{password:mgrPwd,updates})}
 function getMonthKey(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
 
-async function refreshPerf(){try{await loadPerf();const mk=getMonthKey();document.getElementById('ptRate').value=perfData.partTimeRate||20;calcAll();renderPerfList();renderCoachIncome();renderPartTime()}catch(e){toast('加载失败','no');console.error(e)}}
+async function refreshPerf(){try{await loadPerf();const mk=getMonthKey();document.getElementById('ptRate').value=perfData.partTimeRate||20;calcAll();renderPerfList();renderCoachIncome();renderPartTime();renderMonthlyReports()}catch(e){toast('加载失败','no');console.error(e)}}
 
 function calcAll(){if(!perfData)return;const mk=getMonthKey();const monthRecs=(perfData.perfRecords||[]).filter(r=>r.date&&r.date.startsWith(mk));const rev=monthRecs.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);perfData.monthlyRevenue[mk]=rev;const totalComm=monthRecs.reduce((s,r)=>s+(parseFloat(r.commission)||0),0);const mgrComm=monthRecs.reduce((s,r)=>{const cs=r.coaches||[r.coach];const n=cs.filter(Boolean).length;if(cs.includes('店长'))return s+(parseFloat(r.commission)||0)/(n||1);return s},0);const shoeCost=monthRecs.reduce((s,r)=>{if(r.shoe==='初级')return s+200;if(r.shoe==='中级')return s+750;return s},0);const coachBaseTotal=Object.values(perfData.coachBaseSalary||{}).reduce((s,v)=>s+(parseFloat(v)||0),0);const ptRate=parseFloat(document.getElementById('ptRate').value)||20;const ptTotal=Object.values(perfData.partTimeHours||{}).reduce((s,h)=>s+(parseFloat(h)||0)*ptRate,0);const profit=rev-(perfData.fixedCost||5500)-totalComm-shoeCost-coachBaseTotal-ptTotal;document.getElementById('mRev').textContent=rev.toFixed(0);document.getElementById('mProfit').textContent=profit.toFixed(0);const mgrPShare=Math.max(0,profit)*0.3;document.getElementById('mgrPShare').textContent=mgrPShare.toFixed(0);document.getElementById('mgrComm').textContent=mgrComm.toFixed(0);document.getElementById('mgrTotal').textContent=(mgrPShare+mgrComm).toFixed(0);clearTimeout(window._revTimer);window._revTimer=setTimeout(async()=>{try{await savePerf({monthlyRevenue:perfData.monthlyRevenue,partTimeRate:parseFloat(document.getElementById('ptRate').value)||20})}catch(e){}},800)}
 
-function renderPerfList(){const all=perfData.perfRecords||[];const recs=all.map((r,i)=>({r,i})).sort((a,b)=>b.r.date.localeCompare(a.r.date));const el=document.getElementById('perfList'),em=document.getElementById('perfEmpty');if(!recs.length){el.innerHTML='';em.style.display='block';return}em.style.display='none';function rri(item){const r=item.r,oi=item.i;return'<div class="ri" style="cursor:pointer" onclick="editPerfRec('+oi+')"><div class="rd" style="background:var(--wn)"></div><div class="rm"><div class="rn">'+r.childName+' · '+r.courseType+(r.shoe!=='无'?' · '+r.shoe+'鞋':'')+'</div><div class="rmt">'+r.date+' · '+(r.coaches&&r.coaches.length>1?r.coaches.join(' & '):r.coach)+' · '+r.orderId+'</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:600;color:var(--ok)">&yen;'+r.amount+'</div><div style="font-size:10px;color:var(--g400)">提成&yen;'+r.commission+'</div></div></div>'}const show=recs.slice(0,5),rest=recs.slice(5);let html=show.map(item=>rri(item)).join('');if(rest.length)html+='<button class="fb" style="width:100%;padding:8px;margin:6px 0" onclick="this.nextElementSibling.style.display=\'block\';this.outerHTML=\'\'">展开全部 ('+recs.length+'条)</button><div style="display:none">'+rest.map(item=>rri(item)).join('')+'</div>';el.innerHTML=html}
+function renderPerfList(){const mk=getMonthKey();const all=perfData.perfRecords||[];const monthRecs=all.filter(r=>r.date&&r.date.startsWith(mk));const recs=monthRecs.map(r=>{const oi=all.indexOf(r);return{r,oi}}).sort((a,b)=>b.r.date.localeCompare(a.r.date));const el=document.getElementById('perfList'),em=document.getElementById('perfEmpty');if(!recs.length){el.innerHTML='';em.style.display='block';return}em.style.display='none';function rri(item){const r=item.r,oi=item.oi;return'<div class="ri" style="cursor:pointer" onclick="editPerfRec('+oi+')"><div class="rd" style="background:var(--wn)"></div><div class="rm"><div class="rn">'+r.childName+' · '+r.courseType+(r.shoe!=='无'?' · '+r.shoe+'鞋':'')+'</div><div class="rmt">'+r.date+' · '+(r.coaches&&r.coaches.length>1?r.coaches.join(' & '):r.coach)+' · '+r.orderId+'</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:600;color:var(--ok)">&yen;'+r.amount+'</div><div style="font-size:10px;color:var(--g400)">提成&yen;'+r.commission+'</div></div></div>'}let html=recs.map(item=>rri(item)).join('');el.innerHTML=html}
 
 function renderCoachIncome(){const mk=getMonthKey();const recs=(perfData.perfRecords||[]).filter(r=>r.date&&r.date.startsWith(mk));const coaches=perfData.customCoaches||[];const bases=perfData.coachBaseSalary||{};let html='',editorHtml='';coaches.forEach(name=>{const base=parseFloat(bases[name])||0;const comm=recs.reduce((s,r)=>{const cs=r.coaches||[r.coach];const n=cs.filter(Boolean).length;if(cs.includes(name))return s+(parseFloat(r.commission)||0)/(n||1);return s},0);html+='<div class="irow"><span class="il">'+name+'</span><span class="iv">底薪'+base+' + 提成'+comm.toFixed(0)+' = <strong>'+(base+comm).toFixed(0)+'</strong></span></div>';editorHtml+='<div class="coach-tag">'+name+' 底薪:<input type="number" value="'+base+'" data-coach="'+name+'" class="sal-input" style="width:60px;padding:2px 4px;border:1px solid var(--g200);border-radius:4px;font-size:12px;height:24px;margin:0 4px"><button onclick="removeCoach(\''+name+'\')">&times;</button></div>'});document.getElementById('coachIncomeList').innerHTML=html||'<div class="empty">暂无教练</div>';document.getElementById('coachEditor').innerHTML=editorHtml}
 
@@ -456,8 +521,8 @@ async function saveCoachSalary(){const inputs=document.querySelectorAll('.sal-in
 function renderPartTime(){const pts=perfData.partTimeHours||{};const rate=parseFloat(document.getElementById('ptRate').value)||20;const el=document.getElementById('ptList');if(!Object.keys(pts).length){el.innerHTML='<div class="empty">暂无兼职</div>';return}let html='';for(const[name,hours] of Object.entries(pts)){const pay=(parseFloat(hours)||0)*rate;html+='<div class="irow"><span class="il">'+name+' ('+hours+'时×'+rate+')</span><span class="iv">&yen;'+pay.toFixed(0)+'</span></div>'}el.innerHTML=html}
 async function addPartTime(){const name=document.getElementById('ptName').value.trim(),hours=parseFloat(document.getElementById('ptHours').value)||0;if(!name){toast('请输入姓名','wn');return}const pts=perfData.partTimeHours||{};pts[name]=hours;try{await savePerf({partTimeHours:pts,partTimeRate:parseFloat(document.getElementById('ptRate').value)||20});document.getElementById('ptName').value='';document.getElementById('ptHours').value='';toast('已添加','ok');refreshPerf()}catch(e){toast('添加失败','no')}}
 
-function showReportModal(){window._editPerfIdx=null;const today=new Date().toISOString().slice(0,10);const coaches=perfData.customCoaches||[];const coachOpts='<option value="">不选</option><option value="店长">店长</option>'+coaches.map(c=>'<option value="'+c+'">'+c+'</option>').join('');document.getElementById('rptModalBody').innerHTML='<div class="fg"><label>日期</label><input id="rptDate" type="date" value="'+today+'"></div><div class="fg"><label>订单编号</label><input id="rptOrderId" placeholder="订单编号"></div><div class="fg"><label>金额</label><input id="rptAmount" type="number" placeholder="金额"></div><div class="fg"><label>课程类型</label><input id="rptCourse" placeholder="填写课程类型"></div><div class="fg"><label>搭配鞋子</label><select id="rptShoe"><option value="无">无</option><option value="初级">初级 (成本¥200)</option><option value="中级">中级 (成本¥750)</option></select></div><div class="fg"><label>小朋友名字</label><input id="rptChild" placeholder="小朋友名字"></div><div class="fg"><label>业绩提成金额</label><input id="rptComm" type="number" placeholder="提成金额"></div><div class="fg"><label>提成所属1</label><select id="rptCoach1">'+coachOpts+'</select></div><div class="fg"><label>提成所属2</label><select id="rptCoach2">'+coachOpts+'</select></div>';document.getElementById('moReport').classList.add('on')}
-function editPerfRec(idx){const r=perfData.perfRecords[idx];if(!r)return;const today=r.date;const coaches=perfData.customCoaches||[];const coachOpts='<option value="">不选</option><option value="店长">店长</option>'+coaches.map(c=>'<option value="'+c+'">'+c+'</option>').join('');const c1=(r.coaches&&r.coaches[0])||r.coach||'';const c2=(r.coaches&&r.coaches[1])||'';document.getElementById('rptModalBody').innerHTML='<div class="fg"><label>日期</label><input id="rptDate" type="date" value="'+today+'"></div><div class="fg"><label>订单编号</label><input id="rptOrderId" value="'+(r.orderId||'')+'"></div><div class="fg"><label>金额</label><input id="rptAmount" type="number" value="'+(r.amount||'')+'"></div><div class="fg"><label>课程类型</label><input id="rptCourse" value="'+(r.courseType||'')+'"></div><div class="fg"><label>搭配鞋子</label><select id="rptShoe"><option value="无"'+(r.shoe==='无'?' selected':'')+'>无</option><option value="初级"'+(r.shoe==='初级'?' selected':'')+'>初级 (成本¥200)</option><option value="中级"'+(r.shoe==='中级'?' selected':'')+'>中级 (成本¥750)</option></select></div><div class="fg"><label>小朋友名字</label><input id="rptChild" value="'+(r.childName||'')+'"></div><div class="fg"><label>业绩提成金额</label><input id="rptComm" type="number" value="'+(r.commission||'')+'"></div><div class="fg"><label>提成所属1</label><select id="rptCoach1">'+coachOpts+'</select></div><div class="fg"><label>提成所属2</label><select id="rptCoach2">'+coachOpts+'</select></div>';document.getElementById('rptCoach1').value=c1;document.getElementById('rptCoach2').value=c2;window._editPerfIdx=idx;document.getElementById('moReport').classList.add('on')}
+function showReportModal(){window._editPerfIdx=null;const today=new Date().toISOString().slice(0,10);const coaches=perfData.customCoaches||[];const coachOpts='<option value="">不选</option><option value="店长">店长</option>'+coaches.map(c=>'<option value="'+c+'">'+c+'</option>').join('');document.getElementById('rptDelBtn').style.display='none';document.getElementById('rptModalBody').innerHTML='<div class="fg"><label>日期</label><input id="rptDate" type="date" value="'+today+'"></div><div class="fg"><label>订单编号</label><input id="rptOrderId" placeholder="订单编号"></div><div class="fg"><label>金额</label><input id="rptAmount" type="number" placeholder="金额"></div><div class="fg"><label>课程类型</label><input id="rptCourse" placeholder="填写课程类型"></div><div class="fg"><label>搭配鞋子</label><select id="rptShoe"><option value="无">无</option><option value="初级">初级 (成本¥200)</option><option value="中级">中级 (成本¥750)</option></select></div><div class="fg"><label>小朋友名字</label><input id="rptChild" placeholder="小朋友名字"></div><div class="fg"><label>业绩提成金额</label><input id="rptComm" type="number" placeholder="提成金额"></div><div class="fg"><label>提成所属1</label><select id="rptCoach1">'+coachOpts+'</select></div><div class="fg"><label>提成所属2</label><select id="rptCoach2">'+coachOpts+'</select></div>';document.getElementById('moReport').classList.add('on')}
+function editPerfRec(idx){const r=perfData.perfRecords[idx];if(!r)return;const today=r.date;const coaches=perfData.customCoaches||[];const coachOpts='<option value="">不选</option><option value="店长">店长</option>'+coaches.map(c=>'<option value="'+c+'">'+c+'</option>').join('');const c1=(r.coaches&&r.coaches[0])||r.coach||'';const c2=(r.coaches&&r.coaches[1])||'';document.getElementById('rptDelBtn').style.display='none';document.getElementById('rptModalBody').innerHTML='<div class="fg"><label>日期</label><input id="rptDate" type="date" value="'+today+'"></div><div class="fg"><label>订单编号</label><input id="rptOrderId" value="'+(r.orderId||'')+'"></div><div class="fg"><label>金额</label><input id="rptAmount" type="number" value="'+(r.amount||'')+'"></div><div class="fg"><label>课程类型</label><input id="rptCourse" value="'+(r.courseType||'')+'"></div><div class="fg"><label>搭配鞋子</label><select id="rptShoe"><option value="无"'+(r.shoe==='无'?' selected':'')+'>无</option><option value="初级"'+(r.shoe==='初级'?' selected':'')+'>初级 (成本¥200)</option><option value="中级"'+(r.shoe==='中级'?' selected':'')+'>中级 (成本¥750)</option></select></div><div class="fg"><label>小朋友名字</label><input id="rptChild" value="'+(r.childName||'')+'"></div><div class="fg"><label>业绩提成金额</label><input id="rptComm" type="number" value="'+(r.commission||'')+'"></div><div class="fg"><label>提成所属1</label><select id="rptCoach1">'+coachOpts+'</select></div><div class="fg"><label>提成所属2</label><select id="rptCoach2">'+coachOpts+'</select></div>';document.getElementById('rptCoach1').value=c1;document.getElementById('rptCoach2').value=c2;window._editPerfIdx=idx;document.getElementById('rptDelBtn').style.display='block';document.getElementById('moReport').classList.add('on')}
 
 async function doReport(){const date=document.getElementById('rptDate').value,orderId=document.getElementById('rptOrderId').value.trim(),amount=parseFloat(document.getElementById('rptAmount').value)||0,courseType=document.getElementById('rptCourse').value.trim(),shoe=document.getElementById('rptShoe').value,childName=document.getElementById('rptChild').value.trim(),commission=parseFloat(document.getElementById('rptComm').value)||0,coach1=document.getElementById('rptCoach1').value,coach2=document.getElementById('rptCoach2').value;if(!date||!orderId||!amount||!childName){toast('请填写完整信息','wn');return}const coaches=[coach1,coach2].filter(Boolean);if(!coaches.length){toast('请至少选择一个提成所属','wn');return}const rec={date,orderId,amount,courseType,shoe,childName,commission,coach:coaches[0],coaches,time:new Date().toISOString()};if(window._editPerfIdx!==undefined&&window._editPerfIdx!==null){perfData.perfRecords[window._editPerfIdx]=rec;window._editPerfIdx=null}else{perfData.perfRecords.push(rec);}try{await savePerf({perfRecords:perfData.perfRecords});clsMo('moReport');toast('业绩已提交','ok');refreshPerf()}catch(e){toast('提交失败','no')}}
 
