@@ -184,6 +184,9 @@ async function writeData(data, store) {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 所有数据API都支持store参数
+// Lightweight ping for keep-alive (no Redis call)
+app.get('/api/ping', (req, res) => res.json({ok:true,time:Date.now()}));
+
 app.get('/api/data', async (req, res) => {
   const store = req.query.store || 'henglicheng';
   try {

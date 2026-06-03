@@ -553,6 +553,8 @@ function startScanner(elId,onSuccess){stopScanner();const el=document.getElement
 function stopScanner(){if(qrScanner){try{qrScanner.stop()}catch(e){}try{qrScanner.clear()}catch(e){}qrScanner=null}}
 function closeScanMo(){stopScanner();clsMo('moScan')}
 (function(){const params=new URLSearchParams(window.location.hash.split('?')[1]),autoSid=params.get('sid'),autoStore=params.get('store');if(autoStore)currentStore=autoStore;if(autoSid&&window.location.hash.includes('#parent')){window.addEventListener('load',function(){setTimeout(function(){loadDB().then(function(){const s=db.students.find(x=>x.id===autoSid);if(s)showPDetail(s)})},500)})}})();
+// Render保活: 浏览器开着时每5分钟静默ping
+setInterval(function(){fetch('/api/ping?store=_keepalive').catch(function(){})},300000);
 </script>
 </body>
 </html>
