@@ -481,6 +481,8 @@ async function enterMgr(){go('pgMgr');const y=document.getElementById('mgrYear')
 async function loadPerf(){perfData=await api('GET','/api/perf');return perfData}
 async function savePerf(updates){await api('PUT','/api/perf',{password:mgrPwd,updates})}
 function getMonthKey(){const y=document.getElementById('mgrYear');const m=document.getElementById('mgrMonth');if(y&&m)return y.value+'-'+String(m.value).padStart(2,'0');const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function getMC(){const mk=getMonthKey();if(!perfData.monthlyConfig)perfData.monthlyConfig={};if(!perfData.monthlyConfig[mk])perfData.monthlyConfig[mk]={};return perfData.monthlyConfig[mk]}
+function migrateOldPerfData(){if(!perfData.monthlyConfig&&(perfData.partTimeHours||perfData.coachBaseSalary||perfData.fixedCost||perfData.partTimeRate)){const mk=getMonthKey();perfData.monthlyConfig={};perfData.monthlyConfig[mk]={partTimeHours:perfData.partTimeHours||{},coachBaseSalary:perfData.coachBaseSalary||{},fixedCost:perfData.fixedCost||5500,partTimeRate:perfData.partTimeRate||20};delete perfData.partTimeHours;delete perfData.coachBaseSalary;delete perfData.fixedCost;delete perfData.partTimeRate}}
 
 async function refreshPerf(){try{await loadPerf();migrateOldPerfData();const mc=getMC();document.getElementById('ptRate').value=mc.partTimeRate||20;document.getElementById('mFixedCost').value=mc.fixedCost||5500;calcAll();renderPerfList();renderCoachIncome();renderPartTime()}catch(e){toast('加载失败','no');console.error(e)}}
 

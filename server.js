@@ -401,6 +401,7 @@ app.put('/api/perf', async (req, res) => {
     if (u.managerRate !== undefined) perf.managerRate = u.managerRate;
     if (u.fixedCost !== undefined) perf.fixedCost = u.fixedCost;
     if (u.customCoaches) perf.customCoaches = u.customCoaches;
+    if (u.monthlyConfig) perf.monthlyConfig = u.monthlyConfig;
     if (u.monthlyReports) perf.monthlyReports = u.monthlyReports;
     const ok = await writePerfData(perf, store);
     ok ? res.json({ ok: true }) : res.status(500).json({ error: '保存失败' });
