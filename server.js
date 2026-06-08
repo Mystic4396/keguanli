@@ -398,52 +398,6 @@ app.put('/api/perf', async (req, res) => {
 });
 
 
-// 照片上传到GitHub
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
-const GITHUB_REPO = 'Mystic4396/keguanli';
-
-app.post('/api/upload', async (req, res) => {
-  const { filename, content, store } = req.body;
-  if (!filename || !content) return res.status(400).json({ error: '缺少文件' });
-  if (!GITHUB_TOKEN) return res.status(500).json({ error: '未配置GitHub Token' });
-  try {
-    const folder = store === 'baolong' ? 'uploads/baolong' : 'uploads/henglicheng';
-    const path = folder + '/' + filename;
-    const body = JSON.stringify({
-      message: 'upload photo: ' + filename,
-      content: content  // already base64 from client
-    });
-    const r = await new Promise((resolve, reject) => {
-      const opts = {
-        hostname: 'api.github.com',
-        path: '/repos/' + GITHUB_REPO + '/contents/' + path,
-        method: 'PUT',
-        headers: {
-          'Authorization': 'token ' + GITHUB_TOKEN,
-          'User-Agent': 'keguanli-app',
-          'Content-Type': 'application/json'
-        }
-      };
-      const rq = require('https').request(opts, rsp => {
-        let d = ''; rsp.on('data', c => d += c);
-        rsp.on('end', () => { try { resolve(JSON.parse(d)); } catch(e) { reject(new Error('Parse error')); } });
-      });
-      rq.on('error', reject);
-      rq.write(body);
-      rq.end();
-    });
-    if (r.content && r.content.download_url) {
-      res.json({ ok: true, url: r.content.download_url });
-    } else {
-      console.error('GitHub upload error:', JSON.stringify(r).slice(0, 200));
-      res.status(500).json({ error: r.message || '上传失败' });
-    }
-  } catch(e) {
-    console.error('Upload error:', e.message);
-    res.status(500).json({ error: '上传失败' });
-  }
-});
-
 // 初始化两个门店
 async function initAllStores() {
   await initRedisIfNeeded('henglicheng');

@@ -8,5 +8,3 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: GITHUB_TOKEN
-        sync: false
