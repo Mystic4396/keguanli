@@ -143,9 +143,22 @@ async function initRedisIfNeeded(store) {
 }
 
 async function _rawWrite(key, data) {
-  const body = JSON.stringify(data);
-  const r = await redisReq('POST', `/set/${key}`, body);
-  return r.result === 'OK';
+  // Use text/plain to avoid Upstash double-encoding Chinese characters
+  const body = typeof data === 'string' ? data : JSON.stringify(data);
+  return new Promise((resolve, reject) => {
+    const u = new URL('/set/' + key, REDIS_URL);
+    const opts = {
+      hostname: u.hostname, path: u.pathname, method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + REDIS_TOKEN, 'Content-Type': 'text/plain' }
+    };
+    const req = require('https').request(opts, res => {
+      let d = ''; res.on('data', c => d += c);
+      res.on('end', () => { try { const r = JSON.parse(d); resolve(r.result === 'OK'); } catch(e) { reject(e); } });
+    });
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
 }
 
 async function writeData(data, store) {
@@ -301,7 +314,7 @@ const DEFAULT_PERF = {
   partTimeHours: {},
   partTimeRate: 20,
   perfRecords: [],
-  shoeCost: { junior: 200, senior: 750 },
+  shoeCost: { junior: 195, senior: 750 },
   managerRate: 0.3,
   fixedCost: 5500,
   customCoaches: ['王教练', '李教练', '薯条教练', '小陈教练', '胡教练', '熊猫教练'],
