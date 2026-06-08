@@ -304,7 +304,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
 
 <!-- Manager Main -->
 <div class="page" id="pgMgr">
-  <div class="header"><div class="hleft"><button class="bbtn" onclick="doMgrLogout()">&#8592;</button><span class="htitle">业绩管理</span></div><span class="badge badge-m">店长</span></div>
+  <div class="header"><div class="hleft"><button class="bbtn" onclick="doMgrLogout()">&#8592;</button><span class="htitle">业绩管理</span></div><span class="store-label" style="font-size:12px;color:var(--g500);margin-right:8px"></span><span class="badge badge-m">店长</span></div>
   <div class="ctn">
     <div class="sg sg3">
       <div class="sc"><div class="sv" id="mRev">0</div><div class="sl">当月营业额</div></div>
@@ -337,6 +337,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
       <div class="fg" style="margin-bottom:8px"><label>时薪（元）</label><input id="ptRate" type="number" value="20" oninput="calcAll()" style="width:120px"></div>
       <div id="ptList"></div>
       <div class="fg" style="margin-top:8px;margin-bottom:0"><label>添加兼职</label><div style="display:flex;gap:6px"><input id="ptName" placeholder="姓名" style="flex:1"><input id="ptHours" type="number" placeholder="工时" style="width:80px"><button class="btn btn-p btn-sm" onclick="addPartTime()">添加</button></div></div>
+    </div>
+    <div class="card">
+      <div class="stitle">固定成本（月租金等）</div>
+      <div class="fg">
+        <label>月固定成本</label>
+        <input id="mFixedCost" type="number" value="5500" oninput="calcAll()" style="width:120px">
+      </div>
     </div>
     <div class="card">
       <div class="stitle">历史月报</div>
@@ -378,6 +385,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
 
 <script>
 let db={},coach=null,selId=null,editId=null,confCb=null,addType='次卡',editTypeVal='次卡',advBilling='monthly',editAdvBilling='monthly';
+const STORE_NAMES={'henglicheng':'恒力城店','baolong':'宝龙店'};
 let perfData=null,mgrPwd='';
 
 function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active')}
@@ -535,9 +543,9 @@ async function loadPerf(){perfData=await api('GET','/api/perf');return perfData}
 async function savePerf(updates){await api('PUT','/api/perf',{password:mgrPwd,updates})}
 function getMonthKey(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
 
-async function refreshPerf(){try{await loadPerf();const mk=getMonthKey();document.getElementById('ptRate').value=perfData.partTimeRate||20;calcAll();renderPerfList();renderCoachIncome();renderPartTime();renderMonthlyReports()}catch(e){toast('加载失败','no');console.error(e)}}
+async function refreshPerf(){try{await loadPerf();const mk=getMonthKey();document.getElementById('ptRate').value=perfData.partTimeRate||20;document.getElementById('mFixedCost').value=perfData.fixedCost||5500;calcAll();renderPerfList();renderCoachIncome();renderPartTime();renderMonthlyReports()}catch(e){toast('加载失败','no');console.error(e)}}
 
-function calcAll(){if(!perfData)return;const mk=getMonthKey();const monthRecs=(perfData.perfRecords||[]).filter(r=>r.date&&r.date.startsWith(mk));const rev=monthRecs.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);perfData.monthlyRevenue[mk]=rev;const totalComm=monthRecs.reduce((s,r)=>s+(parseFloat(r.commission)||0),0);const mgrComm=monthRecs.reduce((s,r)=>{const cs=r.coaches||[r.coach];const n=cs.filter(Boolean).length;if(cs.includes('店长'))return s+(parseFloat(r.commission)||0)/(n||1);return s},0);const shoeCost=monthRecs.reduce((s,r)=>{if(r.shoe==='初级')return s+200;if(r.shoe==='中级')return s+750;return s},0);const coachBaseTotal=Object.values(perfData.coachBaseSalary||{}).reduce((s,v)=>s+(parseFloat(v)||0),0);const ptRate=parseFloat(document.getElementById('ptRate').value)||20;const ptTotal=Object.values(perfData.partTimeHours||{}).reduce((s,h)=>s+(parseFloat(h)||0)*ptRate,0);const profit=rev-(perfData.fixedCost||5500)-totalComm-shoeCost-coachBaseTotal-ptTotal;document.getElementById('mRev').textContent=rev.toFixed(0);document.getElementById('mProfit').textContent=profit.toFixed(0);const mgrPShare=Math.max(0,profit)*0.3;document.getElementById('mgrPShare').textContent=mgrPShare.toFixed(0);document.getElementById('mgrComm').textContent=mgrComm.toFixed(0);document.getElementById('mgrTotal').textContent=(mgrPShare+mgrComm).toFixed(0);clearTimeout(window._revTimer);window._revTimer=setTimeout(async()=>{try{await savePerf({monthlyRevenue:perfData.monthlyRevenue,partTimeRate:parseFloat(document.getElementById('ptRate').value)||20})}catch(e){}},800)}
+function calcAll(){if(!perfData)return;const mk=getMonthKey();const monthRecs=(perfData.perfRecords||[]).filter(r=>r.date&&r.date.startsWith(mk));const rev=monthRecs.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);perfData.monthlyRevenue[mk]=rev;const totalComm=monthRecs.reduce((s,r)=>s+(parseFloat(r.commission)||0),0);const mgrComm=monthRecs.reduce((s,r)=>{const cs=r.coaches||[r.coach];const n=cs.filter(Boolean).length;if(cs.includes('店长'))return s+(parseFloat(r.commission)||0)/(n||1);return s},0);const shoeCost=monthRecs.reduce((s,r)=>{if(r.shoe==='初级')return s+200;if(r.shoe==='中级')return s+750;return s},0);const coachBaseTotal=Object.values(perfData.coachBaseSalary||{}).reduce((s,v)=>s+(parseFloat(v)||0),0);const ptRate=parseFloat(document.getElementById('ptRate').value)||20;const ptTotal=Object.values(perfData.partTimeHours||{}).reduce((s,h)=>s+(parseFloat(h)||0)*ptRate,0);const fc=parseFloat(document.getElementById('mFixedCost').value)||5500;perfData.fixedCost=fc;const profit=rev-fc-totalComm-shoeCost-coachBaseTotal-ptTotal;document.getElementById('mRev').textContent=rev.toFixed(0);document.getElementById('mProfit').textContent=profit.toFixed(0);const mgrPShare=Math.max(0,profit)*0.3;document.getElementById('mgrPShare').textContent=mgrPShare.toFixed(0);document.getElementById('mgrComm').textContent=mgrComm.toFixed(0);document.getElementById('mgrTotal').textContent=(mgrPShare+mgrComm).toFixed(0);clearTimeout(window._revTimer);window._revTimer=setTimeout(async()=>{try{await savePerf({monthlyRevenue:perfData.monthlyRevenue,partTimeRate:parseFloat(document.getElementById('ptRate').value)||20,fixedCost:parseFloat(document.getElementById('mFixedCost').value)||5500})}catch(e){}},800)}
 
 function renderPerfList(){const mk=getMonthKey();const all=perfData.perfRecords||[];const recs=all.map((r,i)=>({r,oi:i})).sort((a,b)=>b.r.date.localeCompare(a.r.date));const el=document.getElementById('perfList'),em=document.getElementById('perfEmpty');if(!recs.length){el.innerHTML='';em.style.display='block';return}em.style.display='none';function rri(item){const r=item.r,oi=item.oi;return'<div class="ri" style="cursor:pointer" onclick="editPerfRec('+oi+')"><div class="rd" style="background:var(--wn)"></div><div class="rm"><div class="rn">'+r.childName+' · '+r.courseType+(r.shoe!=='无'?' · '+r.shoe+'鞋':'')+'</div><div class="rmt">'+r.date+' · '+(r.coaches&&r.coaches.length>1?r.coaches.join(' & '):r.coach)+' · '+r.orderId+'</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:600;color:var(--ok)">&yen;'+r.amount+'</div><div style="font-size:10px;color:var(--g400)">提成&yen;'+r.commission+'</div></div></div>'}const curMonth=recs.filter(item=>item.r.date&&item.r.date.startsWith(mk));const older=recs.filter(item=>!(item.r.date&&item.r.date.startsWith(mk)));let html='';if(curMonth.length){html+='<div style="font-size:12px;color:var(--g500);margin-bottom:6px">本月 ('+curMonth.length+'条)</div>';html+=curMonth.map(item=>rri(item)).join('')}if(older.length){html+='<button class="fb" style="width:100%;padding:8px;margin:6px 0" onclick="showOlderPerf(this)">历史记录 ('+older.length+'条)</button><div style="display:none">'+older.map(item=>rri(item)).join('')+'</div>'}el.innerHTML=html}
 function showOlderPerf(btn){btn.nextElementSibling.style.display='block';btn.outerHTML=''}
