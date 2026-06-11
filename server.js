@@ -421,6 +421,7 @@ async function initAllStores() {
 }
 
 initAllStores().then(() => {
-  app.listen(PORT, () => console.log('Running on ' + PORT));
+  const APP_VERSION = '2.3-prospect';
+app.listen(PORT, () => console.log('Running on ' + PORT));
 });
 // Build 1781206668
