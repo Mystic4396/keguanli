@@ -403,6 +403,7 @@ app.put('/api/perf', async (req, res) => {
     if (u.customCoaches) perf.customCoaches = u.customCoaches;
     if (u.monthlyConfig) perf.monthlyConfig = u.monthlyConfig;
     if (u.monthlyReports) perf.monthlyReports = u.monthlyReports;
+    if (u.prospectMemos) perf.prospectMemos = u.prospectMemos;
     const ok = await writePerfData(perf, store);
     ok ? res.json({ ok: true }) : res.status(500).json({ error: '保存失败' });
   } catch(e) {
