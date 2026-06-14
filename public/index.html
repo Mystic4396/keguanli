@@ -23,7 +23,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
 .lc{background:#fff;border-radius:16px;padding:24px 22px;width:210px;cursor:pointer;transition:all .2s;box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;align-items:flex-start;gap:14px}
 .lc:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.1)}
 .lc:active{transform:translateY(0)}
-.c1 .c2 .c3 
+.c0 .c1 .c2 .c3 
 .c1 .c2 .c3 .lc-body{min-width:0}
 .lc h3{font-size:16px;font-weight:700;color:#1d1d1f;letter-spacing:.02em;margin-bottom:3px}
 .lc p{font-size:11px;color:#999;line-height:1.4}
@@ -163,6 +163,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
     <div class="landing-logo">锐力体育</div>
     <div class="landing-sub">学员管理系统</div>
     <div class="landing-cards">
+      <div class="lc c0" onclick="goAdminLogin()">
+        <div class="lc-badge">00</div>
+        <div class="lc-body">
+          <h3>账号管理</h3>
+          <p>教练·店长·充值记录</p>
+        </div>
+      </div>
       <div class="lc c1" onclick="goStoreSelect('coach')">
         <div class="lc-badge">01</div>
         <div class="lc-body">
@@ -186,6 +193,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
       </div>
     </div>
   </div>
+</div>
+
+<!-- Admin Management -->
+<div class="page" id="pgAdminLogin">
+<div class="header"><div class="hleft"><button class="bbtn" onclick="goLand()">&#8592;</button><span class="htitle">账号管理</span></div></div>
+<div class="ctn">
+  <div class="login-box" style="margin-top:20px">
+    <h2>管理员登录</h2>
+    <div class="login-sub">请输入管理密码</div>
+    <div class="fg"><label>密码</label><input id="adminPwd" type="password" placeholder="管理密码" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+    <button class="btn btn-p" onclick="doAdminLogin()">登 录</button>
+  </div>
+</div>
+</div>
+
+<div class="page" id="pgAdmin">
+<div class="header"><div class="hleft"><button class="bbtn" onclick="goLand()">&#8592;</button><span class="htitle">账号管理</span></div><span class="badge badge-mg">管理员</span></div>
+<div class="ctn" id="adminCtn">
+  <div class="stitle">教练账号 <span id="adminCoachCount" style="font-size:12px;color:var(--g400);font-weight:400"></span></div>
+  <div class="card" id="adminCoachList"></div>
+
+  <div class="stitle" style="margin-top:16px">店长信息</div>
+  <div class="card" id="adminMgrList"></div>
+
+  <div class="stitle" style="margin-top:16px">课程充值记录 <span id="adminRecCount" style="font-size:12px;color:var(--g400);font-weight:400"></span></div>
+  <div class="card" id="adminRecList"></div>
+</div>
 </div>
 
 <!-- Store Selection -->
@@ -539,6 +573,57 @@ function toast(m,t){const c=document.getElementById('tc'),e=document.createEleme
 function showConf(title,body,cb){document.getElementById('confTitle').textContent=title;document.getElementById('confBody').innerHTML=body;confCb=cb;document.getElementById('moConf').classList.add('on')}
 function doConf(){if(confCb)confCb();clsMo('moConf')}
 function clsMo(id){document.getElementById(id).classList.remove('on');if(id==='moConf')confCb=null}
+
+// ===== Admin Management =====
+const ADMIN_PWD='123456';
+let adminAuth=false;
+
+function goAdminLogin(){go('pgAdminLogin');document.getElementById('adminPwd').value=''}
+function doAdminLogin(){const p=document.getElementById('adminPwd').value;if(p===ADMIN_PWD){adminAuth=true;enterAdmin()}else{toast('密码错误','no')}}
+async function enterAdmin(){
+  go('pgAdmin');
+  try{
+    const [coaches,recs]=await Promise.all([
+      fetch('/api/admin/coaches?pwd=123456').then(r=>r.json()),
+      fetch('/api/admin/records?pwd=123456').then(r=>r.json())
+    ]);
+    renderAdminCoaches(coaches);
+    renderAdminMgrs();
+    renderAdminRecs(recs);
+  }catch(e){toast('加载失败','no')}
+}
+
+function renderAdminCoaches(coaches){
+  const el=document.getElementById('adminCoachList');
+  document.getElementById('adminCoachCount').textContent='('+coaches.length+'人)';
+  el.innerHTML=coaches.map(c=>'<div class="irow"><div><div class="mn">'+c.name+'</div><div class="mid">账号: '+c.username+' · 密码: '+c.password+(c.stores?' · '+c.stores.join(','):'')+'</div></div></div>').join('')||'<div class="empty">暂无教练</div>';
+}
+
+function renderAdminMgrs(){
+  const el=document.getElementById('adminMgrList');
+  const mgrs=[
+    {name:'陈哲',role:'店长',pwd:'admin888',stores:'全店'},
+    {name:'熊彬',role:'店长',pwd:'admin888',stores:'全店'},
+    {name:'叶川',role:'店长',pwd:'admin888',stores:'全店'}
+  ];
+  el.innerHTML=mgrs.map(m=>'<div class="irow"><div><div class="mn">'+m.name+' ('+m.role+')</div><div class="mid">密码: '+m.pwd+' · 适用: '+m.stores+'</div></div></div>').join('');
+}
+
+function renderAdminRecs(recs){
+  const el=document.getElementById('adminRecList');
+  // Sort by time desc
+  recs.sort((a,b)=>(b.time||'').localeCompare(a.time||''));
+  document.getElementById('adminRecCount').textContent='('+recs.length+'条)';
+  const show=recs.slice(0,5);
+  const hidden=recs.slice(5);
+  let h=show.map(r=>'<div class="ri"><div class="rd"></div><div class="rm"><div class="rn">'+(r.sname||'')+' '+r.type+r.n+'节</div><div class="rmt">'+(r.coach||'')+' · '+(r._store||'')+' · '+(r.time||'')+'</div></div></div>').join('');
+  if(hidden.length){
+    h+='<div id="adminRecMore" style="display:none">'+hidden.map(r=>'<div class="ri"><div class="rd"></div><div class="rm"><div class="rn">'+(r.sname||'')+' '+r.type+r.n+'节</div><div class="rmt">'+(r.coach||'')+' · '+(r._store||'')+' · '+(r.time||'')+'</div></div></div>').join('')+'</div>';
+    h+='<button class="btn btn-o btn-sm" style="width:100%;margin-top:8px" onclick="this.previousElementSibling.style.display=\'block\';this.style.display=\'none\'">展开全部 ('+hidden.length+'条)</button>';
+  }
+  if(!recs.length)h='<div class="empty">暂无充值记录</div>';
+  el.innerHTML=h;
+}
 
 // Hash routing
 const h=window.location.hash;const hParams=new URLSearchParams(h.split('?')[1]);if(hParams.get('store'))currentStore=hParams.get('store');if(h==='#coach'||h.startsWith('#coach?'))goCoachLogin();else if(h==='#parent'||h.startsWith('#parent?'))goParent();

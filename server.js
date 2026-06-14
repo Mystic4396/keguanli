@@ -433,6 +433,44 @@ async function initAllStores() {
 
 initAllStores().then(() => {
   const APP_VERSION = '2.3-prospect';
+
+// Admin API - returns coach accounts with passwords
+app.get('/api/admin/coaches', async (req, res) => {
+  const pwd = req.query.pwd;
+  if (pwd !== '123456') return res.status(401).json({ error: '未授权' });
+  const stores = ['henglicheng', 'baolong', 'taihe', 'yangguang'];
+  const storeNames = { henglicheng: '恒力城', baolong: '宝龙', taihe: '泰禾', yangguang: '阳光天地' };
+  const result = [];
+  for (const s of stores) {
+    try {
+      const data = await readData(s);
+      data.coaches.forEach(c => {
+        const existing = result.find(x => x.username === c.username);
+        if (!existing) result.push({ username: c.username, password: c.password, name: c.name, stores: [storeNames[s]] });
+        else existing.stores.push(storeNames[s]);
+      });
+    } catch(e) {}
+  }
+  res.json(result);
+});
+
+// Admin API - returns all recharge records across stores
+app.get('/api/admin/records', async (req, res) => {
+  const pwd = req.query.pwd;
+  if (pwd !== '123456') return res.status(401).json({ error: '未授权' });
+  const stores = ['henglicheng', 'baolong', 'taihe', 'yangguang'];
+  const storeNames = { henglicheng: '恒力城', baolong: '宝龙', taihe: '泰禾', yangguang: '阳光天地' };
+  let allRecords = [];
+  for (const s of stores) {
+    try {
+      const data = await readData(s);
+      if (data.records) data.records.forEach(r => { r._store = storeNames[s]; allRecords.push(r); });
+    } catch(e) {}
+  }
+  allRecords.sort((a, b) => (b.time || '').localeCompare(a.time || ''));
+  res.json(allRecords);
+});
+
 app.listen(PORT, () => console.log('Running on ' + PORT));
 });
 // Build 1781206668
