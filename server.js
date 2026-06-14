@@ -434,37 +434,122 @@ async function initAllStores() {
 initAllStores().then(() => {
   const APP_VERSION = '2.3-prospect';
 
-// Admin API - returns coach accounts with passwords
+// Admin API - auth check
+function adminCheck(pwd) { return pwd === '123456'; }
+const ADMIN_STORES = ['henglicheng', 'baolong', 'taihe', 'yangguang'];
+const ADMIN_STORE_NAMES = { henglicheng: '恒力城', baolong: '宝龙', taihe: '泰禾', yangguang: '阳光天地' };
+
+// List coaches with passwords
 app.get('/api/admin/coaches', async (req, res) => {
-  const pwd = req.query.pwd;
-  if (pwd !== '123456') return res.status(401).json({ error: '未授权' });
-  const stores = ['henglicheng', 'baolong', 'taihe', 'yangguang'];
-  const storeNames = { henglicheng: '恒力城', baolong: '宝龙', taihe: '泰禾', yangguang: '阳光天地' };
+  if (!adminCheck(req.query.pwd)) return res.status(401).json({ error: '未授权' });
   const result = [];
-  for (const s of stores) {
+  for (const s of ADMIN_STORES) {
     try {
       const data = await readData(s);
       data.coaches.forEach(c => {
         const existing = result.find(x => x.username === c.username);
-        if (!existing) result.push({ username: c.username, password: c.password, name: c.name, stores: [storeNames[s]] });
-        else existing.stores.push(storeNames[s]);
+        if (!existing) result.push({ username: c.username, password: c.password, name: c.name, stores: [ADMIN_STORE_NAMES[s]] });
+        else existing.stores.push(ADMIN_STORE_NAMES[s]);
       });
     } catch(e) {}
   }
   res.json(result);
 });
 
-// Admin API - returns all recharge records across stores
-app.get('/api/admin/records', async (req, res) => {
-  const pwd = req.query.pwd;
-  if (pwd !== '123456') return res.status(401).json({ error: '未授权' });
-  const stores = ['henglicheng', 'baolong', 'taihe', 'yangguang'];
-  const storeNames = { henglicheng: '恒力城', baolong: '宝龙', taihe: '泰禾', yangguang: '阳光天地' };
-  let allRecords = [];
-  for (const s of stores) {
+// Add coach to all stores
+app.post('/api/admin/coaches', async (req, res) => {
+  if (!adminCheck(req.body.pwd)) return res.status(401).json({ error: '未授权' });
+  const { username, password, name } = req.body;
+  if (!username || !password || !name) return res.status(400).json({ error: '信息不完整' });
+  for (const s of ADMIN_STORES) {
     try {
       const data = await readData(s);
-      if (data.records) data.records.forEach(r => { r._store = storeNames[s]; allRecords.push(r); });
+      if (data.coaches.find(c => c.username === username)) continue;
+      data.coaches.push({ username, password, name });
+      await writeData(data, s);
+    } catch(e) { console.error('Add coach error:', e.message); }
+  }
+  // Also add to customCoaches in perf
+  for (const s of ADMIN_STORES) {
+    try {
+      const perf = await readPerf(s);
+      if (!perf.customCoaches.includes(name)) { perf.customCoaches.push(name); await writePerfData(perf, s); }
+    } catch(e) {}
+  }
+  res.json({ ok: true });
+});
+
+// Update coach across all stores
+app.put('/api/admin/coaches', async (req, res) => {
+  if (!adminCheck(req.body.pwd)) return res.status(401).json({ error: '未授权' });
+  const { oldUsername, username, password, name } = req.body;
+  if (!oldUsername || !username || !password || !name) return res.status(400).json({ error: '信息不完整' });
+  for (const s of ADMIN_STORES) {
+    try {
+      const data = await readData(s);
+      const c = data.coaches.find(x => x.username === oldUsername);
+      if (c) { 
+        const oldName = c.name;
+        c.username = username; c.password = password; c.name = name;
+        await writeData(data, s);
+        // Update customCoaches in perf
+        const perf = await readPerf(s);
+        if (perf.customCoaches) {
+          const idx = perf.customCoaches.indexOf(oldName);
+          if (idx >= 0) { perf.customCoaches[idx] = name; await writePerfData(perf, s); }
+        }
+      }
+    } catch(e) { console.error('Update coach error:', e.message); }
+  }
+  res.json({ ok: true });
+});
+
+// Delete coach from all stores
+app.delete('/api/admin/coaches', async (req, res) => {
+  if (!adminCheck(req.query.pwd)) return res.status(401).json({ error: '未授权' });
+  const username = req.query.username;
+  if (!username) return res.status(400).json({ error: '缺少username' });
+  for (const s of ADMIN_STORES) {
+    try {
+      const data = await readData(s);
+      const coach = data.coaches.find(c => c.username === username);
+      const coachName = coach ? coach.name : '';
+      data.coaches = data.coaches.filter(c => c.username !== username);
+      await writeData(data, s);
+      // Remove from customCoaches in perf
+      const perf = await readPerf(s);
+      if (perf.customCoaches) {
+        perf.customCoaches = perf.customCoaches.filter(n => n !== coachName);
+        await writePerfData(perf, s);
+      }
+    } catch(e) { console.error('Delete coach error:', e.message); }
+  }
+  res.json({ ok: true });
+});
+
+// Update manager password for all stores
+app.put('/api/admin/manager-pwd', async (req, res) => {
+  if (!adminCheck(req.body.pwd)) return res.status(401).json({ error: '未授权' });
+  const { newPassword } = req.body;
+  if (!newPassword) return res.status(400).json({ error: '密码不能为空' });
+  for (const s of ADMIN_STORES) {
+    try {
+      const perf = await readPerf(s);
+      perf.managerPassword = newPassword;
+      await writePerfData(perf, s);
+    } catch(e) { console.error('Update mgr pwd error:', e.message); }
+  }
+  res.json({ ok: true });
+});
+
+// Get only recharge records across all stores
+app.get('/api/admin/records', async (req, res) => {
+  if (!adminCheck(req.query.pwd)) return res.status(401).json({ error: '未授权' });
+  let allRecords = [];
+  for (const s of ADMIN_STORES) {
+    try {
+      const data = await readData(s);
+      if (data.records) data.records.filter(r => r.type === '充').forEach(r => { r._store = ADMIN_STORE_NAMES[s]; allRecords.push(r); });
     } catch(e) {}
   }
   allRecords.sort((a, b) => (b.time || '').localeCompare(a.time || ''));

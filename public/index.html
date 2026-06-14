@@ -213,14 +213,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
 <div class="ctn" id="adminCtn">
   <div class="stitle">教练账号 <span id="adminCoachCount" style="font-size:12px;color:var(--g400);font-weight:400"></span></div>
   <div class="card" id="adminCoachList"></div>
+  <button class="btn btn-o btn-sm" style="width:100%;margin-top:8px" onclick="adminShowAddCoach()">+ 添加教练</button>
 
-  <div class="stitle" style="margin-top:16px">店长信息</div>
-  <div class="card" id="adminMgrList"></div>
+  <div class="stitle" style="margin-top:16px">店长密码</div>
+  <div class="card" id="adminMgrCard">
+    <div class="fg"><label>店长登录密码（所有门店通用）</label><input id="adminMgrPwd" type="text" placeholder="店长密码"></div>
+    <button class="btn btn-p btn-sm" style="width:100%" onclick="adminSaveMgrPwd()">保存密码</button>
+  </div>
 
   <div class="stitle" style="margin-top:16px">课程充值记录 <span id="adminRecCount" style="font-size:12px;color:var(--g400);font-weight:400"></span></div>
   <div class="card" id="adminRecList"></div>
 </div>
 </div>
+
+<!-- Coach Edit Modal -->
+<div class="mo" id="moCoachEdit"><div class="md">
+  <h3 id="coachEditTitle">编辑教练</h3>
+  <div class="fg"><label>账号</label><input id="ceUser" placeholder="英文账号"></div>
+  <div class="fg"><label>密码</label><input id="cePwd" placeholder="登录密码"></div>
+  <div class="fg"><label>姓名</label><input id="ceName" placeholder="显示名称"></div>
+  <div class="md-acts">
+    <button class="btn btn-o" onclick="clsMo('moCoachEdit')">取消</button>
+    <button class="btn btn-p" onclick="adminSaveCoach()">保存</button>
+  </div>
+</div></div>
 
 <!-- Store Selection -->
 <div class="page" id="pgStore">
@@ -576,19 +592,21 @@ function clsMo(id){document.getElementById(id).classList.remove('on');if(id==='m
 
 // ===== Admin Management =====
 const ADMIN_PWD='123456';
-let adminAuth=false;
+let adminAuth=false,adminCoaches=[],adminEditOldUser=null;
 
 function goAdminLogin(){go('pgAdminLogin');document.getElementById('adminPwd').value=''}
 function doAdminLogin(){const p=document.getElementById('adminPwd').value;if(p===ADMIN_PWD){adminAuth=true;enterAdmin()}else{toast('密码错误','no')}}
+
 async function enterAdmin(){
   go('pgAdmin');
   try{
     const [coaches,recs]=await Promise.all([
-      fetch('/api/admin/coaches?pwd=123456').then(r=>r.json()),
-      fetch('/api/admin/records?pwd=123456').then(r=>r.json())
+      fetch('/api/admin/coaches?pwd='+ADMIN_PWD).then(r=>r.json()),
+      fetch('/api/admin/records?pwd='+ADMIN_PWD).then(r=>r.json())
     ]);
+    adminCoaches=coaches;
     renderAdminCoaches(coaches);
-    renderAdminMgrs();
+    renderAdminMgrPwd();
     renderAdminRecs(recs);
   }catch(e){toast('加载失败','no')}
 }
@@ -596,34 +614,83 @@ async function enterAdmin(){
 function renderAdminCoaches(coaches){
   const el=document.getElementById('adminCoachList');
   document.getElementById('adminCoachCount').textContent='('+coaches.length+'人)';
-  el.innerHTML=coaches.map(c=>'<div class="irow"><div><div class="mn">'+c.name+'</div><div class="mid">账号: '+c.username+' · 密码: '+c.password+(c.stores?' · '+c.stores.join(','):'')+'</div></div></div>').join('')||'<div class="empty">暂无教练</div>';
+  el.innerHTML=coaches.map((c,i)=>'<div class="irow" style="flex-wrap:wrap"><div style="flex:1;min-width:0"><div class="mn">'+c.name+'</div><div class="mid">账号: '+c.username+' · 密码: '+c.password+(c.stores?' · '+c.stores.join(','):'')+'</div></div><div style="display:flex;gap:6px;margin-top:4px"><button class="btn btn-o btn-sm" onclick="adminEditCoach('+i+')">编辑</button><button class="btn btn-no btn-sm" style="background:var(--no);color:#fff" onclick="adminDelCoach('+i+')">删除</button></div></div>').join('')||'<div class="empty">暂无教练</div>';
 }
 
-function renderAdminMgrs(){
-  const el=document.getElementById('adminMgrList');
-  const mgrs=[
-    {name:'陈哲',role:'店长',pwd:'admin888',stores:'全店'},
-    {name:'熊彬',role:'店长',pwd:'admin888',stores:'全店'},
-    {name:'叶川',role:'店长',pwd:'admin888',stores:'全店'}
-  ];
-  el.innerHTML=mgrs.map(m=>'<div class="irow"><div><div class="mn">'+m.name+' ('+m.role+')</div><div class="mid">密码: '+m.pwd+' · 适用: '+m.stores+'</div></div></div>').join('');
+function adminShowAddCoach(){
+  adminEditOldUser=null;
+  document.getElementById('coachEditTitle').textContent='添加教练';
+  document.getElementById('ceUser').value='';
+  document.getElementById('cePwd').value='123456';
+  document.getElementById('ceName').value='';
+  document.getElementById('moCoachEdit').classList.add('on');
+}
+
+function adminEditCoach(idx){
+  const c=adminCoaches[idx];if(!c)return;
+  adminEditOldUser=c.username;
+  document.getElementById('coachEditTitle').textContent='编辑教练';
+  document.getElementById('ceUser').value=c.username;
+  document.getElementById('cePwd').value=c.password;
+  document.getElementById('ceName').value=c.name;
+  document.getElementById('moCoachEdit').classList.add('on');
+}
+
+async function adminSaveCoach(){
+  const username=document.getElementById('ceUser').value.trim();
+  const password=document.getElementById('cePwd').value.trim();
+  const name=document.getElementById('ceName').value.trim();
+  if(!username||!password||!name){toast('请填写完整','wn');return}
+  try{
+    if(adminEditOldUser){
+      await fetch('/api/admin/coaches',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,oldUsername:adminEditOldUser,username,password,name})});
+      toast('已更新','ok');
+    }else{
+      await fetch('/api/admin/coaches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,username,password,name})});
+      toast('已添加','ok');
+    }
+    clsMo('moCoachEdit');
+    enterAdmin();
+  }catch(e){toast('操作失败','no')}
+}
+
+async function adminDelCoach(idx){
+  const c=adminCoaches[idx];if(!c)return;
+  if(!confirm('确定删除教练 '+c.name+'？'))return;
+  try{
+    await fetch('/api/admin/coaches?pwd='+ADMIN_PWD+'&username='+c.username,{method:'DELETE'});
+    toast('已删除','ok');
+    enterAdmin();
+  }catch(e){toast('删除失败','no')}
+}
+
+function renderAdminMgrPwd(){
+  document.getElementById('adminMgrPwd').value='admin888';
+}
+
+async function adminSaveMgrPwd(){
+  const newPwd=document.getElementById('adminMgrPwd').value.trim();
+  if(!newPwd){toast('密码不能为空','wn');return}
+  try{
+    await fetch('/api/admin/manager-pwd',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,newPassword:newPwd})});
+    toast('店长密码已更新','ok');
+  }catch(e){toast('保存失败','no')}
 }
 
 function renderAdminRecs(recs){
   const el=document.getElementById('adminRecList');
-  // Sort by time desc
-  recs.sort((a,b)=>(b.time||'').localeCompare(a.time||''));
   document.getElementById('adminRecCount').textContent='('+recs.length+'条)';
   const show=recs.slice(0,5);
   const hidden=recs.slice(5);
-  let h=show.map(r=>'<div class="ri"><div class="rd"></div><div class="rm"><div class="rn">'+(r.sname||'')+' '+r.type+r.n+'节</div><div class="rmt">'+(r.coach||'')+' · '+(r._store||'')+' · '+(r.time||'')+'</div></div></div>').join('');
+  let h=show.map(r=>'<div class="ri"><div class="rd" style="background:var(--ok)"></div><div class="rm"><div class="rn">'+(r.sname||'')+' 充'+r.n+'节</div><div class="rmt">'+(r.coach||'')+' · '+(r._store||'')+' · '+(r.time||'')+'</div></div><div class="rb rb-ok">充</div></div>').join('');
   if(hidden.length){
-    h+='<div id="adminRecMore" style="display:none">'+hidden.map(r=>'<div class="ri"><div class="rd"></div><div class="rm"><div class="rn">'+(r.sname||'')+' '+r.type+r.n+'节</div><div class="rmt">'+(r.coach||'')+' · '+(r._store||'')+' · '+(r.time||'')+'</div></div></div>').join('')+'</div>';
+    h+='<div id="adminRecMore" style="display:none">'+hidden.map(r=>'<div class="ri"><div class="rd" style="background:var(--ok)"></div><div class="rm"><div class="rn">'+(r.sname||'')+' 充'+r.n+'节</div><div class="rmt">'+(r.coach||'')+' · '+(r._store||'')+' · '+(r.time||'')+'</div></div><div class="rb rb-ok">充</div></div>').join('')+'</div>';
     h+='<button class="btn btn-o btn-sm" style="width:100%;margin-top:8px" onclick="this.previousElementSibling.style.display=\'block\';this.style.display=\'none\'">展开全部 ('+hidden.length+'条)</button>';
   }
   if(!recs.length)h='<div class="empty">暂无充值记录</div>';
   el.innerHTML=h;
 }
+
 
 // Hash routing
 const h=window.location.hash;const hParams=new URLSearchParams(h.split('?')[1]);if(hParams.get('store'))currentStore=hParams.get('store');if(h==='#coach'||h.startsWith('#coach?'))goCoachLogin();else if(h==='#parent'||h.startsWith('#parent?'))goParent();
