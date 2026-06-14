@@ -11,10 +11,19 @@ const REDIS_URL = 'https://enhanced-gecko-136149.upstash.io';
 const REDIS_TOKEN = 'gQAAAAAAAhPVAAIgcDE2ZWVhMDNiZTI5OTM0YjlkYTA3MzQ0Y2VmOTZmZmIxNQ';
 
 // 多门店Redis Key映射
-function getDataKey(store) { return store === 'baolong' ? 'classmanager:db:baolong' : 'classmanager:db'; }
-function getBackupKey(store) { return store === 'baolong' ? 'classmanager:db:baolong:backup' : 'classmanager:db:backup'; }
-function getPerfKey(store) { return store === 'baolong' ? 'classmanager:perf:baolong' : 'classmanager:perf'; }
-function getPerfBackupKey(store) { return store === 'baolong' ? 'classmanager:perf:baolong:backup' : 'classmanager:perf:backup'; }
+const STORE_KEY_MAP = {
+  henglicheng: { db: "classmanager:db", backup: "classmanager:db:backup", perf: "classmanager:perf", perfBackup: "classmanager:perf:backup" },
+  baolong: { db: "classmanager:db:baolong", backup: "classmanager:db:baolong:backup", perf: "classmanager:perf:baolong", perfBackup: "classmanager:perf:baolong:backup" },
+  taihe: { db: "classmanager:db:taihe", backup: "classmanager:db:taihe:backup", perf: "classmanager:perf:taihe", perfBackup: "classmanager:perf:taihe:backup" },
+  yangguang: { db: "classmanager:db:yangguang", backup: "classmanager:db:yangguang:backup", perf: "classmanager:perf:yangguang", perfBackup: "classmanager:perf:yangguang:backup" }
+};
+const STORE_LABELS = { henglicheng: "恒力城店", baolong: "宝龙店", taihe: "泰禾店", yangguang: "阳光天地店" };
+function getKey(store, type) { const m = STORE_KEY_MAP[store]; return m ? m[type] : STORE_KEY_MAP.henglicheng[type]; }
+function getDataKey(store) { return getKey(store, "db"); }
+function getBackupKey(store) { return getKey(store, "backup"); }
+function getPerfKey(store) { return getKey(store, "perf"); }
+function getPerfBackupKey(store) { return getKey(store, "perfBackup"); }
+function getStoreLabel(store) { return STORE_LABELS[store] || store; }
 
 const DEFAULT_DATA = {
   coaches: [
@@ -291,11 +300,11 @@ app.get('/api/export-html', async (req, res) => {
           });
         });
       }
-      const storeLabel = store === 'baolong' ? '宝龙店' : '恒力城店';
+      const storeLabel = getStoreLabel(store);
       stuHtml += `<div style="margin-bottom:24px;background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden"><div style="background:#4F46E5;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:600">${s.name}</span><span style="background:rgba(255,255,255,.2);padding:3px 12px;border-radius:20px;font-size:14px">剩余 ${s.classes} 节</span></div><div style="padding:8px 16px;color:#666;font-size:13px">编号：${s.id}${s.note ? '　备注：' + s.note : ''}　门店：${storeLabel}</div><table style="width:100%;border-collapse:collapse;font-size:14px"><tr style="background:#f9fafb;color:#666;font-size:12px"><th style="padding:6px 10px;text-align:left">时间</th><th style="padding:6px 10px;text-align:left">操作</th><th style="padding:6px 10px;text-align:left">教练</th><th style="padding:6px 10px;text-align:left">结果</th></tr>${recHtml}</table></div>`;
     });
 
-    const storeLabel = store === 'baolong' ? '宝龙店' : '恒力城店';
+    const storeLabel = getStoreLabel(store);
     const html = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>课时管理备份报表 - ${storeLabel}</title><style>body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#f3f4f6;margin:0;padding:20px;color:#1f2937}h1{text-align:center;font-size:22px;margin-bottom:4px}.sub{text-align:center;color:#666;font-size:13px;margin-bottom:24px}.summary{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;justify-content:center}.scard{background:#fff;border-radius:10px;padding:14px 24px;box-shadow:0 1px 3px rgba(0,0,0,.08);text-align:center}.scard .v{font-size:24px;font-weight:700;color:#4F46E5}.scard .l{font-size:12px;color:#666;margin-top:2px}</style></head><body><h1>📊 课时管理备份报表</h1><div class="sub">门店：${storeLabel}　导出时间：${now}</div><div class="summary"><div class="scard"><div class="v">${data.students.length}</div><div class="l">学员总数</div></div><div class="scard"><div class="v">${data.records.length}</div><div class="l">操作记录</div></div><div class="scard"><div class="v">${data.records.filter(r=>r.type==='扣').reduce((a,r)=>a+r.n,0)}</div><div class="l">累计扣减</div></div><div class="scard"><div class="v">${data.records.filter(r=>r.type==='充').reduce((a,r)=>a+r.n,0)}</div><div class="l">累计充值</div></div></div>${stuHtml}</body></html>`;
     res.setHeader('Content-Disposition', `attachment; filename=keguanli_${store}_backup.html`);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -417,6 +426,8 @@ app.put('/api/perf', async (req, res) => {
 // 初始化两个门店
 async function initAllStores() {
   await initRedisIfNeeded('henglicheng');
+  await initRedisIfNeeded('taihe');
+  await initRedisIfNeeded('yangguang');
   await initRedisIfNeeded('baolong');
 }
 
