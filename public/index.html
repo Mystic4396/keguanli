@@ -605,15 +605,16 @@ function doAdminLogin(){const p=document.getElementById('adminPwd').value;if(p==
 async function enterAdmin(){
   go('pgAdmin');
   try{
-    const [coaches,recs]=await Promise.all([
+    const [coaches,recs,mgrPwds]=await Promise.all([
       fetch('/api/admin/coaches?pwd='+ADMIN_PWD).then(r=>r.json()),
-      fetch('/api/admin/records?pwd='+ADMIN_PWD).then(r=>r.json())
+      fetch('/api/admin/records?pwd='+ADMIN_PWD).then(r=>r.json()),
+      fetch('/api/admin/manager-pwd?pwd='+ADMIN_PWD).then(r=>r.json())
     ]);
     adminCoaches=coaches;
     renderAdminCoaches(coaches);
-    renderAdminMgrPwd();
+    renderAdminMgrPwd(mgrPwds);
     renderAdminRecs(recs);
-  }catch(e){toast('加载失败','no')}
+  }catch(e){toast('加载失败','no');console.error(e)}
 }
 
 function renderAdminCoaches(coaches){
@@ -669,16 +670,27 @@ async function adminDelCoach(idx){
   }catch(e){toast('删除失败','no')}
 }
 
-function renderAdminMgrPwd(){
-  document.getElementById('adminMgrPwd').value='admin888';
+function renderAdminMgrPwd(mgrPwds){
+  const el=document.getElementById('adminMgrCard');
+  const stores=['henglicheng','baolong','taihe','yangguang'];
+  let h='';
+  stores.forEach(s=>{
+    const info=mgrPwds[s]||{store:s,password:'admin888'};
+    h+=`<div class="ri" style="align-items:center;gap:8px">
+      <div style="flex:0 0 auto;font-size:14px;min-width:70px">${info.store}</div>
+      <input id="mp_${s}" value="${info.password}" style="flex:1;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:14px">
+      <button class="btn btn-p btn-sm" onclick="adminSaveMgrPwd('${s}')">保存</button>
+    </div>`;
+  });
+  el.innerHTML=h;
 }
 
-async function adminSaveMgrPwd(){
-  const newPwd=document.getElementById('adminMgrPwd').value.trim();
+async function adminSaveMgrPwd(store){
+  const newPwd=document.getElementById('mp_'+store).value.trim();
   if(!newPwd){toast('密码不能为空','wn');return}
   try{
-    await fetch('/api/admin/manager-pwd',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,newPassword:newPwd})});
-    toast('店长密码已更新','ok');
+    await fetch('/api/admin/manager-pwd',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,store,newPassword:newPwd})});
+    toast('密码已更新','ok');
   }catch(e){toast('保存失败','no')}
 }
 
