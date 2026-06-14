@@ -368,17 +368,56 @@ async function writePerfData(data, store) {
   }
 }
 
+
+
+const MANAGERS_KEY = 'classmanager:managers';
+
+async function readManagers() {
+  try {
+    const r = await redisReq('GET', `/get/${MANAGERS_KEY}`);
+    if (r.result) {
+      let data = typeof r.result === 'string' ? JSON.parse(r.result) : r.result;
+      if (typeof data === 'string') data = JSON.parse(data);
+      if (Array.isArray(data) && data.length) return data;
+    }
+  } catch(e) { console.error('Read managers error:', e.message); }
+  // Default managers
+  return [
+    {name:'陈哲',password:'admin888',share:0.3,stores:['henglicheng']},
+    {name:'熊彬',password:'admin888',share:0.3,stores:['henglicheng']},
+    {name:'叶川',password:'admin888',share:0.4,stores:['henglicheng']}
+  ];
+}
+
+async function writeManagers(data) {
+  return await _rawWrite(MANAGERS_KEY, data);
+}
+
 app.post('/api/perf/login', async (req, res) => {
   const store = req.body.store || 'henglicheng';
+  const name = req.body.name || '';
+  const password = req.body.password || '';
   try {
-    const data = await readPerf(store);
-    if (req.body.password === data.managerPassword) {
-      res.json({ ok: true, role: 'manager' });
-    } else {
-      res.status(401).json({ error: '密码错误' });
+    const managers = await readManagers();
+    const mgr = managers.find(m => m.name === name);
+    if (!mgr || !mgr.stores.includes(store) || mgr.password !== password) {
+      return res.status(401).json({ error: '密码错误或无权限' });
     }
+    res.json({ ok: true, role: 'manager', share: mgr.share });
   } catch(e) {
     res.status(500).json({ error: '登录失败' });
+  }
+});
+
+// Get managers for a specific store (for login dropdown)
+app.get('/api/managers', async (req, res) => {
+  const store = req.query.store || 'henglicheng';
+  try {
+    const managers = await readManagers();
+    const filtered = managers.filter(m => m.stores.includes(store)).map(m => ({name: m.name, share: m.share}));
+    res.json(filtered);
+  } catch(e) {
+    res.status(500).json({ error: '获取失败' });
   }
 });
 
@@ -396,10 +435,14 @@ app.get('/api/perf', async (req, res) => {
 
 app.put('/api/perf', async (req, res) => {
   const store = req.body.store || 'henglicheng';
+  const mgrName = req.body.name || '';
+  const mgrPwd = req.body.password || '';
   try {
     const perf = await readPerf(store);
-    if (req.body.password !== perf.managerPassword) {
-      return res.status(401).json({ error: '密码错误' });
+    const managers = await readManagers();
+    const mgr = managers.find(m => m.name === mgrName);
+    if (!mgr || !mgr.stores.includes(store) || mgr.password !== mgrPwd) {
+      return res.status(401).json({ error: '密码错误或无权限' });
     }
     const u = req.body.updates || {};
     if (u.perfRecords) perf.perfRecords = u.perfRecords;
@@ -541,30 +584,57 @@ app.delete('/api/admin/coaches', async (req, res) => {
   res.json({ ok: true });
 });
 
-// Get all manager passwords (per store)
-app.get('/api/admin/manager-pwd', async (req, res) => {
+// Admin: List all managers
+app.get('/api/admin/managers', async (req, res) => {
   if (!adminCheck(req.query.pwd)) return res.status(401).json({ error: '未授权' });
-  const result = {};
-  for (const s of ADMIN_STORES) {
-    try {
-      const perf = await readPerf(s);
-      result[s] = { store: ADMIN_STORE_NAMES[s], password: perf.managerPassword || 'admin888' };
-    } catch(e) { result[s] = { store: ADMIN_STORE_NAMES[s], password: 'admin888' }; }
-  }
-  res.json(result);
+  try {
+    const managers = await readManagers();
+    res.json(managers);
+  } catch(e) { res.status(500).json({ error: '获取失败' }); }
 });
 
-// Update manager password for a specific store
-app.put('/api/admin/manager-pwd', async (req, res) => {
+// Admin: Add manager
+app.post('/api/admin/managers', async (req, res) => {
   if (!adminCheck(req.body.pwd)) return res.status(401).json({ error: '未授权' });
-  const { store, newPassword } = req.body;
-  if (!store || !newPassword) return res.status(400).json({ error: '参数不完整' });
+  const { name, password, share, stores } = req.body;
+  if (!name || !password) return res.status(400).json({ error: '参数不完整' });
   try {
-    const perf = await readPerf(store);
-    perf.managerPassword = newPassword;
-    await writePerfData(perf, store);
+    const managers = await readManagers();
+    if (managers.find(m => m.name === name)) return res.status(400).json({ error: '店长已存在' });
+    managers.push({ name, password, share: parseFloat(share) || 0, stores: stores || ['henglicheng'] });
+    await writeManagers(managers);
     res.json({ ok: true });
-  } catch(e) { res.status(500).json({ error: '保存失败' }); }
+  } catch(e) { res.status(500).json({ error: '添加失败' }); }
+});
+
+// Admin: Update manager
+app.put('/api/admin/managers', async (req, res) => {
+  if (!adminCheck(req.body.pwd)) return res.status(401).json({ error: '未授权' });
+  const { oldName, name, password, share, stores } = req.body;
+  if (!oldName || !name || !password) return res.status(400).json({ error: '参数不完整' });
+  try {
+    const managers = await readManagers();
+    const idx = managers.findIndex(m => m.name === oldName);
+    if (idx === -1) return res.status(404).json({ error: '店长不存在' });
+    // Check name conflict (if renaming)
+    if (name !== oldName && managers.find(m => m.name === name)) return res.status(400).json({ error: '店长名称已存在' });
+    managers[idx] = { name, password, share: parseFloat(share) || 0, stores: stores || ['henglicheng'] };
+    await writeManagers(managers);
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: '更新失败' }); }
+});
+
+// Admin: Delete manager
+app.delete('/api/admin/managers', async (req, res) => {
+  if (!adminCheck(req.query.pwd)) return res.status(401).json({ error: '未授权' });
+  const name = req.query.name;
+  if (!name) return res.status(400).json({ error: '参数不完整' });
+  try {
+    let managers = await readManagers();
+    managers = managers.filter(m => m.name !== name);
+    await writeManagers(managers);
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: '删除失败' }); }
 });
 
 // Get only recharge records across all stores
