@@ -27,8 +27,6 @@ function getStoreLabel(store) { return STORE_LABELS[store] || store; }
 
 const DEFAULT_DATA = {
   coaches: [
-    { username: 'coach1', password: '123456', name: '王教练' },
-    { username: 'coach2', password: '123456', name: '李教练' },
     { username: 'shutiao', password: '123456', name: '薯条教练' },
     { username: 'chenzhe', password: '123456', name: '小陈教练' },
     { username: 'huyi', password: '123456', name: '胡教练' },
@@ -319,7 +317,7 @@ const DEFAULT_PERF = {
   managerPassword: 'admin888',
   monthlyRevenue: {},
   coachBaseSalary: {
-    coach1: 0, coach2: 0, shutiao: 0, chenzhe: 0, huyi: 0, bin: 0
+    shutiao: 0, chenzhe: 0, huyi: 0, bin: 0
   },
   partTimeHours: {},
   partTimeRate: 20,
@@ -383,9 +381,9 @@ async function readManagers() {
   } catch(e) { console.error('Read managers error:', e.message); }
   // Default managers
   return [
-    {name:'陈哲',password:'admin888',share:0.3,stores:['henglicheng']},
-    {name:'熊彬',password:'admin888',share:0.3,stores:['henglicheng']},
-    {name:'叶川',password:'admin888',share:0.4,stores:['henglicheng']}
+    {name:'陈哲',password:'admin888',shares:{henglicheng:0.3},stores:['henglicheng']},
+    {name:'熊彬',password:'admin888',shares:{henglicheng:0.3},stores:['henglicheng']},
+    {name:'叶川',password:'admin888',shares:{henglicheng:0.4},stores:['henglicheng']}
   ];
 }
 
@@ -403,7 +401,8 @@ app.post('/api/perf/login', async (req, res) => {
     if (!mgr || !mgr.stores.includes(store) || mgr.password !== password) {
       return res.status(401).json({ error: '密码错误或无权限' });
     }
-    res.json({ ok: true, role: 'manager', share: mgr.share });
+    const storeShare = (mgr.shares && mgr.shares[store]) || mgr.share || 0;
+    res.json({ ok: true, role: 'manager', share: storeShare });
   } catch(e) {
     res.status(500).json({ error: '登录失败' });
   }
@@ -414,7 +413,7 @@ app.get('/api/managers', async (req, res) => {
   const store = req.query.store || 'henglicheng';
   try {
     const managers = await readManagers();
-    const filtered = managers.filter(m => m.stores.includes(store)).map(m => ({name: m.name, share: m.share}));
+    const filtered = managers.filter(m => m.stores.includes(store)).map(m => ({name: m.name, share: (m.shares && m.shares[store]) || m.share || 0}));
     res.json(filtered);
   } catch(e) {
     res.status(500).json({ error: '获取失败' });
@@ -601,7 +600,9 @@ app.post('/api/admin/managers', async (req, res) => {
   try {
     const managers = await readManagers();
     if (managers.find(m => m.name === name)) return res.status(400).json({ error: '店长已存在' });
-    managers.push({ name, password, share: parseFloat(share) || 0, stores: stores || ['henglicheng'] });
+    // Build shares object from shares param or fallback to single share
+    const sharesObj = shares || (share != null ? Object.fromEntries((stores || ['henglicheng']).map(s => [s, parseFloat(share) || 0])) : {});
+    managers.push({ name, password, shares: sharesObj, stores: stores || ['henglicheng'] });
     await writeManagers(managers);
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: '添加失败' }); }
@@ -618,7 +619,8 @@ app.put('/api/admin/managers', async (req, res) => {
     if (idx === -1) return res.status(404).json({ error: '店长不存在' });
     // Check name conflict (if renaming)
     if (name !== oldName && managers.find(m => m.name === name)) return res.status(400).json({ error: '店长名称已存在' });
-    managers[idx] = { name, password, share: parseFloat(share) || 0, stores: stores || ['henglicheng'] };
+    const sharesObj = shares || (share != null ? Object.fromEntries((stores || ['henglicheng']).map(s => [s, parseFloat(share) || 0])) : {});
+    managers[idx] = { name, password, shares: sharesObj, stores: stores || ['henglicheng'] };
     await writeManagers(managers);
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: '更新失败' }); }
