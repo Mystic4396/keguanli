@@ -256,13 +256,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC'
   <h3 id="mgrEditTitle">编辑店长</h3>
   <div class="fg"><label>姓名</label><input id="meName" placeholder="店长姓名"></div>
   <div class="fg"><label>密码</label><input id="mePwd" placeholder="登录密码"></div>
-  <div class="fg"><label>利润分成</label><input id="meShare" type="number" step="0.1" min="0" max="1" placeholder="如0.3表示30%"></div>
-  <div class="fg"><label>适用门店</label>
+  <div class="fg"><label>适用门店与分成</label>
     <div style="display:block;padding:8px 0">
-      <label style="font-size:14px;display:flex;align-items:center;gap:4px;margin-bottom:4px"><input type="checkbox" id="meS1" value="henglicheng" checked>恒力城</label>
-      <label style="font-size:14px;display:flex;align-items:center;gap:4px;margin-bottom:4px"><input type="checkbox" id="meS2" value="baolong" checked>宝龙</label>
-      <label style="font-size:14px;display:flex;align-items:center;gap:4px;margin-bottom:4px"><input type="checkbox" id="meS3" value="taihe" checked>泰禾</label>
-      <label style="font-size:14px;display:flex;align-items:center;gap:4px;margin-bottom:4px"><input type="checkbox" id="meS4" value="yangguang" checked>阳光天地</label>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><input type="checkbox" id="meS1" value="henglicheng" checked><span style="width:56px;font-size:14px">恒力城</span><input id="meShare1" type="number" step="0.1" min="0" max="1" placeholder="分成" style="width:70px;font-size:13px;padding:3px 6px;border:1px solid var(--g200);border-radius:4px"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><input type="checkbox" id="meS2" value="baolong" checked><span style="width:56px;font-size:14px">宝龙</span><input id="meShare2" type="number" step="0.1" min="0" max="1" placeholder="分成" style="width:70px;font-size:13px;padding:3px 6px;border:1px solid var(--g200);border-radius:4px"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><input type="checkbox" id="meS3" value="taihe" checked><span style="width:56px;font-size:14px">泰禾</span><input id="meShare3" type="number" step="0.1" min="0" max="1" placeholder="分成" style="width:70px;font-size:13px;padding:3px 6px;border:1px solid var(--g200);border-radius:4px"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><input type="checkbox" id="meS4" value="yangguang" checked><span style="width:56px;font-size:14px">阳光天地</span><input id="meShare4" type="number" step="0.1" min="0" max="1" placeholder="分成" style="width:70px;font-size:13px;padding:3px 6px;border:1px solid var(--g200);border-radius:4px"></div>
     </div>
   </div>
   <div class="md-acts">
@@ -710,14 +709,17 @@ function renderAdminMgrs(mgrs){
   const el=document.getElementById('adminMgrList');
   document.getElementById('adminMgrCount').textContent='('+mgrs.length+'人)';
   const SN={'henglicheng':'恒力城','baolong':'宝龙','taihe':'泰禾','yangguang':'阳光天地'};
-  el.innerHTML=mgrs.map((m,i)=>'<div class="admin-item"><div class="admin-item-name">'+m.name+'</div><div class="admin-item-stores">'+(m.stores?m.stores.map(s=>SN[s]||s).join('、'):'')+'</div><div class="admin-item-info">密码: '+m.password+'</div><div class="admin-item-info">分成: '+(m.share*100)+'%</div><div class="admin-item-acts"><button class="btn btn-o btn-sm" onclick="adminEditMgr('+i+')">编辑</button><button class="btn btn-no btn-sm" style="background:var(--no);color:#fff" onclick="adminDelMgr('+i+')">删除</button></div></div>').join('')||'<div class="empty">暂无店长</div>';
+  el.innerHTML=mgrs.map((m,i)=>{const sharesHtml=m.stores?m.stores.map(s=>SN[s]+': '+((m.shares&&m.shares[s]||m.share||0)*100)+'%').join('、'):(m.share?(m.share*100+'%'):'未设置');return '<div class="admin-item"><div class="admin-item-name">'+m.name+'</div><div class="admin-item-info">密码: '+m.password+'</div><div class="admin-item-info">分成: '+sharesHtml+'</div><div class="admin-item-acts"><button class="btn btn-o btn-sm" onclick="adminEditMgr('+i+')">编辑</button><button class="btn btn-no btn-sm" style="background:var(--no);color:#fff" onclick="adminDelMgr('+i+')">删除</button></div></div>'}).join('')||'<div class="empty">暂无店长</div>';
 }
 function adminShowAddMgr(){
   adminEditOldMgrName=null;
   document.getElementById('mgrEditTitle').textContent='添加店长';
   document.getElementById('meName').value='';
   document.getElementById('mePwd').value='admin888';
-  document.getElementById('meShare').value='0.3';
+  document.getElementById('meShare1').value='0.3';
+  document.getElementById('meShare2').value='0.3';
+  document.getElementById('meShare3').value='0.3';
+  document.getElementById('meShare4').value='0.3';
   document.getElementById('meS1').checked=true;document.getElementById('meS2').checked=true;document.getElementById('meS3').checked=true;document.getElementById('meS4').checked=true;
   document.getElementById('moMgrEdit').classList.add('on');
 }
@@ -727,11 +729,15 @@ function adminEditMgr(idx){
   document.getElementById('mgrEditTitle').textContent='编辑店长';
   document.getElementById('meName').value=m.name;
   document.getElementById('mePwd').value=m.password;
-  document.getElementById('meShare').value=m.share;
+  const ms=m.shares||{};
   document.getElementById('meS1').checked=m.stores.includes('henglicheng');
+  document.getElementById('meShare1').value=ms.henglicheng!=null?ms.henglicheng:(m.share||'');
   document.getElementById('meS2').checked=m.stores.includes('baolong');
+  document.getElementById('meShare2').value=ms.baolong!=null?ms.baolong:'';
   document.getElementById('meS3').checked=m.stores.includes('taihe');
+  document.getElementById('meShare3').value=ms.taihe!=null?ms.taihe:'';
   document.getElementById('meS4').checked=m.stores.includes('yangguang');
+  document.getElementById('meShare4').value=ms.yangguang!=null?ms.yangguang:'';
   document.getElementById('moMgrEdit').classList.add('on');
 }
 function getMgrStores(){
@@ -745,16 +751,20 @@ function getMgrStores(){
 async function adminSaveMgr(){
   const name=document.getElementById('meName').value.trim();
   const password=document.getElementById('mePwd').value.trim();
-  const share=parseFloat(document.getElementById('meShare').value)||0;
   const stores=getMgrStores();
+  const shares={};
+  if(document.getElementById('meS1').checked&&document.getElementById('meShare1').value)shares.henglicheng=parseFloat(document.getElementById('meShare1').value)||0;
+  if(document.getElementById('meS2').checked&&document.getElementById('meShare2').value)shares.baolong=parseFloat(document.getElementById('meShare2').value)||0;
+  if(document.getElementById('meS3').checked&&document.getElementById('meShare3').value)shares.taihe=parseFloat(document.getElementById('meShare3').value)||0;
+  if(document.getElementById('meS4').checked&&document.getElementById('meShare4').value)shares.yangguang=parseFloat(document.getElementById('meShare4').value)||0;
   if(!name||!password){toast('请填写完整','wn');return}
   if(!stores.length){toast('请选择至少一个门店','wn');return}
   try{
     if(adminEditOldMgrName){
-      await fetch('/api/admin/managers',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,oldName:adminEditOldMgrName,name,password,share,stores})});
+      await fetch('/api/admin/managers',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,oldName:adminEditOldMgrName,name,password,shares,stores})});
       toast('已更新','ok');
     }else{
-      await fetch('/api/admin/managers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,name,password,share,stores})});
+      await fetch('/api/admin/managers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,name,password,shares,stores})});
       toast('已添加','ok');
     }
     clsMo('moMgrEdit');enterAdmin();
