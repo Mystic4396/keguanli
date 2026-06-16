@@ -5,6 +5,25 @@ const path = require('path');
 
 const app = express();
 app.use(express.json());
+
+// Simple gzip compression for JSON API responses
+app.use((req, res, next) => {
+  const orig = res.json;
+  res.json = function(data) {
+    const body = typeof data === 'string' ? data : JSON.stringify(data);
+    if (body.length < 500 || !req.headers['accept-encoding'] || !req.headers['accept-encoding'].includes('gzip')) {
+      return orig.call(this, data);
+    }
+    const zlib = require('zlib');
+    zlib.gzip(body, (err, compressed) => {
+      if (err) return orig.call(this, data);
+      res.set('Content-Encoding', 'gzip');
+      res.set('Content-Type', 'application/json');
+      res.send(compressed);
+    });
+  };
+  next();
+});
 const PORT = process.env.PORT || 3000;
 
 const REDIS_URL = 'https://enhanced-gecko-136149.upstash.io';
@@ -202,7 +221,14 @@ async function writeData(data, store) {
   }
 }
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '7d',
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.set('Cache-Control', 'no-cache');
+    }
+  }
+}));
 
 // 所有数据API都支持store参数
 // Lightweight ping for keep-alive (no Redis call)
