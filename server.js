@@ -614,7 +614,7 @@ app.post('/api/admin/managers', async (req, res) => {
     managers.push({ name, password, shares: sharesObj, stores: stores || ['henglicheng'] });
     await writeManagers(managers);
     res.json({ ok: true });
-  } catch(e) { res.status(500).json({ error: '添加失败' }); }
+  } catch(e) { console.error('Add manager error:', e); res.status(500).json({ error: '添加失败: '+e.message }); }
 });
 
 // Admin: Update manager
