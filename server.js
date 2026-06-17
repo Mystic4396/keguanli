@@ -604,7 +604,7 @@ app.get('/api/admin/managers', async (req, res) => {
 // Admin: Add manager
 app.post('/api/admin/managers', async (req, res) => {
   if (!adminCheck(req.body.pwd)) return res.status(401).json({ error: '未授权' });
-  const { name, password, share, stores } = req.body;
+  const { name, password, share, shares, stores } = req.body;
   if (!name || !password) return res.status(400).json({ error: '参数不完整' });
   try {
     const managers = await readManagers();
@@ -620,7 +620,7 @@ app.post('/api/admin/managers', async (req, res) => {
 // Admin: Update manager
 app.put('/api/admin/managers', async (req, res) => {
   if (!adminCheck(req.body.pwd)) return res.status(401).json({ error: '未授权' });
-  const { oldName, name, password, share, stores } = req.body;
+  const { oldName, name, password, share, shares, stores } = req.body;
   if (!oldName || !name || !password) return res.status(400).json({ error: '参数不完整' });
   try {
     const managers = await readManagers();
@@ -632,7 +632,7 @@ app.put('/api/admin/managers', async (req, res) => {
     managers[idx] = { name, password, shares: sharesObj, stores: stores || ['henglicheng'] };
     await writeManagers(managers);
     res.json({ ok: true });
-  } catch(e) { res.status(500).json({ error: '更新失败' }); }
+  } catch(e) { console.error('Update manager error:', e); res.status(500).json({ error: '更新失败: '+e.message }); }
 });
 
 // Admin: Delete manager
