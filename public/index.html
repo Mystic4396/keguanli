@@ -686,10 +686,12 @@ async function adminSaveCoach(){
   if(!username||!password||!name){toast('请填写完整','wn');return}
   try{
     if(adminEditOldUser){
-      await fetch('/api/admin/coaches',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,oldUsername:adminEditOldUser,username,password,name})});
+      const cr=await fetch('/api/admin/coaches',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,oldUsername:adminEditOldUser,username,password,name})});
+      if(!cr.ok){const e=await cr.json().catch(()=>({error:'更新失败'}));toast(e.error||'更新失败','no');return}
       toast('已更新','ok');
     }else{
-      await fetch('/api/admin/coaches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,username,password,name})});
+      const cr2=await fetch('/api/admin/coaches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,username,password,name})});
+      if(!cr2.ok){const e=await cr2.json().catch(()=>({error:'添加失败'}));toast(e.error||'添加失败','no');return}
       toast('已添加','ok');
     }
     clsMo('moCoachEdit');
@@ -701,7 +703,7 @@ async function adminDelCoach(idx){
   const c=adminCoaches[idx];if(!c)return;
   if(!confirm('确定删除教练 '+c.name+'？'))return;
   try{
-    await fetch('/api/admin/coaches?pwd='+ADMIN_PWD+'&username='+c.username,{method:'DELETE'});
+    const dr=await fetch('/api/admin/coaches?pwd='+ADMIN_PWD+'&username='+c.username,{method:'DELETE'});if(!dr.ok){toast('删除失败','no');return}
     toast('已删除','ok');
     enterAdmin();
   }catch(e){toast('删除失败','no')}
@@ -764,13 +766,14 @@ async function adminSaveMgr(){
   if(!name||!password){toast('请填写完整','wn');return}
   if(!stores.length){toast('请选择至少一个门店','wn');return}
   try{
+    let resp;
     if(adminEditOldMgrName){
-      await fetch('/api/admin/managers',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,oldName:adminEditOldMgrName,name,password,shares,stores})});
-      toast('已更新','ok');
+      resp=await fetch('/api/admin/managers',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,oldName:adminEditOldMgrName,name,password,shares,stores})});
     }else{
-      await fetch('/api/admin/managers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,name,password,shares,stores})});
-      toast('已添加','ok');
+      resp=await fetch('/api/admin/managers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,name,password,shares,stores})});
     }
+    if(!resp.ok){const e=await resp.json().catch(()=>({error:'保存失败'}));toast(e.error||'保存失败','no');return}
+    toast(adminEditOldMgrName?'已更新':'已添加','ok');
     clsMo('moMgrEdit');enterAdmin();
   }catch(e){toast('操作失败','no')}
 }
@@ -778,7 +781,7 @@ async function adminDelMgr(idx){
   const m=adminMgrs[idx];if(!m)return;
   if(!confirm('确定删除店长 '+m.name+'？'))return;
   try{
-    await fetch('/api/admin/managers?pwd='+ADMIN_PWD+'&name='+encodeURIComponent(m.name),{method:'DELETE'});
+    const dr2=await fetch('/api/admin/managers?pwd='+ADMIN_PWD+'&name='+encodeURIComponent(m.name),{method:'DELETE'});if(!dr2.ok){toast('删除失败','no');return}
     toast('已删除','ok');enterAdmin();
   }catch(e){toast('删除失败','no')}
 }
