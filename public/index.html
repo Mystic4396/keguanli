@@ -660,7 +660,11 @@ function renderAdminCoaches(coaches){
   const el=document.getElementById('adminCoachList');
   document.getElementById('adminCoachCount').textContent='('+coaches.length+'人)';
   const SN={'henglicheng':'恒力城','baolong':'宝龙','taihe':'泰禾','yangguang':'阳光天地'};
-  el.innerHTML=coaches.map((c,i)=>'<div class="admin-item"><div class="admin-item-name">'+c.name+'</div><div class="admin-item-stores">'+(c.stores?c.stores.map(s=>SN[s]||s).join('、'):'')+'</div><div class="admin-item-info">账号: '+c.username+'</div><div class="admin-item-info">密码: '+c.password+'</div><div class="admin-item-acts"><button class="btn btn-o btn-sm" onclick="adminEditCoach('+i+')">编辑</button><button class="btn btn-no btn-sm" style="background:var(--no);color:#fff" onclick="adminDelCoach('+i+')">删除</button></div></div>').join('')||'<div class="empty">暂无教练</div>';
+  const show=coaches.slice(0,2),hidden=coaches.slice(2);
+  let h=show.map((c,i)=>'<div class="admin-item"><div class="admin-item-name">'+c.name+'</div><div class="admin-item-stores">'+(c.stores?c.stores.map(s=>SN[s]||s).join('、'):'')+'</div><div class="admin-item-info">账号: '+c.username+'</div><div class="admin-item-info">密码: '+c.password+'</div><div class="admin-item-acts"><button class="btn btn-o btn-sm" onclick="adminEditCoach('+i+')">编辑</button><button class="btn btn-no btn-sm" style="background:var(--no);color:#fff" onclick="adminDelCoach('+i+')">删除</button></div></div>').join('');
+  if(hidden.length){h+='<div id="coachMore" style="display:none">'+hidden.map((c,i)=>'<div class="admin-item"><div class="admin-item-name">'+c.name+'</div><div class="admin-item-stores">'+(c.stores?c.stores.map(s=>SN[s]||s).join('、'):'')+'</div><div class="admin-item-info">账号: '+c.username+'</div><div class="admin-item-info">密码: '+c.password+'</div><div class="admin-item-acts"><button class="btn btn-o btn-sm" onclick="adminEditCoach('+(i+2)+')">编辑</button><button class="btn btn-no btn-sm" style="background:var(--no);color:#fff" onclick="adminDelCoach('+(i+2)+')">删除</button></div></div>').join('')+'</div>';h+='<button class="btn btn-o btn-sm" style="width:100%;margin-top:8px" onclick="this.previousElementSibling.style.display=\'block\';this.style.display=\'none\'">展开全部 ('+hidden.length+'人)</button>';}
+  if(!coaches.length)h='<div class="empty">暂无教练</div>';
+  el.innerHTML=h;
 }
 
 function getCoachStores(){const s=[];if(document.getElementById('ceS1').checked)s.push('henglicheng');if(document.getElementById('ceS2').checked)s.push('baolong');if(document.getElementById('ceS3').checked)s.push('taihe');if(document.getElementById('ceS4').checked)s.push('yangguang');return s;}
@@ -727,7 +731,12 @@ function renderAdminMgrs(mgrs){
   const el=document.getElementById('adminMgrList');
   document.getElementById('adminMgrCount').textContent='('+mgrs.length+'人)';
   const SN={'henglicheng':'恒力城','baolong':'宝龙','taihe':'泰禾','yangguang':'阳光天地'};
-  el.innerHTML=mgrs.map((m,i)=>{const sharesHtml=m.stores?m.stores.map(s=>SN[s]+': '+((m.shares&&m.shares[s]||m.share||0)*100)+'%').join('、'):(m.share?(m.share*100+'%'):'未设置');return '<div class="admin-item"><div class="admin-item-name">'+m.name+'</div><div class="admin-item-info">密码: '+m.password+'</div><div class="admin-item-info">分成: '+sharesHtml+'</div><div class="admin-item-acts"><button class="btn btn-o btn-sm" onclick="adminEditMgr('+i+')">编辑</button><button class="btn btn-no btn-sm" style="background:var(--no);color:#fff" onclick="adminDelMgr('+i+')">删除</button></div></div>'}).join('')||'<div class="empty">暂无店长</div>';
+  const show=mgrs.slice(0,2),hidden=mgrs.slice(2);
+  const renderItem=(m,i)=>{const sharesHtml=m.stores?m.stores.map(s=>SN[s]+': '+((m.shares&&m.shares[s]||m.share||0)*100)+'%').join('、'):(m.share?(m.share*100+'%'):'未设置');return '<div class="admin-item"><div class="admin-item-name">'+m.name+'</div><div class="admin-item-info">密码: '+m.password+'</div><div class="admin-item-info">分成: '+sharesHtml+'</div><div class="admin-item-acts"><button class="btn btn-o btn-sm" onclick="adminEditMgr('+i+')">编辑</button><button class="btn btn-no btn-sm" style="background:var(--no);color:#fff" onclick="adminDelMgr('+i+')">删除</button></div></div>'};
+  let h=show.map((m,i)=>renderItem(m,i)).join('');
+  if(hidden.length){h+='<div id="mgrMore" style="display:none">'+hidden.map((m,i)=>renderItem(m,i+2)).join('')+'</div>';h+='<button class="btn btn-o btn-sm" style="width:100%;margin-top:8px" onclick="this.previousElementSibling.style.display=\'block\';this.style.display=\'none\'">展开全部 ('+hidden.length+'人)</button>';}
+  if(!mgrs.length)h='<div class="empty">暂无店长</div>';
+  el.innerHTML=h;
 }
 function adminShowAddMgr(){
   adminEditOldMgrName=null;
@@ -830,15 +839,25 @@ async function rejectPending(id){
 function renderAdminRecs(recs){
   const el=document.getElementById('adminRecList');
   document.getElementById('adminRecCount').textContent='('+recs.length+'条)';
+  const SN={'henglicheng':'恒力城','baolong':'宝龙','taihe':'泰禾','yangguang':'阳光天地'};
+  const renderItem=r=>'<div class="ri"><div class="rd" style="background:var(--ok)"></div><div class="rm"><div class="rn">'+(r.sname||'')+' 充'+r.n+'节</div><div class="rmt">'+(r.coach||'')+' · '+(SN[r._store]||r._store||'')+' · '+(r.time||'')+'</div></div><div class="rb rb-ok">充</div><button class="btn btn-no btn-sm" style="background:var(--no);color:#fff;margin-left:auto;padding:2px 8px;font-size:12px" onclick="adminDelRec(\''+r._store+'\',\''+r.sid+'\',\''+r.time+'\')">×</button></div>';
   const show=recs.slice(0,5);
   const hidden=recs.slice(5);
-  let h=show.map(r=>'<div class="ri"><div class="rd" style="background:var(--ok)"></div><div class="rm"><div class="rn">'+(r.sname||'')+' 充'+r.n+'节</div><div class="rmt">'+(r.coach||'')+' · '+(r._store||'')+' · '+(r.time||'')+'</div></div><div class="rb rb-ok">充</div></div>').join('');
+  let h=show.map(r=>renderItem(r)).join('');
   if(hidden.length){
-    h+='<div id="adminRecMore" style="display:none">'+hidden.map(r=>'<div class="ri"><div class="rd" style="background:var(--ok)"></div><div class="rm"><div class="rn">'+(r.sname||'')+' 充'+r.n+'节</div><div class="rmt">'+(r.coach||'')+' · '+(r._store||'')+' · '+(r.time||'')+'</div></div><div class="rb rb-ok">充</div></div>').join('')+'</div>';
+    h+='<div id="adminRecMore" style="display:none">'+hidden.map(r=>renderItem(r)).join('')+'</div>';
     h+='<button class="btn btn-o btn-sm" style="width:100%;margin-top:8px" onclick="this.previousElementSibling.style.display=\'block\';this.style.display=\'none\'">展开全部 ('+hidden.length+'条)</button>';
   }
   if(!recs.length)h='<div class="empty">暂无充值记录</div>';
   el.innerHTML=h;
+}
+async function adminDelRec(store,sid,time){
+  if(!confirm('确定删除该充值记录？'))return;
+  try{
+    const r=await fetch('/api/admin/records?pwd='+ADMIN_PWD+'&store='+store+'&sid='+sid+'&time='+encodeURIComponent(time),{method:'DELETE'});
+    if(!r.ok){const e=await r.json().catch(()=>({error:'删除失败'}));toast(e.error||'删除失败','no');return}
+    toast('已删除','ok');enterAdmin();
+  }catch(e){toast('删除失败','no')}
 }
 
 

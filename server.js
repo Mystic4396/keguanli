@@ -655,11 +655,26 @@ app.get('/api/admin/records', async (req, res) => {
   for (const s of ADMIN_STORES) {
     try {
       const data = await readData(s);
-      if (data.records) data.records.filter(r => r.type === '充').forEach(r => { r._store = ADMIN_STORE_NAMES[s]; allRecords.push(r); });
+      if (data.records) data.records.filter(r => r.type === '充').forEach((r, idx) => { allRecords.push({ ...r, _store: s, _idx: idx }); });
     } catch(e) {}
   }
   allRecords.sort((a, b) => (b.time || '').localeCompare(a.time || ''));
   res.json(allRecords);
+});
+
+// Delete a recharge record
+app.delete('/api/admin/records', async (req, res) => {
+  if (!adminCheck(req.query.pwd)) return res.status(401).json({ error: '未授权' });
+  const { store, sid, time } = req.query;
+  if (!store || !sid || !time) return res.status(400).json({ error: '参数不完整' });
+  try {
+    const data = await readData(store);
+    const before = data.records.length;
+    data.records = data.records.filter(r => !(r.sid === sid && r.time === time));
+    if (data.records.length === before) return res.status(404).json({ error: '记录未找到' });
+    await writeData(data, store);
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: '删除失败' }); }
 });
 
 // ========== Pending Approval System ==========
