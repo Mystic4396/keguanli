@@ -736,6 +736,11 @@ app.post('/api/admin/pending/:id/approve', async (req, res) => {
       const newExp = base.toISOString().slice(0,10);
       stu.expiry = newExp;
       data.records.unshift({ sid: d.studentId, sname: stu.name, coach: item.coach, time: now, after: newExp, type: '续', n: d.n, unit: d.unit||undefined });
+    } else if (item.type === 'delete') {
+      const stu = data.students.find(s => s.id === d.studentId);
+      if (!stu) return res.status(404).json({ error: '学员不存在' });
+      data.students = data.students.filter(s => s.id !== d.studentId);
+      data.records = data.records.filter(r => r.sid !== d.studentId);
     } else if (item.type === 'add') {
       if (data.students.find(s => s.id === d.student.id)) return res.status(400).json({ error: '学员已存在' });
       data.students.push(d.student);
