@@ -704,14 +704,14 @@ async function adminSaveCoach(){
     if(adminEditOldUser){
       const cr=await fetch('/api/admin/coaches',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,oldUsername:adminEditOldUser,username,password,name,stores})});
       if(!cr.ok){const e=await cr.json().catch(()=>({error:'更新失败'}));toast(e.error||'更新失败','no');return}
-      toast('已更新','ok');
+      toast('已更新','ok');loadAdminCoaches();return;
     }else{
       const cr2=await fetch('/api/admin/coaches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,username,password,name,stores})});
       if(!cr2.ok){const e=await cr2.json().catch(()=>({error:'添加失败'}));toast(e.error||'添加失败','no');return}
       toast('已添加','ok');
     }
     clsMo('moCoachEdit');
-    enterAdmin();
+    loadAdminCoaches();
   }catch(e){toast('操作失败','no')}
 }
 
@@ -720,8 +720,7 @@ async function adminDelCoach(idx){
   if(!confirm('确定删除教练 '+c.name+'？'))return;
   try{
     const dr=await fetch('/api/admin/coaches?pwd='+ADMIN_PWD+'&username='+c.username,{method:'DELETE'});if(!dr.ok){toast('删除失败','no');return}
-    toast('已删除','ok');
-    enterAdmin();
+    toast('已删除','ok');loadAdminCoaches();
   }catch(e){toast('删除失败','no')}
 }
 
@@ -794,8 +793,7 @@ async function adminSaveMgr(){
       resp=await fetch('/api/admin/managers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,name,password,shares,stores})});
     }
     if(!resp.ok){const e=await resp.json().catch(()=>({error:'保存失败'}));toast(e.error||'保存失败','no');return}
-    toast(adminEditOldMgrName?'已更新':'已添加','ok');
-    clsMo('moMgrEdit');enterAdmin();
+    toast(adminEditOldMgrName?'已更新':'已添加','ok');clsMo('moMgrEdit');loadAdminMgrs();
   }catch(e){toast('操作失败','no')}
 }
 async function adminDelMgr(idx){
@@ -803,9 +801,12 @@ async function adminDelMgr(idx){
   if(!confirm('确定删除店长 '+m.name+'？'))return;
   try{
     const dr2=await fetch('/api/admin/managers?pwd='+ADMIN_PWD+'&name='+encodeURIComponent(m.name),{method:'DELETE'});if(!dr2.ok){toast('删除失败','no');return}
-    toast('已删除','ok');enterAdmin();
+    toast('已删除','ok');loadAdminMgrs();
   }catch(e){toast('删除失败','no')}
 }
+
+function loadAdminCoaches(){fetch('/api/admin/coaches?pwd='+ADMIN_PWD).then(r=>r.json()).then(d=>{adminCoaches=d;renderAdminCoaches(d)}).catch(()=>toast('加载失败','no'))}
+function loadAdminMgrs(){fetch('/api/admin/managers?pwd='+ADMIN_PWD).then(r=>r.json()).then(d=>{renderAdminMgrs(d)}).catch(()=>toast('加载失败','no'))}
 
 function renderAdminPending(items){
   const el=document.getElementById('adminPendingList');
@@ -824,7 +825,7 @@ async function approvePending(id){
   try{
     const r=await fetch('/api/admin/pending/'+id+'/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD})});
     if(!r.ok){const e=await r.json().catch(()=>({error:'审批失败'}));toast(e.error||'审批失败','no');return}
-    toast('已通过','ok');enterAdmin();
+    toast('已通过','ok');loadAdminPending();
   }catch(e){toast('审批失败','no')}
 }
 async function rejectPending(id){
@@ -832,7 +833,7 @@ async function rejectPending(id){
   try{
     const r=await fetch('/api/admin/pending/'+id+'/reject',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD})});
     if(!r.ok){toast('拒绝失败','no');return}
-    toast('已拒绝','ok');enterAdmin();
+    toast('已拒绝','ok');loadAdminPending();
   }catch(e){toast('拒绝失败','no')}
 }
 
@@ -856,7 +857,7 @@ async function adminDelRec(store,sid,time){
   try{
     const r=await fetch('/api/admin/records?pwd='+ADMIN_PWD+'&store='+store+'&sid='+sid+'&time='+encodeURIComponent(time),{method:'DELETE'});
     if(!r.ok){const e=await r.json().catch(()=>({error:'删除失败'}));toast(e.error||'删除失败','no');return}
-    toast('已删除','ok');enterAdmin();
+    toast('已删除','ok');loadAdminRecs();
   }catch(e){toast('删除失败','no')}
 }
 
