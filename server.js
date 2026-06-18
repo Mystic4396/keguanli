@@ -662,6 +662,112 @@ app.get('/api/admin/records', async (req, res) => {
   res.json(allRecords);
 });
 
+// ========== Pending Approval System ==========
+const PENDING_KEY = 'classmanager:pending';
+
+async function readPending() {
+  try {
+    const r = await redisReq('GET', `/get/${PENDING_KEY}`);
+    if (r.result) {
+      let data = typeof r.result === 'string' ? JSON.parse(r.result) : r.result;
+      if (typeof data === 'string') data = JSON.parse(data);
+      if (Array.isArray(data)) return data;
+    }
+  } catch(e) { console.error('Read pending error:', e.message); }
+  return [];
+}
+
+async function writePending(data) {
+  return await _rawWrite(PENDING_KEY, data);
+}
+
+// Coach: Submit pending request
+app.post('/api/pending', async (req, res) => {
+  const store = req.body.store || 'henglicheng';
+  try {
+    const sData = await readData(store);
+    const coach = sData.coaches.find(c => c.username === (req.body.auth||{}).username && c.password === (req.body.auth||{}).password);
+    if (!coach) return res.status(401).json({ error: '未授权' });
+    const { type, details } = req.body;
+    if (!type || !details) return res.status(400).json({ error: '参数不完整' });
+    const pending = await readPending();
+    const id = 'p' + Date.now();
+    pending.unshift({ id, type, store, coach: coach.name, time: new Date().toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'}), status: 'pending', details });
+    await writePending(pending);
+    res.json({ ok: true, id });
+  } catch(e) { console.error('Submit pending error:', e); res.status(500).json({ error: '提交失败' }); }
+});
+
+// Admin: List pending requests
+app.get('/api/admin/pending', async (req, res) => {
+  if (!adminCheck(req.query.pwd)) return res.status(401).json({ error: '未授权' });
+  try {
+    const pending = await readPending();
+    res.json(pending.filter(p => p.status === 'pending'));
+  } catch(e) { res.status(500).json({ error: '获取失败' }); }
+});
+
+// Admin: Approve pending request
+app.post('/api/admin/pending/:id/approve', async (req, res) => {
+  if (!adminCheck(req.body.pwd)) return res.status(401).json({ error: '未授权' });
+  try {
+    const pending = await readPending();
+    const idx = pending.findIndex(p => p.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: '申请不存在' });
+    if (pending[idx].status !== 'pending') return res.status(400).json({ error: '已处理' });
+    const item = pending[idx];
+    const store = item.store;
+    const data = await readData(store);
+    const d = item.details;
+    const now = new Date().toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'});
+
+    if (item.type === 'charge') {
+      const stu = data.students.find(s => s.id === d.studentId);
+      if (!stu) return res.status(404).json({ error: '学员不存在' });
+      stu.classes += d.n;
+      data.records.unshift({ sid: d.studentId, sname: stu.name, coach: item.coach, time: now, after: stu.classes, type: '充', n: d.n });
+    } else if (item.type === 'renew') {
+      const stu = data.students.find(s => s.id === d.studentId);
+      if (!stu) return res.status(404).json({ error: '学员不存在' });
+      const curExp = stu.expiry ? new Date(stu.expiry) : null;
+      const nowD = new Date();
+      const base = (curExp && curExp > nowD) ? new Date(curExp) : nowD;
+      if (d.unit === '天') { base.setDate(base.getDate() + d.n); } else { base.setMonth(base.getMonth() + d.n); }
+      const newExp = base.toISOString().slice(0,10);
+      stu.expiry = newExp;
+      data.records.unshift({ sid: d.studentId, sname: stu.name, coach: item.coach, time: now, after: newExp, type: '续', n: d.n, unit: d.unit||undefined });
+    } else if (item.type === 'add') {
+      if (data.students.find(s => s.id === d.student.id)) return res.status(400).json({ error: '学员已存在' });
+      data.students.push(d.student);
+      data.nextId = Math.max(data.nextId, d.nextId || data.nextId);
+      if (d.student.classes > 0) {
+        data.records.unshift({ sid: d.student.id, sname: d.student.name, coach: item.coach, time: now, after: d.student.classes, type: '充', n: d.student.classes });
+      }
+    }
+
+    await writeData(data, store);
+    pending[idx].status = 'approved';
+    pending[idx].reviewTime = now;
+    await writePending(pending);
+    res.json({ ok: true });
+  } catch(e) { console.error('Approve error:', e); res.status(500).json({ error: '审批失败' }); }
+});
+
+// Admin: Reject pending request
+app.post('/api/admin/pending/:id/reject', async (req, res) => {
+  if (!adminCheck(req.body.pwd)) return res.status(401).json({ error: '未授权' });
+  try {
+    const pending = await readPending();
+    const idx = pending.findIndex(p => p.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: '申请不存在' });
+    if (pending[idx].status !== 'pending') return res.status(400).json({ error: '已处理' });
+    pending[idx].status = 'rejected';
+    pending[idx].reviewTime = new Date().toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'});
+    await writePending(pending);
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: '拒绝失败' }); }
+});
+
 app.listen(PORT, () => console.log('Running on ' + PORT));
 });
 // Build 1781206668
