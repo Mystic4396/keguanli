@@ -31,6 +31,8 @@ const DEFAULT_DATA = {
   coaches: [],
   students: [],
   records: [],
+  nextId: 1
+};
 
 function redisReq(method, pathname, body) {
   return new Promise((resolve, reject) => {
