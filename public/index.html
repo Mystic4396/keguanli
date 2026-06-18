@@ -663,12 +663,15 @@ function renderAdminCoaches(coaches){
   el.innerHTML=coaches.map((c,i)=>'<div class="admin-item"><div class="admin-item-name">'+c.name+'</div><div class="admin-item-stores">'+(c.stores?c.stores.map(s=>SN[s]||s).join('、'):'')+'</div><div class="admin-item-info">账号: '+c.username+'</div><div class="admin-item-info">密码: '+c.password+'</div><div class="admin-item-acts"><button class="btn btn-o btn-sm" onclick="adminEditCoach('+i+')">编辑</button><button class="btn btn-no btn-sm" style="background:var(--no);color:#fff" onclick="adminDelCoach('+i+')">删除</button></div></div>').join('')||'<div class="empty">暂无教练</div>';
 }
 
+function getCoachStores(){const s=[];if(document.getElementById('ceS1').checked)s.push('henglicheng');if(document.getElementById('ceS2').checked)s.push('baolong');if(document.getElementById('ceS3').checked)s.push('taihe');if(document.getElementById('ceS4').checked)s.push('yangguang');return s;}
+
 function adminShowAddCoach(){
   adminEditOldUser=null;
   document.getElementById('coachEditTitle').textContent='添加教练';
   document.getElementById('ceUser').value='';
   document.getElementById('cePwd').value='123456';
   document.getElementById('ceName').value='';
+  document.getElementById('ceS1').checked=true;document.getElementById('ceS2').checked=true;document.getElementById('ceS3').checked=true;document.getElementById('ceS4').checked=true;
   document.getElementById('moCoachEdit').classList.add('on');
 }
 
@@ -679,10 +682,10 @@ function adminEditCoach(idx){
   document.getElementById('ceUser').value=c.username;
   document.getElementById('cePwd').value=c.password;
   document.getElementById('ceName').value=c.name;
-  document.getElementById('ceS1').checked=(c.stores||[]).includes('恒力城');
-  document.getElementById('ceS2').checked=(c.stores||[]).includes('宝龙');
-  document.getElementById('ceS3').checked=(c.stores||[]).includes('泰禾');
-  document.getElementById('ceS4').checked=(c.stores||[]).includes('阳光天地');
+  document.getElementById('ceS1').checked=(c.stores||[]).includes('henglicheng');
+  document.getElementById('ceS2').checked=(c.stores||[]).includes('baolong');
+  document.getElementById('ceS3').checked=(c.stores||[]).includes('taihe');
+  document.getElementById('ceS4').checked=(c.stores||[]).includes('yangguang');
   document.getElementById('moCoachEdit').classList.add('on');
 }
 
@@ -690,14 +693,16 @@ async function adminSaveCoach(){
   const username=document.getElementById('ceUser').value.trim();
   const password=document.getElementById('cePwd').value.trim();
   const name=document.getElementById('ceName').value.trim();
+  const stores=getCoachStores();
   if(!username||!password||!name){toast('请填写完整','wn');return}
+  if(!stores.length){toast('请选择至少一个门店','wn');return}
   try{
     if(adminEditOldUser){
-      const cr=await fetch('/api/admin/coaches',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,oldUsername:adminEditOldUser,username,password,name})});
+      const cr=await fetch('/api/admin/coaches',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,oldUsername:adminEditOldUser,username,password,name,stores})});
       if(!cr.ok){const e=await cr.json().catch(()=>({error:'更新失败'}));toast(e.error||'更新失败','no');return}
       toast('已更新','ok');
     }else{
-      const cr2=await fetch('/api/admin/coaches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,username,password,name})});
+      const cr2=await fetch('/api/admin/coaches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,username,password,name,stores})});
       if(!cr2.ok){const e=await cr2.json().catch(()=>({error:'添加失败'}));toast(e.error||'添加失败','no');return}
       toast('已添加','ok');
     }

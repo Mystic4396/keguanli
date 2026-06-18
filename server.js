@@ -499,8 +499,8 @@ app.get('/api/admin/coaches', async (req, res) => {
       const data = await readData(s);
       data.coaches.forEach(c => {
         const existing = result.find(x => x.username === c.username);
-        if (!existing) result.push({ username: c.username, password: c.password, name: c.name, stores: [ADMIN_STORE_NAMES[s]] });
-        else existing.stores.push(ADMIN_STORE_NAMES[s]);
+        if (!existing) result.push({ username: c.username, password: c.password, name: c.name, stores: [s] });
+        else existing.stores.push(s);
       });
     } catch(e) {}
   }
