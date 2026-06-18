@@ -452,6 +452,8 @@ app.put('/api/perf', async (req, res) => {
     if (u.partTimeHours) perf.partTimeHours = u.partTimeHours;
     if (u.partTimeRate !== undefined) perf.partTimeRate = u.partTimeRate;
     if (u.shoeCost) perf.shoeCost = u.shoeCost;
+    if (u.shoeCostJunior !== undefined) perf.shoeCostJunior = u.shoeCostJunior;
+    if (u.shoeCostSenior !== undefined) perf.shoeCostSenior = u.shoeCostSenior;
     if (u.managerRate !== undefined) perf.managerRate = u.managerRate;
     if (u.fixedCost !== undefined) perf.fixedCost = u.fixedCost;
     if (u.customCoaches) perf.customCoaches = u.customCoaches;
