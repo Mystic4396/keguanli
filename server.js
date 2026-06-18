@@ -28,16 +28,9 @@ function getPerfBackupKey(store) { return getKey(store, "perfBackup"); }
 function getStoreLabel(store) { return STORE_LABELS[store] || store; }
 
 const DEFAULT_DATA = {
-  coaches: [
-    { username: 'shutiao', password: '123456', name: '薯条教练' },
-    { username: 'chenzhe', password: '123456', name: '小陈教练' },
-    { username: 'huyi', password: '123456', name: '胡教练' },
-    { username: 'bin', password: '123456', name: '熊猫教练' }
-  ],
+  coaches: [],
   students: [],
   records: [],
-  nextId: 1
-};
 
 function redisReq(method, pathname, body) {
   return new Promise((resolve, reject) => {
@@ -95,11 +88,6 @@ async function readData(store) {
     const r = await redisReq('GET', `/get/${DATA_KEY}`);
     const data = safeParse(r.result);
     if (data) {
-      for (const rc of DEFAULT_DATA.coaches) {
-        if (!data.coaches.find(c => c.username === rc.username)) {
-          data.coaches.push(rc);
-        }
-      }
       return data;
     }
   } catch(e) {
@@ -110,12 +98,6 @@ async function readData(store) {
     const rb = await redisReq('GET', `/get/${BACKUP_KEY}`);
     const data = safeParse(rb.result);
     if (data) {
-      console.warn('✅ Recovered from backup!');
-      for (const rc of DEFAULT_DATA.coaches) {
-        if (!data.coaches.find(c => c.username === rc.username)) {
-          data.coaches.push(rc);
-        }
-      }
       return data;
     }
   } catch(e) {
