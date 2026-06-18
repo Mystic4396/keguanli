@@ -181,7 +181,16 @@ async function writeData(data, store) {
     console.warn('Backup before write failed (non-fatal):', e.message);
   }
   try {
-    return await _rawWrite(DATA_KEY, data);
+    const result = await _rawWrite(DATA_KEY, data);
+    // Verify write: read back and confirm student count matches
+    try {
+      const verify = await redisReq('GET', `/get/${DATA_KEY}`);
+      const vData = safeParse(verify.result);
+      if (!vData || vData.students.length !== data.students.length) {
+        console.error(`❌ WRITE VERIFICATION FAILED: expected ${data.students.length} students, got ${vData ? vData.students.length : 'null'}`);
+      }
+    } catch(e) {}
+    return result;
   } catch(e) {
     console.error('Write error:', e.message);
     return false;
