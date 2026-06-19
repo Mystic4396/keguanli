@@ -814,6 +814,7 @@ async function adminDelMgr(idx){
 function loadAdminCoaches(){fetch('/api/admin/coaches?pwd='+ADMIN_PWD).then(r=>r.json()).then(d=>{adminCoaches=d;renderAdminCoaches(d)}).catch(()=>toast('加载失败','no'))}
 function loadAdminMgrs(){fetch('/api/admin/managers?pwd='+ADMIN_PWD).then(r=>r.json()).then(d=>{renderAdminMgrs(d)}).catch(()=>toast('加载失败','no'))}
 function loadAdminPending(){fetch('/api/admin/pending?pwd='+ADMIN_PWD).then(r=>r.json()).then(d=>renderAdminPending(d)).catch(()=>toast('加载失败','no'))}
+function loadAdminRecs(){fetch('/api/admin/records?pwd='+ADMIN_PWD).then(r=>r.json()).then(d=>renderAdminRecs(d)).catch(()=>toast('加载失败','no'))}
 
 function renderAdminPending(items){
   const el=document.getElementById('adminPendingList');
@@ -835,7 +836,7 @@ async function approvePending(id){
     const result=await r.json().catch(()=>({}));
     toast(result.warn||'已通过','ok');
   }catch(e){toast('审批失败','no');return}
-  loadAdminPending();
+  loadAdminPending();loadAdminRecs();
 }
 async function rejectPending(id){
   if(!confirm('确定拒绝此申请？'))return;
