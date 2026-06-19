@@ -4,6 +4,8 @@ const https = require('https');
 const path = require('path');
 
 const app = express();
+const compression = require('compression');
+app.use(compression());
 app.use(express.json());
 
 
@@ -182,14 +184,13 @@ async function writeData(data, store) {
   }
   try {
     const result = await _rawWrite(DATA_KEY, data);
-    // Verify write: read back and confirm student count matches
-    try {
-      const verify = await redisReq('GET', `/get/${DATA_KEY}`);
-      const vData = safeParse(verify.result);
+    // Verify write: async non-blocking read-back check
+    redisReq('GET', `/get/${DATA_KEY}`).then(vr => {
+      const vData = safeParse(vr.result);
       if (!vData || vData.students.length !== data.students.length) {
         console.error(`❌ WRITE VERIFICATION FAILED: expected ${data.students.length} students, got ${vData ? vData.students.length : 'null'}`);
       }
-    } catch(e) {}
+    }).catch(() => {});
     return result;
   } catch(e) {
     console.error('Write error:', e.message);
