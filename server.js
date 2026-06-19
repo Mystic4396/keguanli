@@ -734,12 +734,12 @@ app.post('/api/admin/pending/:id/approve', async (req, res) => {
 
     if (item.type === 'charge') {
       const stu = data.students.find(s => s.id === d.studentId);
-      if (!stu) return res.status(404).json({ error: '学员不存在' });
+      if (!stu) { pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(pending); return res.json({ ok: true, warn: '学员已不存在，已跳过' }); }
       stu.classes += d.n;
       data.records.unshift({ sid: d.studentId, sname: stu.name, coach: item.coach, time: now, after: stu.classes, type: '充', n: d.n });
     } else if (item.type === 'renew') {
       const stu = data.students.find(s => s.id === d.studentId);
-      if (!stu) return res.status(404).json({ error: '学员不存在' });
+      if (!stu) { pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(pending); return res.json({ ok: true, warn: '学员已不存在，已跳过' }); }
       const curExp = stu.expiry ? new Date(stu.expiry) : null;
       const nowD = new Date();
       const base = (curExp && curExp > nowD) ? new Date(curExp) : nowD;
@@ -749,7 +749,7 @@ app.post('/api/admin/pending/:id/approve', async (req, res) => {
       data.records.unshift({ sid: d.studentId, sname: stu.name, coach: item.coach, time: now, after: newExp, type: '续', n: d.n, unit: d.unit||undefined });
     } else if (item.type === 'delete') {
       const stu = data.students.find(s => s.id === d.studentId);
-      if (!stu) return res.status(404).json({ error: '学员不存在' });
+      if (!stu) { pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(pending); return res.json({ ok: true, warn: '学员已不存在，已跳过' }); }
       data.students = data.students.filter(s => s.id !== d.studentId);
       data.records = data.records.filter(r => r.sid !== d.studentId);
     } else if (item.type === 'add') {
