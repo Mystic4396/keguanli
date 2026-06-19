@@ -651,7 +651,7 @@ app.get('/api/admin/records', async (req, res) => {
   for (const s of ADMIN_STORES) {
     try {
       const data = await readData(s);
-      if (data.records) data.records.filter(r => r.type === '充').forEach((r, idx) => { allRecords.push({ ...r, _store: s, _idx: idx }); });
+      if (data.records) data.records.filter(r => r.type === '充' || r.type === '续').forEach((r, idx) => { allRecords.push({ ...r, _store: s, _idx: idx }); });
     } catch(e) {}
   }
   allRecords.sort((a, b) => (b.time || '').localeCompare(a.time || ''));
@@ -740,13 +740,9 @@ app.post('/api/admin/pending/:id/approve', async (req, res) => {
     } else if (item.type === 'renew') {
       const stu = data.students.find(s => s.id === d.studentId);
       if (!stu) { pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(pending); return res.json({ ok: true, warn: '学员已不存在，已跳过' }); }
-      const curExp = stu.expiry ? new Date(stu.expiry) : null;
-      const nowD = new Date();
-      const base = (curExp && curExp > nowD) ? new Date(curExp) : nowD;
-      if (d.unit === '天') { base.setDate(base.getDate() + d.n); } else { base.setMonth(base.getMonth() + d.n); }
-      const newExp = base.toISOString().slice(0,10);
+      const newExp = d.newExpiry || (() => { const curExp = stu.expiry ? new Date(stu.expiry) : null; const nowD = new Date(); const base = (curExp && curExp > nowD) ? new Date(curExp) : nowD; if (d.unit === '天') { base.setDate(base.getDate() + d.n); } else { base.setMonth(base.getMonth() + d.n); } return base.toISOString().slice(0,10); })();
       stu.expiry = newExp;
-      data.records.unshift({ sid: d.studentId, sname: stu.name, coach: item.coach, time: now, after: newExp, type: '续', n: d.n, unit: d.unit||undefined });
+      data.records.unshift({ sid: d.studentId, sname: stu.name, coach: item.coach, time: now, after: newExp, type: '续', n: d.n||0, unit: d.unit||undefined });
     } else if (item.type === 'delete') {
       const stu = data.students.find(s => s.id === d.studentId);
       if (!stu) { pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(pending); return res.json({ ok: true, warn: '学员已不存在，已跳过' }); }
