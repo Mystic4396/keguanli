@@ -542,8 +542,8 @@ async function api(method,path,body){let url=path;if(method==='GET'&&currentStor
 
 // ===== Coach system =====
 async function doLogin(){const u=document.getElementById('lUser').value.trim(),p=document.getElementById('lPwd').value,b=document.querySelector('.login-box .btn');if(!u||!p){toast('请输入账号密码','wn');return}b.disabled=true;b.textContent='登录中...';try{const r=await api('POST','/api/login',{username:u,password:p});coach={...r,_pwd:p};toast('欢迎 '+r.name,'ok');enterCoach()}catch(e){toast(e.message,'no')}finally{b.disabled=false;b.textContent='登 录'}}
-function doLogout(){coach=null;goLand()}
-async function enterCoach(){go('pgCoach');document.getElementById('coachBadge').textContent=coach.name;await refresh()}
+function doLogout(){coach=null;stopAutoSync();goLand()}
+async function enterCoach(){go('pgCoach');document.getElementById('coachBadge').textContent=coach.name;await refresh();startAutoSync()}
 async function loadDB(){db=await api('GET','/api/data');return db}
 async function save(updates){await api('PUT','/api/data',{auth:{username:coach.username,password:coach._pwd},updates})}
 function stuType(s){return s.type||'次卡'}
@@ -892,6 +892,12 @@ function closeScanMo(){stopScanner();clsMo('moScan')}
 (function(){const params=new URLSearchParams(window.location.hash.split('?')[1]),autoSid=params.get('sid'),autoStore=params.get('store');if(autoStore)currentStore=autoStore;if(autoSid&&window.location.hash.includes('#parent')){window.addEventListener('load',function(){setTimeout(function(){loadDB().then(function(){const s=db.students.find(x=>x.id===autoSid);if(s)showPDetail(s)})},500)})}})();
 // Render保活: 浏览器开着时每5分钟静默ping
 setInterval(function(){fetch('/api/ping?store=_keepalive').catch(function(){})},240000);
+// 自动同步: 教练面板每30秒静默刷新数据
+let _autoSync=null;
+function startAutoSync(){if(_autoSync)return;_autoSync=setInterval(function(){if(coach&&currentStore)loadDB().then(function(){renderRecs();renderStuLists()}).catch(function(){})},30000)}
+function stopAutoSync(){if(_autoSync){clearInterval(_autoSync);_autoSync=null}}
+// 切换回页面时立刻刷新
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&coach&&currentStore)refresh()});
 </script>
 </body>
 </html>
