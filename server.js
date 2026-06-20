@@ -44,8 +44,14 @@ function redisReq(method, pathname, body) {
       headers: { 'Authorization': `Bearer ${REDIS_TOKEN}`, 'Content-Type': 'application/json' }
     };
     const req = https.request(opts, res => {
-      let d = ''; res.on('data', c => d += c);
-      res.on('end', () => { try { resolve(JSON.parse(d)); } catch(e) { reject(new Error('Parse: '+d.slice(0,100))); } });
+      const chunks = [];
+      res.on('data', c => chunks.push(c));
+      res.on('end', () => {
+        try {
+          const d = Buffer.concat(chunks).toString('utf8');
+          resolve(JSON.parse(d));
+        } catch(e) { reject(new Error('Parse: '+Buffer.concat(chunks).toString('utf8').slice(0,100))); }
+      });
     });
     req.on('error', reject);
     if (body) req.write(body);
@@ -148,8 +154,9 @@ async function _rawWrite(key, data) {
       headers: { 'Authorization': 'Bearer ' + REDIS_TOKEN, 'Content-Type': 'text/plain' }
     };
     const req = require('https').request(opts, res => {
-      let d = ''; res.on('data', c => d += c);
-      res.on('end', () => { try { const r = JSON.parse(d); resolve(r.result === 'OK'); } catch(e) { reject(e); } });
+      const chunks = [];
+      res.on('data', c => chunks.push(c));
+      res.on('end', () => { try { const r = JSON.parse(Buffer.concat(chunks).toString('utf8')); resolve(r.result === 'OK'); } catch(e) { reject(e); } });
     });
     req.on('error', reject);
     req.write(body);
