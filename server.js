@@ -756,7 +756,18 @@ app.post('/api/admin/pending/:id/approve', async (req, res) => {
       data.students = data.students.filter(s => s.id !== d.studentId);
       data.records = data.records.filter(r => r.sid !== d.studentId);
     } else if (item.type === 'add') {
-      if (data.students.find(s => s.id === d.student.id)) return res.status(400).json({ error: '学员已存在' });
+      // ID冲突时自动分配新ID，不再拒绝
+      let stuId = d.student.id;
+      if (data.students.find(s => s.id === stuId)) {
+        // 根据现有学员ID格式自动生成新ID
+        const hasPrefix = stuId.match(/^[A-Z]+/);
+        const prefix = hasPrefix ? hasPrefix[0] : '';
+        let num = data.nextId;
+        while (data.students.find(s => s.id === (prefix ? prefix + String(num).padStart(3,'0') : String(num).padStart(4,'0')))) num++;
+        stuId = prefix ? prefix + String(num).padStart(3,'0') : String(num).padStart(4,'0');
+        d.student.id = stuId;
+        d.nextId = num + 1;
+      }
       data.students.push(d.student);
       data.nextId = Math.max(data.nextId, d.nextId || data.nextId);
       if (d.student.classes > 0) {
