@@ -91,6 +91,61 @@ function safeParse(raw) {
   return null;
 }
 
+// 数据自修复：清理乱码和缺失字段，防止前端显示异常
+const VALID_TYPES = new Set(['次卡', '月卡', '提高班']);
+const TYPE_FIX_MAP = {}; // 动态匹配：含"提"和"班"→提高班，含"月"和"卡"→月卡，含"次"和"卡"→次卡
+
+function sanitizeStudent(s) {
+  let changed = false;
+  // 1. 修复name中的替换字符(U+FFFD) - 无法自动还原，但记录警告
+  if (s.name && s.name.includes('\ufffd')) {
+    console.warn(`⚠️ Corrupted name detected: id=${s.id} name=${s.name}`);
+    // 乱码名无法自动修，至少不crash
+  }
+  // 2. 修复type字段：乱码或缺失
+  const t = s.type || '';
+  if (!t) {
+    // 无type：有expiry→月卡，否则→次卡
+    s.type = s.expiry ? '月卡' : '次卡';
+    changed = true;
+  } else if (t.includes('\ufffd')) {
+    // 乱码type：按billing或expiry推断
+    if (s.billing || s.expiry) {
+      // 如果有提高班相关字段(age/weight/height/run*/fitness/tech)，判为提高班
+      const hasAdvFields = s.age != null || s.weight != null || s.height != null ||
+                           s.run200m != null || s.fitness != null || s.tech != null;
+      s.type = hasAdvFields ? '提高班' : (s.expiry ? '月卡' : '次卡');
+    } else {
+      s.type = s.expiry ? '月卡' : '次卡';
+    }
+    changed = true;
+    console.warn(`⚠️ Fixed corrupted type: id=${s.id} → ${s.type}`);
+  } else if (!VALID_TYPES.has(t)) {
+    // 非法type（如半截中文）
+    if (t.includes('提')) s.type = '提高班';
+    else if (t.includes('月')) s.type = '月卡';
+    else if (t.includes('次')) s.type = '次卡';
+    else s.type = s.expiry ? '月卡' : '次卡';
+    changed = true;
+    console.warn(`⚠️ Fixed invalid type: id=${s.id} "${t}" → ${s.type}`);
+  }
+  // 3. 修复note中的替换字符
+  if (s.note && s.note.includes('\ufffd')) {
+    s.note = s.note.replace(/\ufffd/g, '');
+    changed = true;
+  }
+  return changed;
+}
+
+function sanitizeData(data) {
+  if (!data || !data.students) return false;
+  let anyChanged = false;
+  for (const s of data.students) {
+    if (sanitizeStudent(s)) anyChanged = true;
+  }
+  return anyChanged;
+}
+
 async function readData(store) {
   const DATA_KEY = getDataKey(store);
   const BACKUP_KEY = getBackupKey(store);
@@ -98,6 +153,10 @@ async function readData(store) {
     const r = await redisReq('GET', `/get/${DATA_KEY}`);
     const data = safeParse(r.result);
     if (data) {
+      if (sanitizeData(data)) {
+        console.log('🔧 Auto-repairing data, writing back...');
+        writeData(data, store).catch(e => console.error('Auto-repair write failed:', e.message));
+      }
       return data;
     }
   } catch(e) {
@@ -108,6 +167,10 @@ async function readData(store) {
     const rb = await redisReq('GET', `/get/${BACKUP_KEY}`);
     const data = safeParse(rb.result);
     if (data) {
+      if (sanitizeData(data)) {
+        console.log('🔧 Auto-repairing data from backup, writing back...');
+        writeData(data, store).catch(e => console.error('Auto-repair write failed:', e.message));
+      }
       return data;
     }
   } catch(e) {
