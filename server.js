@@ -367,7 +367,7 @@ app.get('/api/export-html', async (req, res) => {
             const d = new Date(r.time);
             const t = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
             const isAdd = r.type === '充';
-            recHtml += `<tr><td style="padding:6px 10px">${t}</td><td style="padding:6px 10px;color:${isAdd?'#059669':'#dc2626'};font-weight:600">${isAdd?'充值':'扣减'} ${r.n}节</td><td style="padding:6px 10px">${r.coach}</td><td style="padding:6px 10px;font-weight:600">余${r.after}节</td></tr>`;
+            recHtml += `<tr><td style="padding:6px 10px">${t}</td><td style="padding:6px 10px;color:${isAdd?'#059669':'#dc2626'};font-weight:600">${isAdd?(r.n===0&&r.note?r.note:'充值 '+r.n+'节'):'扣减 '+r.n+'节'}</td><td style="padding:6px 10px">${r.coach}</td><td style="padding:6px 10px;font-weight:600">${r.n===0&&r.note?r.note:'余'+r.after+'节'}</td></tr>`;
           });
         });
       }
