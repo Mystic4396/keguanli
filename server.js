@@ -822,8 +822,11 @@ app.post('/api/admin/pending/:id/approve', async (req, res) => {
       // 编号不需要唯一，直接添加
       data.students.push(d.student);
       data.nextId = Math.max(data.nextId, d.nextId || data.nextId);
+      // 生成充值记录
       if (d.student.classes > 0) {
         data.records.unshift({ sid: d.student.id, sname: d.student.name, coach: item.coach, time: now, after: d.student.classes, type: '充', n: d.student.classes });
+      } else if (d.student.type === '月卡' && d.student.expiry) {
+        data.records.unshift({ sid: d.student.id, sname: d.student.name, coach: item.coach, time: now, after: d.student.expiry, type: '充', n: 0, note: '月卡 至 ' + d.student.expiry });
       }
     }
 
