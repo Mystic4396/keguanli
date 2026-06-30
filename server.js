@@ -819,7 +819,11 @@ app.post('/api/admin/pending/:id/approve', async (req, res) => {
       data.students = data.students.filter(s => s.id !== d.studentId);
       data.records = data.records.filter(r => r.sid !== d.studentId);
     } else if (item.type === 'add') {
-      // 编号不需要唯一，直接添加
+      // 同店编号唯一性校验
+      if (data.students.find(s => s.id === d.student.id)) {
+        pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(pending);
+        return res.json({ ok: true, warn: '编号 ' + d.student.id + ' 已存在，已跳过该学员' });
+      }
       data.students.push(d.student);
       data.nextId = Math.max(data.nextId, d.nextId || data.nextId);
       // 生成充值记录
