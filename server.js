@@ -303,6 +303,36 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+function nowLocal(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0')}
+// 原子扣课接口：由服务器计算课时，避免客户端全量覆盖导致并发丢失
+app.post('/api/deduct', async (req, res) => {
+  const store = req.body.store || 'henglicheng';
+  try {
+    const data = await readData(store);
+    const coach = data.coaches.find(c => c.username === (req.body.auth||{}).username && c.password === (req.body.auth||{}).password);
+    if (!coach) return res.status(401).json({ error: '未授权' });
+    const { studentId, n, mode } = req.body;
+    if (!studentId || !n || n <= 0) return res.status(400).json({ error: '参数不完整' });
+    const stu = data.students.find(s => s.id === studentId);
+    if (!stu) return res.status(404).json({ error: '学员不存在' });
+    if (mode === 'mk') {
+      // 月卡/提高班：已上课时+n
+      stu.classes += n;
+    } else {
+      // 次卡：剩余课时-n
+      if (stu.classes < n) return res.status(400).json({ error: '课时不足' });
+      stu.classes -= n;
+    }
+    const record = { sid: studentId, sname: stu.name, coach: coach.name, time: nowLocal(), after: stu.classes, type: '扣', n };
+    data.records.unshift(record);
+    const ok = await writeData(data, store);
+    ok ? res.json({ ok: true, student: stu, record }) : res.status(500).json({ error: '保存失败' });
+  } catch(e) {
+    console.error('Deduct error:', e.message);
+    res.status(500).json({ error: '扣课失败' });
+  }
+});
+
 app.put('/api/data', async (req, res) => {
   const store = req.body.store || 'henglicheng';
   try {
