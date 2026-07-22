@@ -303,7 +303,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-function nowLocal(){return new Date().toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}).replace(/\/g,'-')}
+function nowLocal(){return new Date().toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false})}
 // 原子扣课接口：由服务器计算课时，避免客户端全量覆盖导致并发丢失
 app.post('/api/deduct', async (req, res) => {
   const store = req.body.store || 'henglicheng';
