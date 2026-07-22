@@ -303,7 +303,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-function nowLocal(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0')}
+function nowLocal(){return new Date().toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}).replace(/\/g,'-')}
 // 原子扣课接口：由服务器计算课时，避免客户端全量覆盖导致并发丢失
 app.post('/api/deduct', async (req, res) => {
   const store = req.body.store || 'henglicheng';
