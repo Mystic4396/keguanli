@@ -134,6 +134,13 @@ function sanitizeStudent(s) {
     s.note = s.note.replace(/\ufffd/g, '');
     changed = true;
   }
+  // 4. 迁移老学员：totalClasses 缺失时设为当前剩余课时
+  if (s.totalClasses === undefined || s.totalClasses === null) {
+    if (s.type !== '月卡' && !(s.type === '提高班' && s.billing === 'monthly')) {
+      s.totalClasses = s.classes;
+      changed = true;
+    }
+  }
   return changed;
 }
 
@@ -402,7 +409,7 @@ app.get('/api/export-html', async (req, res) => {
         });
       }
       const storeLabel = getStoreLabel(store);
-      stuHtml += `<div style="margin-bottom:24px;background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden"><div style="background:#4F46E5;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:600">${s.name}</span><span style="background:rgba(255,255,255,.2);padding:3px 12px;border-radius:20px;font-size:14px">剩余 ${s.classes} 节</span></div><div style="padding:8px 16px;color:#666;font-size:13px">编号：${s.id}${s.note ? '　备注：' + s.note : ''}　门店：${storeLabel}</div><table style="width:100%;border-collapse:collapse;font-size:14px"><tr style="background:#f9fafb;color:#666;font-size:12px"><th style="padding:6px 10px;text-align:left">时间</th><th style="padding:6px 10px;text-align:left">操作</th><th style="padding:6px 10px;text-align:left">教练</th><th style="padding:6px 10px;text-align:left">结果</th></tr>${recHtml}</table></div>`;
+      stuHtml += `<div style="margin-bottom:24px;background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden"><div style="background:#4F46E5;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:600">${s.name}</span><span style="background:rgba(255,255,255,.2);padding:3px 12px;border-radius:20px;font-size:14px">剩余 ${s.totalClasses!=null&&s.totalClasses>0?s.classes+'/'+s.totalClasses:s.classes} 节</span></div><div style="padding:8px 16px;color:#666;font-size:13px">编号：${s.id}${s.note ? '　备注：' + s.note : ''}　门店：${storeLabel}</div><table style="width:100%;border-collapse:collapse;font-size:14px"><tr style="background:#f9fafb;color:#666;font-size:12px"><th style="padding:6px 10px;text-align:left">时间</th><th style="padding:6px 10px;text-align:left">操作</th><th style="padding:6px 10px;text-align:left">教练</th><th style="padding:6px 10px;text-align:left">结果</th></tr>${recHtml}</table></div>`;
     });
 
     const storeLabel = getStoreLabel(store);
@@ -836,6 +843,7 @@ app.post('/api/admin/pending/:id/approve', async (req, res) => {
       const stu = data.students.find(s => s.id === d.studentId);
       if (!stu) { pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(pending); return res.json({ ok: true, warn: '学员已不存在，已跳过' }); }
       stu.classes += d.n;
+      if (stu.totalClasses !== undefined && stu.totalClasses !== null) { stu.totalClasses += d.n; }
       data.records.unshift({ sid: d.studentId, sname: stu.name, coach: item.coach, time: now, after: stu.classes, type: '充', n: d.n });
     } else if (item.type === 'renew') {
       const stu = data.students.find(s => s.id === d.studentId);
