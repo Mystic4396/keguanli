@@ -251,14 +251,12 @@ async function writeData(data, store) {
       }
     } catch(e) {}
   }
-  try {
-    const current = await redisReq('GET', `/get/${DATA_KEY}`);
+  // Fire-and-forget backup (non-blocking to reduce write latency)
+  redisReq('GET', `/get/${DATA_KEY}`).then(current => {
     if (current.result != null && current.result !== '') {
-      await _rawWrite(BACKUP_KEY, current.result);
+      _rawWrite(BACKUP_KEY, current.result);
     }
-  } catch(e) {
-    console.warn('Backup before write failed (non-fatal):', e.message);
-  }
+  }).catch(e => console.warn('Backup before write failed (non-fatal):', e.message));
   try {
     const result = await _rawWrite(DATA_KEY, data);
     // Verify write: async non-blocking read-back check
