@@ -868,6 +868,17 @@ app.post('/api/admin/pending/:id/approve', async (req, res) => {
       } else if (d.student.type === '月卡' && d.student.expiry) {
         data.records.unshift({ sid: d.student.id, sname: d.student.name, coach: item.coach, time: now, after: d.student.expiry, type: '充', n: 0, note: '月卡 至 ' + d.student.expiry });
       }
+    } else if (item.type === 'regDate') {
+      const stu = data.students.find(s => s.id === d.studentId);
+      if (!stu) { pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(pending); return res.json({ ok: true, warn: '学员已不存在，已跳过' }); }
+      stu.regDate = d.newRegDate;
+      // 如果有 validMonths，根据新报名日期重新计算到期日
+      if (stu.validMonths && stu.type === '月卡') {
+        const rp = d.newRegDate.split('-');
+        const dd = new Date(parseInt(rp[0]), parseInt(rp[1])-1, parseInt(rp[2]));
+        dd.setMonth(dd.getMonth() + parseInt(stu.validMonths));
+        stu.expiry = dd.getFullYear() + '-' + String(dd.getMonth()+1).padStart(2,'0') + '-' + String(dd.getDate()).padStart(2,'0');
+      }
     }
 
     await writeData(data, store);
