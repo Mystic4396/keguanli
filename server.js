@@ -759,7 +759,7 @@ app.get('/api/admin/records', async (req, res) => {
       if (data.records) data.records.filter(r => r.type === '充' || r.type === '续').forEach((r, idx) => { allRecords.push({ ...r, _store: s, _idx: idx }); });
     } catch(e) {}
   }
-  allRecords.sort((a, b) => (b.time || '').localeCompare(a.time || ''));
+  allRecords.sort((a, b) => { const ta = new Date(a.time || 0).getTime(); const tb = new Date(b.time || 0).getTime(); return tb - ta; });
   res.json(allRecords);
 });
 
