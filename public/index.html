@@ -161,9 +161,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Heiti SC','Micr
 .c2 .lc-badge{background:#E3F2FD;color:#1565C0}
 .c3 .lc-badge{background:#F3E5F5;color:#7B1FA2}
 .c4 .lc-badge{background:#E8F5E9;color:#2E7D32}
+.ptr-indicator{position:fixed;top:0;left:0;width:100%;text-align:center;color:var(--p);font-size:13px;padding:8px 0;transition:transform .3s,opacity .3s;z-index:999;pointer-events:none;opacity:0;transform:translateY(-50px)}
+.ptr-indicator.on{opacity:1;transform:translateY(0)}
+.ptr-indicator.done{opacity:0;transform:translateY(-50px)}
+.ptr-indicator .spinner{display:inline-block;width:18px;height:18px;border:2px solid transparent;border-top-color:var(--p);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:4px}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
+<div id="ptrIndicator" class="ptr-indicator"><span class="spinner"></span>刷新中…</div>
 
 <!-- Landing -->
 <div class="page active" id="pgLand">
@@ -919,6 +925,16 @@ function startAutoSync(){if(_autoSync)return;_autoSync=setInterval(function(){if
 function stopAutoSync(){if(_autoSync){clearInterval(_autoSync);_autoSync=null}}
 // 切换回页面时立刻刷新
 document.addEventListener('visibilitychange',function(){if(!document.hidden&&coach&&currentStore)refresh()});
+
+// Pull-to-refresh
+let _ptrStartY=0,_ptrActive=false,_ptrLock=false;
+function _ptrTouchStart(e){if(_ptrLock)return;if(window.scrollY<=0)_ptrStartY=e.touches[0].clientY}
+function _ptrTouchMove(e){if(!_ptrStartY||_ptrLock||window.scrollY>0)return;const dy=e.touches[0].clientY-_ptrStartY;if(dy>60){e.preventDefault();document.getElementById('ptrIndicator').classList.add('on')}}
+async function _ptrTouchEnd(){if(!_ptrStartY||_ptrLock){_ptrStartY=0;return}const el=document.getElementById('ptrIndicator');if(el.classList.contains('on')){_ptrLock=true;el.innerHTML='<span class="spinner"></span>刷新中…';try{const pg=document.querySelector('.page.active');if(pg){const id=pg.id;if(id==='pgCoach')await refresh();else if(id==='pgParent'){await loadDB()}else if(id==='pgAdmin')loadAdminPending();else if(id==='pgMgr')await refreshPerf()}}catch(e){console.error(e)}el.innerHTML='✓ 已刷新';el.classList.remove('on');el.classList.add('done');setTimeout(()=>{el.classList.remove('done');el.innerHTML='<span class="spinner"></span>刷新中…';_ptrLock=false},1000)}else{_ptrLock=false}_ptrStartY=0}
+document.addEventListener('touchstart',_ptrTouchStart,{passive:true});
+document.addEventListener('touchmove',_ptrTouchMove,{passive:false});
+document.addEventListener('touchend',_ptrTouchEnd);
+
 </script>
 </body>
 </html>
