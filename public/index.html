@@ -251,9 +251,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Heiti SC','Micr
   <div class="fg"><label>姓名</label><input id="ceName" placeholder="显示名称"></div>
   <div class="fg"><label>适用门店</label>
     <div style="display:block;padding:8px 0">
-      
+      <label style="font-size:14px;display:flex;align-items:center;gap:4px;margin-bottom:4px"><input type="checkbox" id="ceS1" value="henglicheng" checked>恒力城</label>
       <label style="font-size:14px;display:flex;align-items:center;gap:4px;margin-bottom:4px"><input type="checkbox" id="ceS2" value="baolong" checked>宝龙</label>
-      
+      <label style="font-size:14px;display:flex;align-items:center;gap:4px;margin-bottom:4px"><input type="checkbox" id="ceS3" value="taihe" checked>泰禾</label>
       <label style="font-size:14px;display:flex;align-items:center;gap:4px;margin-bottom:4px"><input type="checkbox" id="ceS4" value="yangguang" checked>阳光天地</label>
     </div>
   </div>
@@ -270,7 +270,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Heiti SC','Micr
   <div class="fg"><label>密码</label><input id="mePwd" placeholder="登录密码"></div>
   <div class="fg"><label>适用门店与分成</label>
     <div style="display:block;padding:8px 0">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><input type="checkbox" id="meS1" value="henglicheng" checked><span style="width:56px;font-size:14px">恒力城</span><input id="meShare1" type="number" step="0.1" min="0" max="1" placeholder="分成" style="width:70px;font-size:13px;padding:3px 6px;border:1px solid var(--g200);border-radius:4px"></div>
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><input type="checkbox" id="meS2" value="baolong" checked><span style="width:56px;font-size:14px">宝龙</span><input id="meShare2" type="number" step="0.1" min="0" max="1" placeholder="分成" style="width:70px;font-size:13px;padding:3px 6px;border:1px solid var(--g200);border-radius:4px"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><input type="checkbox" id="meS3" value="taihe" checked><span style="width:56px;font-size:14px">泰禾</span><input id="meShare3" type="number" step="0.1" min="0" max="1" placeholder="分成" style="width:70px;font-size:13px;padding:3px 6px;border:1px solid var(--g200);border-radius:4px"></div>
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><input type="checkbox" id="meS4" value="yangguang" checked><span style="width:56px;font-size:14px">阳光天地</span><input id="meShare4" type="number" step="0.1" min="0" max="1" placeholder="分成" style="width:70px;font-size:13px;padding:3px 6px;border:1px solid var(--g200);border-radius:4px"></div>
     </div>
   </div>
@@ -286,13 +288,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Heiti SC','Micr
 <div class="store-title">选择门店</div>
 <div class="store-sub">请选择要进入的门店</div>
 <div class="store-cards">
+<div class="store-card s1" onclick="selectStore('henglicheng')">
+<div class="store-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+<h3>恒力城店</h3>
+<p>恒力城校区</p>
 </div>
 <div class="store-card s2" onclick="selectStore('baolong')">
 <div class="store-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
 <h3>宝龙店</h3>
 <p>宝龙校区</p>
 </div>
-
+<div class="store-card s3" onclick="selectStore('taihe')">
+<div class="store-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+<h3>泰禾店</h3>
+<p>泰禾校区</p>
+</div>
 <div class="store-card s4" onclick="selectStore('yangguang')">
 <div class="store-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
 <h3>阳光天地店</h3>
@@ -504,7 +514,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Heiti SC','Micr
 // 姓名清洗: 只保留中文、英文字母、数字、常见标点
 function cleanName(s){return s.replace(/[^\u4e00-\u9fff\u3400-\u4dbfa-zA-Z0-9·\-\s]/g,'').trim()}
 let db={},coach=null,selId=null,editId=null,confCb=null,addType='次卡',editTypeVal='次卡',advBilling='monthly',editAdvBilling='monthly';let currentMgrName='';let MANAGERS=[];
-const STORE_NAMES={'baolong':'宝龙','yangguang':'阳光天地'};
+const STORE_NAMES={'henglicheng':'恒力城店','baolong':'宝龙店','taihe':'泰禾店','yangguang':'阳光天地店'};
 let perfData=null,mgrPwd='',storeCoachNames=[];
 
 function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active')}
@@ -681,7 +691,7 @@ function stopAdminAutoRefresh(){
 function renderAdminCoaches(coaches){
   const el=document.getElementById('adminCoachList');
   document.getElementById('adminCoachCount').textContent='('+coaches.length+'人)';
-  const SN={'baolong':'宝龙','yangguang':'阳光天地'};
+  const SN={'henglicheng':'恒力城','baolong':'宝龙','taihe':'泰禾','yangguang':'阳光天地'};
   const show=coaches.slice(0,2),hidden=coaches.slice(2);
   let h=show.map((c,i)=>'<div class="admin-item"><div class="admin-item-name">'+c.name+'</div><div class="admin-item-stores">'+(c.stores?c.stores.map(s=>SN[s]||s).join('、'):'')+'</div><div class="admin-item-info">账号: '+c.username+'</div><div class="admin-item-info">密码: '+c.password+'</div><div class="admin-item-acts"><button class="btn btn-o btn-sm" onclick="adminEditCoach('+i+')">编辑</button><button class="btn btn-no btn-sm" style="background:var(--no);color:#fff" onclick="adminDelCoach('+i+')">删除</button></div></div>').join('');
   if(hidden.length){h+='<div id="coachMore" style="display:none">'+hidden.map((c,i)=>'<div class="admin-item"><div class="admin-item-name">'+c.name+'</div><div class="admin-item-stores">'+(c.stores?c.stores.map(s=>SN[s]||s).join('、'):'')+'</div><div class="admin-item-info">账号: '+c.username+'</div><div class="admin-item-info">密码: '+c.password+'</div><div class="admin-item-acts"><button class="btn btn-o btn-sm" onclick="adminEditCoach('+(i+2)+')">编辑</button><button class="btn btn-no btn-sm" style="background:var(--no);color:#fff" onclick="adminDelCoach('+(i+2)+')">删除</button></div></div>').join('')+'</div>';h+='<button class="btn btn-o btn-sm" style="width:100%;margin-top:8px" onclick="this.previousElementSibling.style.display=\'block\';this.style.display=\'none\'">展开全部 ('+hidden.length+'人)</button>';}
@@ -689,7 +699,7 @@ function renderAdminCoaches(coaches){
   el.innerHTML=h;
 }
 
-function getCoachStores(){const s=[];if(if(document.getElementById('ceS2').checked)s.push('baolong');if(if(document.getElementById('ceS4').checked)s.push('yangguang');return s;}
+function getCoachStores(){const s=[];if(document.getElementById('ceS1').checked)s.push('henglicheng');if(document.getElementById('ceS2').checked)s.push('baolong');if(document.getElementById('ceS3').checked)s.push('taihe');if(document.getElementById('ceS4').checked)s.push('yangguang');return s;}
 
 function adminShowAddCoach(){
   adminEditOldUser=null;
@@ -697,7 +707,7 @@ function adminShowAddCoach(){
   document.getElementById('ceUser').value='';
   document.getElementById('cePwd').value='123456';
   document.getElementById('ceName').value='';
-  document.getElementById('ceS2').checked=true;document.getElementById('ceS4').checked=true;
+  document.getElementById('ceS1').checked=true;document.getElementById('ceS2').checked=true;document.getElementById('ceS3').checked=true;document.getElementById('ceS4').checked=true;
   document.getElementById('moCoachEdit').classList.add('on');
 }
 
@@ -708,9 +718,9 @@ function adminEditCoach(idx){
   document.getElementById('ceUser').value=c.username;
   document.getElementById('cePwd').value=c.password;
   document.getElementById('ceName').value=c.name;
-  
+  document.getElementById('ceS1').checked=(c.stores||[]).includes('henglicheng');
   document.getElementById('ceS2').checked=(c.stores||[]).includes('baolong');
-  
+  document.getElementById('ceS3').checked=(c.stores||[]).includes('taihe');
   document.getElementById('ceS4').checked=(c.stores||[]).includes('yangguang');
   document.getElementById('moCoachEdit').classList.add('on');
 }
@@ -751,7 +761,7 @@ function renderAdminMgrs(mgrs){
   adminMgrs=mgrs;
   const el=document.getElementById('adminMgrList');
   document.getElementById('adminMgrCount').textContent='('+mgrs.length+'人)';
-  const SN={'baolong':'宝龙','yangguang':'阳光天地'};
+  const SN={'henglicheng':'恒力城','baolong':'宝龙','taihe':'泰禾','yangguang':'阳光天地'};
   const show=mgrs.slice(0,2),hidden=mgrs.slice(2);
   const renderItem=(m,i)=>{const sharesHtml=m.stores?m.stores.map(s=>SN[s]+': '+((m.shares&&m.shares[s]||m.share||0)*100)+'%').join('、'):(m.share?(m.share*100+'%'):'未设置');return '<div class="admin-item"><div class="admin-item-name">'+m.name+'</div><div class="admin-item-info">密码: '+m.password+'</div><div class="admin-item-info">分成: '+sharesHtml+'</div><div class="admin-item-acts"><button class="btn btn-o btn-sm" onclick="adminEditMgr('+i+')">编辑</button><button class="btn btn-no btn-sm" style="background:var(--no);color:#fff" onclick="adminDelMgr('+i+')">删除</button></div></div>'};
   let h=show.map((m,i)=>renderItem(m,i)).join('');
@@ -764,11 +774,11 @@ function adminShowAddMgr(){
   document.getElementById('mgrEditTitle').textContent='添加店长';
   document.getElementById('meName').value='';
   document.getElementById('mePwd').value='admin888';
-  
+  document.getElementById('meShare1').value='0.3';
   document.getElementById('meShare2').value='0.3';
-  
+  document.getElementById('meShare3').value='0.3';
   document.getElementById('meShare4').value='0.3';
-  document.getElementById('meS2').checked=true;document.getElementById('meS4').checked=true;
+  document.getElementById('meS1').checked=true;document.getElementById('meS2').checked=true;document.getElementById('meS3').checked=true;document.getElementById('meS4').checked=true;
   document.getElementById('moMgrEdit').classList.add('on');
 }
 function adminEditMgr(idx){
@@ -778,21 +788,21 @@ function adminEditMgr(idx){
   document.getElementById('meName').value=m.name;
   document.getElementById('mePwd').value=m.password;
   const ms=m.shares||{};
-  
-  
+  document.getElementById('meS1').checked=m.stores.includes('henglicheng');
+  document.getElementById('meShare1').value=ms.henglicheng!=null?ms.henglicheng:(m.share||'');
   document.getElementById('meS2').checked=m.stores.includes('baolong');
   document.getElementById('meShare2').value=ms.baolong!=null?ms.baolong:'';
-  
-  
+  document.getElementById('meS3').checked=m.stores.includes('taihe');
+  document.getElementById('meShare3').value=ms.taihe!=null?ms.taihe:'';
   document.getElementById('meS4').checked=m.stores.includes('yangguang');
   document.getElementById('meShare4').value=ms.yangguang!=null?ms.yangguang:'';
   document.getElementById('moMgrEdit').classList.add('on');
 }
 function getMgrStores(){
   const s=[];
-  if(
+  if(document.getElementById('meS1').checked)s.push('henglicheng');
   if(document.getElementById('meS2').checked)s.push('baolong');
-  if(
+  if(document.getElementById('meS3').checked)s.push('taihe');
   if(document.getElementById('meS4').checked)s.push('yangguang');
   return s;
 }
@@ -801,8 +811,10 @@ async function adminSaveMgr(){
   const password=document.getElementById('mePwd').value.trim();
   const stores=getMgrStores();
   const shares={};
-  if(
-  if(
+  if(document.getElementById('meS1').checked&&document.getElementById('meShare1').value)shares.henglicheng=parseFloat(document.getElementById('meShare1').value)||0;
+  if(document.getElementById('meS2').checked&&document.getElementById('meShare2').value)shares.baolong=parseFloat(document.getElementById('meShare2').value)||0;
+  if(document.getElementById('meS3').checked&&document.getElementById('meShare3').value)shares.taihe=parseFloat(document.getElementById('meShare3').value)||0;
+  if(document.getElementById('meS4').checked&&document.getElementById('meShare4').value)shares.yangguang=parseFloat(document.getElementById('meShare4').value)||0;
   if(!name||!password){toast('请填写完整','wn');return}
   if(!stores.length){toast('请选择至少一个门店','wn');return}
   try{
@@ -834,7 +846,7 @@ function renderAdminPending(items){
   const el=document.getElementById('adminPendingList');
   document.getElementById('adminPendingCount').textContent='('+items.length+'条)';
   if(!items.length){el.innerHTML='<div class="empty">暂无待审核</div>';return}
-  const SN={'baolong':'宝龙','yangguang':'阳光天地'};
+  const SN={'henglicheng':'恒力城','baolong':'宝龙','taihe':'泰禾','yangguang':'阳光天地'};
   el.innerHTML=items.map(p=>{
     let desc='';
     if(p.type==='charge')desc='充值 <strong>'+p.details.n+'</strong> 节';
@@ -866,7 +878,7 @@ async function rejectPending(id){
 function renderAdminRecs(recs){
   const el=document.getElementById('adminRecList');
   document.getElementById('adminRecCount').textContent='('+recs.length+'条)';
-  const SN={'baolong':'宝龙','yangguang':'阳光天地'};
+  const SN={'henglicheng':'恒力城','baolong':'宝龙','taihe':'泰禾','yangguang':'阳光天地'};
   const renderItem=r=>{const isRenew=r.type==='续';return '<div class="ri"><div class="rd" style="background:'+(isRenew?'var(--adv)':'var(--ok)')+'"></div><div class="rm"><div class="rn">'+(r.sname||'')+' '+(isRenew?'修改到期日至 '+r.after:(r.n===0&&r.note?r.note:'充'+r.n+'节'))+'</div><div class="rmt">'+(r.coach||'')+' · '+(SN[r._store]||r._store||'')+' · '+(r.time||'')+'</div></div><div class="rb '+(isRenew?'rb-p':'rb-ok')+'">'+(isRenew?'续':'充')+'</div><button class="btn btn-no btn-sm" style="background:var(--no);color:#fff;margin-left:auto;padding:2px 8px;font-size:12px" onclick="adminDelRec(\''+r._store+'\',\''+r.sid+'\',\''+r.time+'\')">×</button></div>'};
   const show=recs.slice(0,5);
   const hidden=recs.slice(5);

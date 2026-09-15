@@ -16,11 +16,13 @@ const REDIS_TOKEN = 'gQAAAAAAAhPVAAIgcDE2ZWVhMDNiZTI5OTM0YjlkYTA3MzQ0Y2VmOTZmZmI
 
 // 多门店Redis Key映射
 const STORE_KEY_MAP = {
+  henglicheng: { db: "classmanager:db", backup: "classmanager:db:backup", perf: "classmanager:perf", perfBackup: "classmanager:perf:backup" },
   baolong: { db: "classmanager:db:baolong", backup: "classmanager:db:baolong:backup", perf: "classmanager:perf:baolong", perfBackup: "classmanager:perf:baolong:backup" },
+  taihe: { db: "classmanager:db:taihe", backup: "classmanager:db:taihe:backup", perf: "classmanager:perf:taihe", perfBackup: "classmanager:perf:taihe:backup" },
   yangguang: { db: "classmanager:db:yangguang", backup: "classmanager:db:yangguang:backup", perf: "classmanager:perf:yangguang", perfBackup: "classmanager:perf:yangguang:backup" }
 };
-const STORE_LABELS = { baolong: "宝龙店", yangguang: "阳光天地店" };
-function getKey(store, type) { const m = STORE_KEY_MAP[store]; return m ? m[type] : STORE_KEY_MAP.baolong[type]; }
+const STORE_LABELS = { henglicheng: "恒力城店", baolong: "宝龙店", taihe: "泰禾店", yangguang: "阳光天地店" };
+function getKey(store, type) { const m = STORE_KEY_MAP[store]; return m ? m[type] : STORE_KEY_MAP.henglicheng[type]; }
 function getDataKey(store) { return getKey(store, "db"); }
 function getBackupKey(store) { return getKey(store, "backup"); }
 function getPerfKey(store) { return getKey(store, "perf"); }
@@ -285,7 +287,7 @@ app.use(express.static(path.join(__dirname, 'public'), {
 app.get('/api/ping', (req, res) => res.json({ok:true,time:Date.now()}));
 
 app.get('/api/data', async (req, res) => {
-  const store = req.query.store || 'baolong';
+  const store = req.query.store || 'henglicheng';
   try {
     const data = await readData(store);
     res.json({ ...data, coaches: data.coaches.map(c => ({ username: c.username, name: c.name })) });
@@ -295,7 +297,7 @@ app.get('/api/data', async (req, res) => {
 });
 
 app.post('/api/login', async (req, res) => {
-  const store = req.body.store || 'baolong';
+  const store = req.body.store || 'henglicheng';
   try {
     const data = await readData(store);
     const coach = data.coaches.find(c => c.username === req.body.username && c.password === req.body.password);
@@ -309,7 +311,7 @@ app.post('/api/login', async (req, res) => {
 function nowLocal(){return new Date().toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false})}
 // 原子扣课接口：由服务器计算课时，避免客户端全量覆盖导致并发丢失
 app.post('/api/deduct', async (req, res) => {
-  const store = req.body.store || 'baolong';
+  const store = req.body.store || 'henglicheng';
   try {
     const data = await readData(store);
     const coach = data.coaches.find(c => c.username === (req.body.auth||{}).username && c.password === (req.body.auth||{}).password);
@@ -337,7 +339,7 @@ app.post('/api/deduct', async (req, res) => {
 });
 
 app.put('/api/data', async (req, res) => {
-  const store = req.body.store || 'baolong';
+  const store = req.body.store || 'henglicheng';
   try {
     const data = await readData(store);
     const coach = data.coaches.find(c => c.username === (req.body.auth||{}).username && c.password === (req.body.auth||{}).password);
@@ -355,7 +357,7 @@ app.put('/api/data', async (req, res) => {
 });
 
 app.get('/api/export', async (req, res) => {
-  const store = req.query.store || 'baolong';
+  const store = req.query.store || 'henglicheng';
   try {
     const data = await readData(store);
     res.setHeader('Content-Disposition', `attachment; filename=keguanli_${store}_backup.json`);
@@ -366,7 +368,7 @@ app.get('/api/export', async (req, res) => {
 });
 
 app.get('/api/export-html', async (req, res) => {
-  const store = req.query.store || 'baolong';
+  const store = req.query.store || 'henglicheng';
   try {
     const data = await readData(store);
     const now = new Date().toLocaleString('zh-CN', {timeZone:'Asia/Shanghai'});
@@ -487,7 +489,9 @@ async function readManagers() {
   } catch(e) { console.error('Read managers error:', e.message); }
   // Default managers
   return [
-    {name:'宝龙管理员',password:'admin888',shares:{baolong:0.5,yangguang:0.5},stores:['baolong','yangguang']}
+    {name:'陈哲',password:'admin888',shares:{henglicheng:0.3},stores:['henglicheng']},
+    {name:'熊彬',password:'admin888',shares:{henglicheng:0.3},stores:['henglicheng']},
+    {name:'叶川',password:'admin888',shares:{henglicheng:0.4},stores:['henglicheng']}
   ];
 }
 
@@ -496,7 +500,7 @@ async function writeManagers(data) {
 }
 
 app.post('/api/perf/login', async (req, res) => {
-  const store = req.body.store || 'baolong';
+  const store = req.body.store || 'henglicheng';
   const name = req.body.name || '';
   const password = req.body.password || '';
   try {
@@ -514,7 +518,7 @@ app.post('/api/perf/login', async (req, res) => {
 
 // Get managers for a specific store (for login dropdown)
 app.get('/api/managers', async (req, res) => {
-  const store = req.query.store || 'baolong';
+  const store = req.query.store || 'henglicheng';
   try {
     const managers = await readManagers();
     const filtered = managers.filter(m => m.stores.includes(store)).map(m => ({name: m.name, share: (m.shares && m.shares[store]) || m.share || 0}));
@@ -525,7 +529,7 @@ app.get('/api/managers', async (req, res) => {
 });
 
 app.get('/api/perf', async (req, res) => {
-  const store = req.query.store || 'baolong';
+  const store = req.query.store || 'henglicheng';
   try {
     const data = await readPerf(store);
     const safe = { ...data };
@@ -537,7 +541,7 @@ app.get('/api/perf', async (req, res) => {
 });
 
 app.put('/api/perf', async (req, res) => {
-  const store = req.body.store || 'baolong';
+  const store = req.body.store || 'henglicheng';
   const mgrName = req.body.name || '';
   const mgrPwd = req.body.password || '';
   try {
@@ -571,10 +575,12 @@ app.put('/api/perf', async (req, res) => {
 });
 
 
-// 初始化门店 - 宝龙+阳光天地系统
+// 初始化两个门店
 async function initAllStores() {
-  await initRedisIfNeeded('baolong');
+  await initRedisIfNeeded('henglicheng');
+  await initRedisIfNeeded('taihe');
   await initRedisIfNeeded('yangguang');
+  await initRedisIfNeeded('baolong');
 }
 
 initAllStores().then(() => {
@@ -582,8 +588,8 @@ initAllStores().then(() => {
 
 // Admin API - auth check
 function adminCheck(pwd) { return pwd === '123456'; }
-const ADMIN_STORES = ['baolong', 'yangguang'];
-const ADMIN_STORE_NAMES = { baolong: '宝龙', yangguang: '阳光天地' };
+const ADMIN_STORES = ['henglicheng', 'baolong', 'taihe', 'yangguang'];
+const ADMIN_STORE_NAMES = { henglicheng: '恒力城', baolong: '宝龙', taihe: '泰禾', yangguang: '阳光天地' };
 
 // List coaches with passwords
 app.get('/api/admin/coaches', async (req, res) => {
@@ -705,8 +711,8 @@ app.post('/api/admin/managers', async (req, res) => {
     const managers = await readManagers();
     if (managers.find(m => m.name === name)) return res.status(400).json({ error: '店长已存在' });
     // Build shares object from shares param or fallback to single share
-    const sharesObj = shares || (share != null ? Object.fromEntries((stores || ['baolong']).map(s => [s, parseFloat(share) || 0])) : {});
-    managers.push({ name, password, shares: sharesObj, stores: stores || ['baolong'] });
+    const sharesObj = shares || (share != null ? Object.fromEntries((stores || ['henglicheng']).map(s => [s, parseFloat(share) || 0])) : {});
+    managers.push({ name, password, shares: sharesObj, stores: stores || ['henglicheng'] });
     await writeManagers(managers);
     res.json({ ok: true });
   } catch(e) { console.error('Add manager error:', e); res.status(500).json({ error: '添加失败: '+e.message }); }
@@ -723,8 +729,8 @@ app.put('/api/admin/managers', async (req, res) => {
     if (idx === -1) return res.status(404).json({ error: '店长不存在' });
     // Check name conflict (if renaming)
     if (name !== oldName && managers.find(m => m.name === name)) return res.status(400).json({ error: '店长名称已存在' });
-    const sharesObj = shares || (share != null ? Object.fromEntries((stores || ['baolong']).map(s => [s, parseFloat(share) || 0])) : {});
-    managers[idx] = { name, password, shares: sharesObj, stores: stores || ['baolong'] };
+    const sharesObj = shares || (share != null ? Object.fromEntries((stores || ['henglicheng']).map(s => [s, parseFloat(share) || 0])) : {});
+    managers[idx] = { name, password, shares: sharesObj, stores: stores || ['henglicheng'] };
     await writeManagers(managers);
     res.json({ ok: true });
   } catch(e) { console.error('Update manager error:', e); res.status(500).json({ error: '更新失败: '+e.message }); }
@@ -793,7 +799,7 @@ async function writePending(data) {
 
 // Coach: Submit pending request
 app.post('/api/pending', async (req, res) => {
-  const store = req.body.store || 'baolong';
+  const store = req.body.store || 'henglicheng';
   try {
     const sData = await readData(store);
     const coach = sData.coaches.find(c => c.username === (req.body.auth||{}).username && c.password === (req.body.auth||{}).password);
