@@ -488,9 +488,7 @@ async function readManagers(store = 'baolong') {
     }
   } catch(e) { console.error('Read managers error:', e.message); }
   const defaults = {
-    baolong: [
-      {name:'宝龙管理员',password:'admin888',shares:{baolong:0.5},stores:['baolong']}
-    ],
+    baolong: [],
     yangguang: []
   };
   return defaults[store] || [];
