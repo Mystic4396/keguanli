@@ -474,104 +474,33 @@ async function writePerfData(data, store) {
 
 
 
-const MANAGERS_KEY = 'classmanager:managers';
+const MANAGERS_KEY_PREFIX = 'classmanager:managers';
+function getManagersKey(store) { return MANAGERS_KEY_PREFIX + ':' + store; }
 
-async function readManagers() {
+async function readManagers(store = 'baolong') {
+  const key = getManagersKey(store);
   try {
-    const r = await redisReq('GET', `/get/${MANAGERS_KEY}`);
+    const r = await redisReq('GET', `/get/${key}`);
     if (r.result) {
       let data = typeof r.result === 'string' ? JSON.parse(r.result) : r.result;
       if (typeof data === 'string') data = JSON.parse(data);
       if (Array.isArray(data)) return data;
     }
   } catch(e) { console.error('Read managers error:', e.message); }
-  // Default managers
-  return [
-    {name:'宝龙管理员',password:'admin888',shares:{baolong:0.5,yangguang:0.5},stores:['baolong','yangguang']}
-  ];
+  const defaults = {
+    baolong: [
+      {name:'宝龙管理员',password:'admin888',shares:{baolong:0.5},stores:['baolong']}
+    ],
+    yangguang: []
+  };
+  return defaults[store] || [];
 }
 
-async function writeManagers(data) {
-  return await _rawWrite(MANAGERS_KEY, data);
+async function writeManagers(data, store = 'baolong') {
+  const key = getManagersKey(store);
+  return redisReq('SET', `/set/${key}`, JSON.stringify(data));
 }
 
-app.post('/api/perf/login', async (req, res) => {
-  const store = req.body.store || 'baolong';
-  const name = req.body.name || '';
-  const password = req.body.password || '';
-  try {
-    const managers = await readManagers();
-    const mgr = managers.find(m => m.name === name);
-    if (!mgr || !mgr.stores.includes(store) || mgr.password !== password) {
-      return res.status(401).json({ error: '密码错误或无权限' });
-    }
-    const storeShare = (mgr.shares && mgr.shares[store]) || mgr.share || 0;
-    res.json({ ok: true, role: 'manager', share: storeShare });
-  } catch(e) {
-    res.status(500).json({ error: '登录失败' });
-  }
-});
-
-// Get managers for a specific store (for login dropdown)
-app.get('/api/managers', async (req, res) => {
-  const store = req.query.store || 'baolong';
-  try {
-    const managers = await readManagers();
-    const filtered = managers.filter(m => m.stores.includes(store)).map(m => ({name: m.name, share: (m.shares && m.shares[store]) || m.share || 0}));
-    res.json(filtered);
-  } catch(e) {
-    res.status(500).json({ error: '获取失败' });
-  }
-});
-
-app.get('/api/perf', async (req, res) => {
-  const store = req.query.store || 'baolong';
-  try {
-    const data = await readPerf(store);
-    const safe = { ...data };
-    delete safe.managerPassword;
-    res.json(safe);
-  } catch(e) {
-    res.status(500).json({ error: '读取失败' });
-  }
-});
-
-app.put('/api/perf', async (req, res) => {
-  const store = req.body.store || 'baolong';
-  const mgrName = req.body.name || '';
-  const mgrPwd = req.body.password || '';
-  try {
-    const perf = await readPerf(store);
-    const managers = await readManagers();
-    const mgr = managers.find(m => m.name === mgrName);
-    if (!mgr || !mgr.stores.includes(store) || mgr.password !== mgrPwd) {
-      return res.status(401).json({ error: '密码错误或无权限' });
-    }
-    const u = req.body.updates || {};
-    if (u.perfRecords) perf.perfRecords = u.perfRecords;
-    if (u.monthlyRevenue) perf.monthlyRevenue = u.monthlyRevenue;
-    if (u.coachBaseSalary) perf.coachBaseSalary = u.coachBaseSalary;
-    if (u.partTimeHours) perf.partTimeHours = u.partTimeHours;
-    if (u.partTimeRate !== undefined) perf.partTimeRate = u.partTimeRate;
-    if (u.shoeCost) perf.shoeCost = u.shoeCost;
-    if (u.shoeCostJunior !== undefined) perf.shoeCostJunior = u.shoeCostJunior;
-    if (u.shoeCostSenior !== undefined) perf.shoeCostSenior = u.shoeCostSenior;
-    if (u.managerRate !== undefined) perf.managerRate = u.managerRate;
-    if (u.fixedCost !== undefined) perf.fixedCost = u.fixedCost;
-    if (u.customCoaches) perf.customCoaches = u.customCoaches;
-    if (u.monthlyConfig) perf.monthlyConfig = u.monthlyConfig;
-    if (u.monthlyReports) perf.monthlyReports = u.monthlyReports;
-    if (u.prospectMemos) perf.prospectMemos = u.prospectMemos;
-    const ok = await writePerfData(perf, store);
-    ok ? res.json({ ok: true }) : res.status(500).json({ error: '保存失败' });
-  } catch(e) {
-    console.error('PUT perf error:', e.message);
-    res.status(500).json({ error: '保存失败' });
-  }
-});
-
-
-// 初始化门店 - 宝龙+阳光天地系统
 async function initAllStores() {
   await initRedisIfNeeded('baolong');
   await initRedisIfNeeded('yangguang');
@@ -667,29 +596,23 @@ app.get('/api/admin/managers', async (req, res) => {
   if (!adminCheck(req.query.pwd)) return res.status(401).json({ error: '未授权' });
   const store = req.query.store || 'baolong';
   try {
-    const managers = await readManagers();
-    // 返回所有管理员，但标记哪些有当前门店权限
-    const result = managers.filter(m => m.stores && m.stores.includes(store)).map(m => ({
-      name: m.name,
-      password: m.password,
-      share: (m.shares && m.shares[store]) || m.share || 0
-    }));
-    res.json(result);
+    const managers = await readManagers(store);
+    res.json(managers);
   } catch(e) { res.status(500).json({ error: '获取失败' }); }
 });
 
 // Admin: Add manager
 app.post('/api/admin/managers', async (req, res) => {
   if (!adminCheck(req.body.pwd)) return res.status(401).json({ error: '未授权' });
-  const { name, password, share, shares, stores } = req.body;
+  const { name, password, share, shares, stores, store } = req.body;
+  const targetStore = store || 'baolong';
   if (!name || !password) return res.status(400).json({ error: '参数不完整' });
   try {
-    const managers = await readManagers();
+    const managers = await readManagers(targetStore);
     if (managers.find(m => m.name === name)) return res.status(400).json({ error: '店长已存在' });
-    // Build shares object from shares param or fallback to single share
-    const sharesObj = shares || (share != null ? Object.fromEntries((stores || ['henglicheng']).map(s => [s, parseFloat(share) || 0])) : {});
-    managers.push({ name, password, shares: sharesObj, stores: stores || ['henglicheng'] });
-    await writeManagers(managers);
+    const shareVal = (shares && shares[targetStore] != null) ? shares[targetStore] : (share != null ? parseFloat(share) : 0);
+    managers.push({ name, password, shares: { [targetStore]: shareVal }, stores: [targetStore] });
+    await writeManagers(managers, targetStore);
     res.json({ ok: true });
   } catch(e) { console.error('Add manager error:', e); res.status(500).json({ error: '添加失败: '+e.message }); }
 });
@@ -697,17 +620,17 @@ app.post('/api/admin/managers', async (req, res) => {
 // Admin: Update manager
 app.put('/api/admin/managers', async (req, res) => {
   if (!adminCheck(req.body.pwd)) return res.status(401).json({ error: '未授权' });
-  const { oldName, name, password, share, shares, stores } = req.body;
+  const { oldName, name, password, share, shares, stores, store } = req.body;
+  const targetStore = store || 'baolong';
   if (!oldName || !name || !password) return res.status(400).json({ error: '参数不完整' });
   try {
-    const managers = await readManagers();
+    const managers = await readManagers(targetStore);
     const idx = managers.findIndex(m => m.name === oldName);
     if (idx === -1) return res.status(404).json({ error: '店长不存在' });
-    // Check name conflict (if renaming)
     if (name !== oldName && managers.find(m => m.name === name)) return res.status(400).json({ error: '店长名称已存在' });
-    const sharesObj = shares || (share != null ? Object.fromEntries((stores || ['henglicheng']).map(s => [s, parseFloat(share) || 0])) : {});
-    managers[idx] = { name, password, shares: sharesObj, stores: stores || ['henglicheng'] };
-    await writeManagers(managers);
+    const shareVal = (shares && shares[targetStore] != null) ? shares[targetStore] : (share != null ? parseFloat(share) : (managers[idx].shares && managers[idx].shares[targetStore]) || 0);
+    managers[idx] = { name, password, shares: { [targetStore]: shareVal }, stores: [targetStore] };
+    await writeManagers(managers, targetStore);
     res.json({ ok: true });
   } catch(e) { console.error('Update manager error:', e); res.status(500).json({ error: '更新失败: '+e.message }); }
 });
@@ -715,12 +638,13 @@ app.put('/api/admin/managers', async (req, res) => {
 // Admin: Delete manager
 app.delete('/api/admin/managers', async (req, res) => {
   if (!adminCheck(req.query.pwd)) return res.status(401).json({ error: '未授权' });
-  const name = req.query.name;
+  const { name, store } = req.query;
+  const targetStore = store || 'baolong';
   if (!name) return res.status(400).json({ error: '参数不完整' });
   try {
-    let managers = await readManagers();
+    let managers = await readManagers(targetStore);
     managers = managers.filter(m => m.name !== name);
-    await writeManagers(managers);
+    await writeManagers(managers, targetStore);
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: '删除失败' }); }
 });
