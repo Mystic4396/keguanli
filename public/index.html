@@ -194,7 +194,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Heiti SC','Micr
           <p>业绩管理 · 数据统计</p>
         </div>
       </div>
-      <div class="lc c3" onclick="goAdminLogin()">
+      <div class="lc c3" onclick="goStoreSelect('admin')">
         <div class="lc-badge">03</div>
         <div class="lc-body">
           <h3>账号管理</h3>
@@ -226,7 +226,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Heiti SC','Micr
 </div>
 
 <div class="page" id="pgAdmin">
-<div class="header"><div class="hleft"><button class="bbtn" onclick="goLand()">&#8592;</button><span class="htitle">账号管理</span></div><span class="badge badge-mg">管理员</span></div>
+<div class="header"><div class="hleft"><button class="bbtn" onclick="goLand()">&#8592;</button><span class="htitle">账号管理</span><span class="store-label" id="adminStoreLabel" style="font-size:12px;color:var(--g500);margin-left:8px"></span></div><span class="badge badge-mg">管理员</span></div>
 <div class="ctn" id="adminCtn">
   <div class="stitle" style="color:var(--no)">待审核 <span id="adminPendingCount" style="font-size:12px;color:var(--g400);font-weight:400"></span></div>
   <div class="card" id="adminPendingList"></div>
@@ -521,12 +521,14 @@ function goStoreSelect(action){
 }
 function selectStore(store){
   currentStore=store;
+  adminStore=store;
   document.querySelectorAll('.store-label').forEach(el=>el.textContent=STORE_NAMES[store]||store);
   // Prewarm: wake Render server while user types password
   fetch('/api/ping?store=_prewarm').catch(()=>{});
   if(pendingAction==='coach')goCoachLogin();
   else if(pendingAction==='parent')goParent();
   else if(pendingAction==='mgr')goMgrLogin();
+  else if(pendingAction==='admin')go('pgAdminLogin');
   pendingAction='';
 }
 
@@ -645,7 +647,7 @@ function doAdminLogin(){const p=document.getElementById('adminPwd').value;if(p!=
 
 async function enterAdmin(){
   go('pgAdmin');
-  renderAdminStoreTab();
+  const label=document.getElementById('adminStoreLabel');if(label)label.textContent=STORE_NAMES[adminStore]||adminStore;
   try{
     const [coaches,recs,mgrs,pending]=await Promise.all([
       fetch('/api/admin/coaches?pwd='+ADMIN_PWD+'&store='+adminStore).then(r=>r.json()),
@@ -663,19 +665,6 @@ async function enterAdmin(){
 }
 
 // 账号管理界面：每15秒自动刷新审核列表
-function renderAdminStoreTab(){
-  const ctn=document.getElementById('adminCtn');
-  if(!ctn||document.getElementById('adminStoreTab'))return;
-  const tabs=Object.entries(ADMIN_STORE_MAP).map(([k,v])=>'<button class="stab'+(k===adminStore?' on':'')+'" data-store="'+k+'" onclick="switchAdminStore(\''+k+'\')">'+v+'</button>').join('');
-  ctn.insertAdjacentHTML('afterbegin','<div id="adminStoreTab" style="display:flex;gap:8px;margin-bottom:12px">'+tabs+'</div>');
-}
-function switchAdminStore(s){
-  adminStore=s;
-  // 更新 tab 选中态
-  document.querySelectorAll('.stab').forEach(b=>{b.classList.toggle('on', b.dataset.store===s)});
-  loadAdminCoaches();loadAdminPending();loadAdminMgrs();
-}
-let _adminPendingTimer=null;
 function startAdminAutoRefresh(){
   if(_adminPendingTimer)return;
   _adminPendingTimer=setInterval(function(){loadAdminPending()},15000);
