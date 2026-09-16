@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="锐力体育">
+<meta name="apple-mobile-web-app-title" content="毅启滑体育">
 <style>
 
 :root{--p:#1d4ed8;--pl:#3b82f6;--pb:#eff6ff;--ok:#16a34a;--ob:#f0fdf4;--no:#dc2626;--nb:#fef2f2;--wn:#ea580c;--wb:#fff7ed;--g50:#f5f5f7;--g100:#e8e8ed;--g200:#d2d2d7;--g300:#b0b0b6;--g400:#86868b;--g500:#6e6e73;--g600:#48484a;--g700:#363638;--g800:#1d1d1f;--g900:#0a0a0a;--r:14px;--sh:0 1px 3px rgba(0,0,0,.04);--tc:#0d6efd;--tcb:#dbeafe;--adv:#7c3aed;--advb:#f5f3ff;--mg:#92400e;--mgb:#fef3c7}
@@ -73,6 +73,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Heiti SC','Micr
 .admin-item-stores{display:block;font-size:13px;color:var(--g500);margin-top:2px}
 .admin-item-info{font-size:13px;color:var(--g500);margin-top:2px}
 .admin-item-acts{display:flex;gap:6px;margin-top:8px}
+.stab{padding:8px 16px;border:1px solid var(--g200);background:#fff;border-radius:20px;font-size:13px;color:var(--g500);cursor:pointer;transition:all .2s}.stab.on{background:var(--p);color:#fff;border-color:var(--p)}
 .il{font-size:14px;color:var(--g500)}.iv{font-size:15px;font-weight:600;color:var(--g800)}.iv.hl{color:var(--p);font-size:20px}
 .ttag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;vertical-align:middle}
 .ttag-ck{background:var(--pb);color:var(--p)}.ttag-mk{background:var(--tcb);color:var(--tc)}.ttag-adv{background:var(--advb);color:var(--adv)}
@@ -249,7 +250,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Heiti SC','Micr
   <div class="fg"><label>账号</label><input id="ceUser" placeholder="英文账号"></div>
   <div class="fg"><label>密码</label><input id="cePwd" placeholder="登录密码"></div>
   <div class="fg"><label>姓名</label><input id="ceName" placeholder="显示名称"></div>
-  <div class="fg"><label>适用门店</label>
+  <div class="fg" style="display:none"><label>适用门店</label>
     <div style="display:block;padding:8px 0">
       <label style="font-size:14px;display:flex;align-items:center;gap:4px;margin-bottom:4px"><input type="checkbox" id="ceS1" value="henglicheng" checked>恒力城</label>
       <label style="font-size:14px;display:flex;align-items:center;gap:4px;margin-bottom:4px"><input type="checkbox" id="ceS2" value="baolong" checked>宝龙</label>
@@ -287,11 +288,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Heiti SC','Micr
 <div class="store-page">
 <div class="store-title">选择门店</div>
 <div class="store-sub">请选择要进入的门店</div>
-<div class="store-cards"><div class="store-card s2" onclick="selectStore('baolong')">
+<div class="store-cards"><div class="store-card s1" onclick="selectStore('baolong')">
 <div class="store-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
 <h3>宝龙店</h3>
 <p>宝龙校区</p>
-</div><div class="store-card s4" onclick="selectStore('yangguang')">
+</div><div class="store-card s3" onclick="selectStore('yangguang')">
 <div class="store-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
 <h3>阳光天地店</h3>
 <p>阳光天地校区</p>
@@ -304,7 +305,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Heiti SC','Micr
 <!-- Coach Login -->
 <div class="page" id="pgLogin">
   <div class="header"><div class="hleft"><button class="bbtn" onclick="goLand()">&#8592;</button><span class="htitle">教练登录</span></div></div>
-  <div class="ctn"><div class="login-box"><h2>锐力体育</h2><div class="login-sub">教练登录</div>
+  <div class="ctn"><div class="login-box"><h2>毅启滑体育</h2><div class="login-sub">教练登录</div>
     <div class="fg"><label>账号</label><input id="lUser" placeholder="输入账号"></div>
     <div class="fg"><label>密码</label><input id="lPwd" type="password" placeholder="输入密码"></div>
     <button class="btn btn-p" onclick="doLogin()">登 录</button>
@@ -313,7 +314,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Heiti SC','Micr
 
 <!-- Coach Main -->
 <div class="page" id="pgCoach">
-  <div class="header"><div class="hleft"><button class="bbtn" onclick="doLogout()">&#8592;</button><span class="htitle">锐力体育</span></div><span class="badge badge-c" id="coachBadge"></span></div>
+  <div class="header"><div class="hleft"><button class="bbtn" onclick="doLogout()">&#8592;</button><span class="htitle">毅启滑体育</span></div><span class="badge badge-c" id="coachBadge"></span></div>
   <div class="ctn">
     <div class="sg sg3"><div class="sc"><div class="sv" id="sCk">0</div><div class="sl">次卡</div></div><div class="sc"><div class="sv" id="sMk">0</div><div class="sl">月卡</div></div><div class="sc"><div class="sv" id="sAdv">0</div><div class="sl">提高班</div></div></div>
     <div class="card"><div class="stitle">查找学员</div><div class="search-row"><input id="cSearch" placeholder="输入学员姓名" oninput="cSearchStu()"><button class="scan-btn" onclick="openCoachScan()"><svg viewBox="0 0 24 24"><path d="M3 5h2V3H3v2zm4-2v2h2V3H7zm4 0v2h2V3h-2zm4 0v2h2V3h-2zm4 0v2h2V3h-2zM3 9h2V7H3v2zm16 0h2V7h-2v2zM3 13h2v-2H3v2zm16 0h2v-2h-2v2zM3 17h2v-2H3v2zm16 0h2v-2h-2v2zM3 21h2v-2H3v2zm4 0h2v-2H7v2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zM7 15v-2h2v2h2v-2h2v2h2v-2h2v2h-2v2h-2v-2h-2v2H9v-2H7z"/></svg>扫码</button></div><div id="cMatchList" class="mlist" style="display:none"></div></div>
@@ -367,7 +368,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Heiti SC','Micr
 
 <!-- Parent -->
 <div class="page" id="pgParent">
-  <div class="header"><div class="hleft"><button class="bbtn" onclick="goLand()">&#8592;</button><span class="htitle">锐力体育</span></div><span class="badge badge-p">家长</span></div>
+  <div class="header"><div class="hleft"><button class="bbtn" onclick="goLand()">&#8592;</button><span class="htitle">毅启滑体育</span></div><span class="badge badge-p">家长</span></div>
   <div class="ctn">
     <div class="card"><div class="stitle">查询课时</div><div class="search-row ok"><input id="pSearch" placeholder="输入学员姓名" onkeydown="if(event.key==='Enter')doPQuery()"><button class="scan-btn ok-style" onclick="openParentScan()"><svg viewBox="0 0 24 24"><path d="M3 5h2V3H3v2zm4-2v2h2V3H7zm4 0v2h2V3h-2zm4 0v2h2V3h-2zm4 0v2h2V3h-2zM3 9h2V7H3v2zm16 0h2V7h-2v2zM3 13h2v-2H3v2zm16 0h2v-2h-2v2zM3 17h2v-2H3v2zm16 0h2v-2h-2v2zM3 21h2v-2H3v2zm4 0h2v-2H7v2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zm4 0h2v-2h-2v2zM7 15v-2h2v2h2v-2h2v2h2v-2h2v2h-2v2h-2v-2h-2v2H9v-2H7z"/></svg>扫码</button></div><button class="btn btn-ok btn-sm" style="width:100%;margin-top:10px" onclick="doPQuery()">查 询</button></div>
     <div id="pMatchList" class="card" style="display:none"></div>
@@ -398,7 +399,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Heiti SC','Micr
 <!-- Manager Login -->
 <div class="page" id="pgMgrLogin">
   <div class="header"><div class="hleft"><button class="bbtn" onclick="goLand()">&#8592;</button><span class="htitle">店长登录</span></div></div>
-  <div class="ctn"><div class="login-box"><h2>锐力体育</h2><div class="login-sub">店长登录</div>
+  <div class="ctn"><div class="login-box"><h2>毅启滑体育</h2><div class="login-sub">店长登录</div>
     <div class="fg"><label>店长身份</label><select id="mgrNameSelect"></select></div>
     <div class="fg"><label>密码</label><input id="mPwd" type="password" placeholder="输入店长密码"></div>
     <button class="btn btn-mg" onclick="doMgrLogin()">登 录</button>
@@ -643,7 +644,7 @@ function doConf(){if(confCb)confCb();clsMo('moConf')}
 function clsMo(id){document.getElementById(id).classList.remove('on');if(id==='moConf')confCb=null}
 
 // ===== Admin Management =====
-const ADMIN_PWD='123456';
+const ADMIN_PWD='123456';let adminStore='baolong';const ADMIN_STORE_MAP={'baolong':'宝龙','yangguang':'阳光天地'};
 let adminAuth=false,adminCoaches=[],adminEditOldUser=null;
 
 function goAdminLogin(){go('pgAdminLogin');document.getElementById('adminPwd').value=''}
@@ -651,12 +652,13 @@ function doAdminLogin(){const p=document.getElementById('adminPwd').value;if(p!=
 
 async function enterAdmin(){
   go('pgAdmin');
+  renderAdminStoreTab();
   try{
     const [coaches,recs,mgrs,pending]=await Promise.all([
-      fetch('/api/admin/coaches?pwd='+ADMIN_PWD).then(r=>r.json()),
-      fetch('/api/admin/records?pwd='+ADMIN_PWD).then(r=>r.json()),
-      fetch('/api/admin/managers?pwd='+ADMIN_PWD).then(r=>r.json()),
-      fetch('/api/admin/pending?pwd='+ADMIN_PWD).then(r=>r.json())
+      fetch('/api/admin/coaches?pwd='+ADMIN_PWD+'&store='+adminStore).then(r=>r.json()),
+      fetch('/api/admin/records?pwd='+ADMIN_PWD+'&store='+adminStore).then(r=>r.json()),
+      fetch('/api/admin/managers?pwd='+ADMIN_PWD+'&store='+adminStore).then(r=>r.json()),
+      fetch('/api/admin/pending?pwd='+ADMIN_PWD+'&store='+adminStore).then(r=>r.json())
     ]);
     adminCoaches=coaches;
     renderAdminCoaches(coaches);
@@ -668,6 +670,18 @@ async function enterAdmin(){
 }
 
 // 账号管理界面：每15秒自动刷新审核列表
+function renderAdminStoreTab(){
+  const ctn=document.getElementById('adminCtn');
+  if(!ctn||document.getElementById('adminStoreTab'))return;
+  const tabs=Object.entries(ADMIN_STORE_MAP).map(([k,v])=>'<button class="stab'+(k===adminStore?' on':'')+'" data-store="'+k+'" onclick="switchAdminStore(\''+k+'\')">'+v+'</button>').join('');
+  ctn.insertAdjacentHTML('afterbegin','<div id="adminStoreTab" style="display:flex;gap:8px;margin-bottom:12px">'+tabs+'</div>');
+}
+function switchAdminStore(s){
+  adminStore=s;
+  // 更新 tab 选中态
+  document.querySelectorAll('.stab').forEach(b=>{b.classList.toggle('on', b.dataset.store===s)});
+  loadAdminCoaches();loadAdminPending();loadAdminMgrs();
+}
 let _adminPendingTimer=null;
 function startAdminAutoRefresh(){
   if(_adminPendingTimer)return;
@@ -714,19 +728,18 @@ function adminEditCoach(idx){
 }
 
 async function adminSaveCoach(){
+  const s=adminStore;
   const username=document.getElementById('ceUser').value.trim();
   const password=document.getElementById('cePwd').value.trim();
   const name=document.getElementById('ceName').value.trim();
-  const stores=getCoachStores();
   if(!username||!password||!name){toast('请填写完整','wn');return}
-  if(!stores.length){toast('请选择至少一个门店','wn');return}
   try{
     if(adminEditOldUser){
-      const cr=await fetch('/api/admin/coaches',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,oldUsername:adminEditOldUser,username,password,name,stores})});
+      const cr=await fetch('/api/admin/coaches',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,oldUsername:adminEditOldUser,username,password,name,store:s})});
       if(!cr.ok){const e=await cr.json().catch(()=>({error:'更新失败'}));toast(e.error||'更新失败','no');return}
       toast('已更新','ok');loadAdminCoaches();return;
     }else{
-      const cr2=await fetch('/api/admin/coaches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,username,password,name,stores})});
+      const cr2=await fetch('/api/admin/coaches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,username,password,name,store:s})});
       if(!cr2.ok){const e=await cr2.json().catch(()=>({error:'添加失败'}));toast(e.error||'添加失败','no');return}
       toast('已添加','ok');
     }
@@ -739,7 +752,7 @@ async function adminDelCoach(idx){
   const c=adminCoaches[idx];if(!c)return;
   if(!confirm('确定删除教练 '+c.name+'？'))return;
   try{
-    const dr=await fetch('/api/admin/coaches?pwd='+ADMIN_PWD+'&username='+c.username,{method:'DELETE'});if(!dr.ok){toast('删除失败','no');return}
+    const dr=await fetch('/api/admin/coaches?pwd='+ADMIN_PWD+'&username='+c.username+'&store='+adminStore,{method:'DELETE'});if(!dr.ok){toast('删除失败','no');return}
     toast('已删除','ok');loadAdminCoaches();
   }catch(e){toast('删除失败','no')}
 }
@@ -820,14 +833,14 @@ async function adminDelMgr(idx){
   const m=adminMgrs[idx];if(!m)return;
   if(!confirm('确定删除店长 '+m.name+'？'))return;
   try{
-    const dr2=await fetch('/api/admin/managers?pwd='+ADMIN_PWD+'&name='+encodeURIComponent(m.name),{method:'DELETE'});if(!dr2.ok){toast('删除失败','no');return}
+    const dr2=await fetch('/api/admin/managers?pwd='+ADMIN_PWD+'&name='+encodeURIComponent(m.name)+'&store='+adminStore,{method:'DELETE'});if(!dr2.ok){toast('删除失败','no');return}
     toast('已删除','ok');loadAdminMgrs();
   }catch(e){toast('删除失败','no')}
 }
 
-function loadAdminCoaches(){fetch('/api/admin/coaches?pwd='+ADMIN_PWD).then(r=>r.json()).then(d=>{adminCoaches=d;renderAdminCoaches(d)}).catch(()=>toast('加载失败','no'))}
-function loadAdminMgrs(){fetch('/api/admin/managers?pwd='+ADMIN_PWD).then(r=>r.json()).then(d=>{renderAdminMgrs(d)}).catch(()=>toast('加载失败','no'))}
-function loadAdminPending(){fetch('/api/admin/pending?pwd='+ADMIN_PWD).then(r=>r.json()).then(d=>renderAdminPending(d)).catch(()=>toast('加载失败','no'))}
+function loadAdminCoaches(){fetch('/api/admin/coaches?pwd='+ADMIN_PWD+'&store='+adminStore).then(r=>r.json()).then(d=>{adminCoaches=d;renderAdminCoaches(d)}).catch(()=>toast('加载失败','no'))}
+function loadAdminMgrs(){fetch('/api/admin/managers?pwd='+ADMIN_PWD+'&store='+adminStore).then(r=>r.json()).then(d=>{renderAdminMgrs(d)}).catch(()=>toast('加载失败','no'))}
+function loadAdminPending(){fetch('/api/admin/pending?pwd='+ADMIN_PWD+'&store='+adminStore).then(r=>r.json()).then(d=>renderAdminPending(d)).catch(()=>toast('加载失败','no'))}
 function loadAdminRecs(){fetch('/api/admin/records?pwd='+ADMIN_PWD).then(r=>r.json()).then(d=>renderAdminRecs(d)).catch(()=>toast('加载失败','no'))}
 
 function renderAdminPending(items){
@@ -846,7 +859,7 @@ function renderAdminPending(items){
 async function approvePending(id){
   const btn=event.target;const origText=btn.textContent;btn.disabled=true;btn.textContent='处理中…';btn.style.opacity='0.6';
   try{
-    const r=await fetch('/api/admin/pending/'+id+'/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD})});
+    const r=await fetch('/api/admin/pending/'+id+'/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,store:adminStore})});
     if(!r.ok){const e=await r.json().catch(()=>({error:'审批失败'}));toast(e.error||'审批失败','no');btn.disabled=false;btn.textContent=origText;btn.style.opacity='1';return}
     const result=await r.json().catch(()=>({}));
     toast(result.warn||'已通过','ok');
@@ -856,7 +869,7 @@ async function approvePending(id){
 async function rejectPending(id){
   if(!confirm('确定拒绝此申请？'))return;const btn=event.target;const origText=btn.textContent;btn.disabled=true;btn.textContent='处理中…';btn.style.opacity='0.6';
   try{
-    const r=await fetch('/api/admin/pending/'+id+'/reject',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD})});
+    const r=await fetch('/api/admin/pending/'+id+'/reject',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,store:adminStore})});
     if(!r.ok){toast('拒绝失败','no');btn.disabled=false;btn.textContent=origText;btn.style.opacity='1';return}
     toast('已拒绝','ok');
   }catch(e){toast('拒绝失败','no');btn.disabled=false;btn.textContent=origText;btn.style.opacity='1';return}
