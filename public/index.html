@@ -269,14 +269,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Heiti SC','Micr
   <h3 id="mgrEditTitle">编辑店长</h3>
   <div class="fg"><label>姓名</label><input id="meName" placeholder="店长姓名"></div>
   <div class="fg"><label>密码</label><input id="mePwd" placeholder="登录密码"></div>
-  <div class="fg"><label>适用门店与分成</label>
-    <div style="display:block;padding:8px 0">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><input type="checkbox" id="meS1" value="henglicheng" checked><span style="width:56px;font-size:14px">恒力城</span><input id="meShare1" type="number" step="0.1" min="0" max="1" placeholder="分成" style="width:70px;font-size:13px;padding:3px 6px;border:1px solid var(--g200);border-radius:4px"></div>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><input type="checkbox" id="meS2" value="baolong" checked><span style="width:56px;font-size:14px">宝龙</span><input id="meShare2" type="number" step="0.1" min="0" max="1" placeholder="分成" style="width:70px;font-size:13px;padding:3px 6px;border:1px solid var(--g200);border-radius:4px"></div>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><input type="checkbox" id="meS3" value="taihe" checked><span style="width:56px;font-size:14px">泰禾</span><input id="meShare3" type="number" step="0.1" min="0" max="1" placeholder="分成" style="width:70px;font-size:13px;padding:3px 6px;border:1px solid var(--g200);border-radius:4px"></div>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><input type="checkbox" id="meS4" value="yangguang" checked><span style="width:56px;font-size:14px">阳光天地</span><input id="meShare4" type="number" step="0.1" min="0" max="1" placeholder="分成" style="width:70px;font-size:13px;padding:3px 6px;border:1px solid var(--g200);border-radius:4px"></div>
-    </div>
-  </div>
+  <div class="fg"><label>分成比例</label><input id="meShare" type="number" step="0.1" min="0" max="1" placeholder="如 0.3 表示30%" style="width:120px"></div>
   <div class="md-acts">
     <button class="btn btn-o" onclick="clsMo('moMgrEdit')">取消</button>
     <button class="btn btn-p" onclick="adminSaveMgr()">保存</button>
@@ -775,11 +768,7 @@ function adminShowAddMgr(){
   document.getElementById('mgrEditTitle').textContent='添加店长';
   document.getElementById('meName').value='';
   document.getElementById('mePwd').value='admin888';
-  document.getElementById('meShare1').value='0.3';
-  document.getElementById('meShare2').value='0.3';
-  document.getElementById('meShare3').value='0.3';
-  document.getElementById('meShare4').value='0.3';
-  document.getElementById('meS1').checked=true;document.getElementById('meS2').checked=true;document.getElementById('meS3').checked=true;document.getElementById('meS4').checked=true;
+  document.getElementById('meShare').value='0.3';
   document.getElementById('moMgrEdit').classList.add('on');
 }
 function adminEditMgr(idx){
@@ -789,14 +778,7 @@ function adminEditMgr(idx){
   document.getElementById('meName').value=m.name;
   document.getElementById('mePwd').value=m.password;
   const ms=m.shares||{};
-  document.getElementById('meS1').checked=m.stores.includes('henglicheng');
-  document.getElementById('meShare1').value=ms.henglicheng!=null?ms.henglicheng:(m.share||'');
-  document.getElementById('meS2').checked=m.stores.includes('baolong');
-  document.getElementById('meShare2').value=ms.baolong!=null?ms.baolong:'';
-  document.getElementById('meS3').checked=m.stores.includes('taihe');
-  document.getElementById('meShare3').value=ms.taihe!=null?ms.taihe:'';
-  document.getElementById('meS4').checked=m.stores.includes('yangguang');
-  document.getElementById('meShare4').value=ms.yangguang!=null?ms.yangguang:'';
+  document.getElementById('meShare').value=ms[adminStore]!=null?ms[adminStore]:(m.share||'');
   document.getElementById('moMgrEdit').classList.add('on');
 }
 function getMgrStores(){
@@ -810,20 +792,16 @@ function getMgrStores(){
 async function adminSaveMgr(){
   const name=document.getElementById('meName').value.trim();
   const password=document.getElementById('mePwd').value.trim();
-  const stores=getMgrStores();
+  const shareInput=document.getElementById('meShare').value;
   const shares={};
-  if(document.getElementById('meS1').checked&&document.getElementById('meShare1').value)shares.henglicheng=parseFloat(document.getElementById('meShare1').value)||0;
-  if(document.getElementById('meS2').checked&&document.getElementById('meShare2').value)shares.baolong=parseFloat(document.getElementById('meShare2').value)||0;
-  if(document.getElementById('meS3').checked&&document.getElementById('meShare3').value)shares.taihe=parseFloat(document.getElementById('meShare3').value)||0;
-  if(document.getElementById('meS4').checked&&document.getElementById('meShare4').value)shares.yangguang=parseFloat(document.getElementById('meShare4').value)||0;
+  if(shareInput)shares[adminStore]=parseFloat(shareInput)||0;
   if(!name||!password){toast('请填写完整','wn');return}
-  if(!stores.length){toast('请选择至少一个门店','wn');return}
   try{
     let resp;
     if(adminEditOldMgrName){
-      resp=await fetch('/api/admin/managers',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,oldName:adminEditOldMgrName,name,password,shares,stores})});
+      resp=await fetch('/api/admin/managers',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,oldName:adminEditOldMgrName,name,password,shares,stores:[adminStore],store:adminStore})});
     }else{
-      resp=await fetch('/api/admin/managers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,name,password,shares,stores})});
+      resp=await fetch('/api/admin/managers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pwd:ADMIN_PWD,name,password,shares,stores:[adminStore],store:adminStore})});
     }
     if(!resp.ok){const e=await resp.json().catch(()=>({error:'保存失败'}));toast(e.error||'保存失败','no');return}
     toast(adminEditOldMgrName?'已更新':'已添加','ok');clsMo('moMgrEdit');loadAdminMgrs();
