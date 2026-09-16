@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 const REDIS_URL = 'https://enhanced-gecko-136149.upstash.io';
 const REDIS_TOKEN = 'gQAAAAAAAhPVAAIgcDE2ZWVhMDNiZTI5OTM0YjlkYTA3MzQ0Y2VmOTZmZmIxNQ';
 
-// 多门店Redis Key映射
+// 多门店Redis Key映射 - 恒力城+泰禾系统
 const STORE_KEY_MAP = {
   baolong: { db: "classmanager:db:baolong", backup: "classmanager:db:baolong:backup", perf: "classmanager:perf:baolong", perfBackup: "classmanager:perf:baolong:backup" },
   yangguang: { db: "classmanager:db:yangguang", backup: "classmanager:db:yangguang:backup", perf: "classmanager:perf:yangguang", perfBackup: "classmanager:perf:yangguang:backup" }
@@ -482,7 +482,7 @@ async function readManagers() {
     if (r.result) {
       let data = typeof r.result === 'string' ? JSON.parse(r.result) : r.result;
       if (typeof data === 'string') data = JSON.parse(data);
-      if (Array.isArray(data) && data.length) return data;
+      if (Array.isArray(data)) return data;
     }
   } catch(e) { console.error('Read managers error:', e.message); }
   // Default managers
@@ -585,114 +585,96 @@ function adminCheck(pwd) { return pwd === '123456'; }
 const ADMIN_STORES = ['baolong', 'yangguang'];
 const ADMIN_STORE_NAMES = { baolong: '宝龙', yangguang: '阳光天地' };
 
-// List coaches with passwords
+// List coaches for a specific store
 app.get('/api/admin/coaches', async (req, res) => {
   if (!adminCheck(req.query.pwd)) return res.status(401).json({ error: '未授权' });
-  const result = [];
-  for (const s of ADMIN_STORES) {
-    try {
-      const data = await readData(s);
-      data.coaches.forEach(c => {
-        const existing = result.find(x => x.username === c.username);
-        if (!existing) result.push({ username: c.username, password: c.password, name: c.name, stores: [s] });
-        else existing.stores.push(s);
-      });
-    } catch(e) {}
-  }
-  res.json(result);
+  const store = req.query.store || 'baolong';
+  try {
+    const data = await readData(store);
+    res.json(data.coaches.map(c => ({ username: c.username, password: c.password, name: c.name })));
+  } catch(e) { res.status(500).json({ error: '获取失败' }); }
 });
 
-// Add coach to specified stores
+// Add coach to a specific store
 app.post('/api/admin/coaches', async (req, res) => {
   if (!adminCheck(req.body.pwd)) return res.status(401).json({ error: '未授权' });
-  const { username, password, name, stores } = req.body;
+  const { username, password, name, store } = req.body;
+  const targetStore = store || 'henglicheng';
   if (!username || !password || !name) return res.status(400).json({ error: '信息不完整' });
-  const targetStores = stores || ADMIN_STORES;
-  for (const s of targetStores) {
-    try {
-      const data = await readData(s);
-      if (data.coaches.find(c => c.username === username)) continue;
-      data.coaches.push({ username, password, name });
-      await writeData(data, s);
-      const perf = await readPerf(s);
-      if (!perf.customCoaches.includes(name)) { perf.customCoaches.push(name); await writePerfData(perf, s); }
-    } catch(e) { console.error('Add coach error:', e.message); }
-  }
-  res.json({ ok: true });
+  try {
+    const data = await readData(targetStore);
+    if (data.coaches.find(c => c.username === username)) return res.status(400).json({ error: '账号已存在' });
+    data.coaches.push({ username, password, name });
+    await writeData(data, targetStore);
+    const perf = await readPerf(targetStore);
+    if (!perf.customCoaches.includes(name)) { perf.customCoaches.push(name); await writePerfData(perf, targetStore); }
+    res.json({ ok: true });
+  } catch(e) { console.error('Add coach error:', e.message); res.status(500).json({ error: '添加失败' }); }
 });
 
-// Update coach: change info + sync stores
+// Update coach in a specific store
 app.put('/api/admin/coaches', async (req, res) => {
   if (!adminCheck(req.body.pwd)) return res.status(401).json({ error: '未授权' });
-  const { oldUsername, username, password, name, stores } = req.body;
+  const { oldUsername, username, password, name, store } = req.body;
+  const targetStore = store || 'henglicheng';
   if (!oldUsername || !username || !password || !name) return res.status(400).json({ error: '信息不完整' });
-  const targetStores = stores || ADMIN_STORES;
-  for (const s of ADMIN_STORES) {
-    try {
-      const data = await readData(s);
-      const c = data.coaches.find(x => x.username === oldUsername);
-      const perf = await readPerf(s);
-      if (targetStores.includes(s)) {
-        // Should be in this store
-        if (c) {
-          const oldName = c.name;
-          c.username = username; c.password = password; c.name = name;
-          await writeData(data, s);
-          if (perf.customCoaches) {
-            const idx = perf.customCoaches.indexOf(oldName);
-            if (idx >= 0) { perf.customCoaches[idx] = name; await writePerfData(perf, s); }
-          }
-        } else {
-          // Add to this store
-          data.coaches.push({ username, password, name });
-          await writeData(data, s);
-          if (!perf.customCoaches.includes(name)) { perf.customCoaches.push(name); await writePerfData(perf, s); }
-        }
-      } else {
-        // Should NOT be in this store
-        if (c) {
-          data.coaches = data.coaches.filter(x => x.username !== oldUsername);
-          await writeData(data, s);
-          if (perf.customCoaches) {
-            perf.customCoaches = perf.customCoaches.filter(n => n !== c.name);
-            await writePerfData(perf, s);
-          }
-        }
-      }
-    } catch(e) { console.error('Update coach error:', e.message); }
-  }
-  res.json({ ok: true });
+  try {
+    const data = await readData(targetStore);
+    const c = data.coaches.find(x => x.username === oldUsername);
+    if (!c) return res.status(404).json({ error: '教练不存在' });
+    // 如果改了用户名，检查新用户名是否已存在
+    if (oldUsername !== username && data.coaches.find(x => x.username === username)) {
+      return res.status(400).json({ error: '新账号名已存在' });
+    }
+    const oldName = c.name;
+    c.username = username; c.password = password; c.name = name;
+    await writeData(data, targetStore);
+    // 更新业绩系统 customCoaches
+    const perf = await readPerf(targetStore);
+    if (perf.customCoaches) {
+      const idx = perf.customCoaches.indexOf(oldName);
+      if (idx >= 0) { perf.customCoaches[idx] = name; await writePerfData(perf, targetStore); }
+    }
+    res.json({ ok: true });
+  } catch(e) { console.error('Update coach error:', e.message); res.status(500).json({ error: '修改失败' }); }
 });
 
-// Delete coach from all stores
+// Delete coach from a specific store
 app.delete('/api/admin/coaches', async (req, res) => {
   if (!adminCheck(req.query.pwd)) return res.status(401).json({ error: '未授权' });
   const username = req.query.username;
+  const store = req.query.store || 'baolong';
   if (!username) return res.status(400).json({ error: '缺少username' });
-  for (const s of ADMIN_STORES) {
-    try {
-      const data = await readData(s);
-      const coach = data.coaches.find(c => c.username === username);
-      const coachName = coach ? coach.name : '';
-      data.coaches = data.coaches.filter(c => c.username !== username);
-      await writeData(data, s);
-      // Remove from customCoaches in perf
-      const perf = await readPerf(s);
-      if (perf.customCoaches) {
-        perf.customCoaches = perf.customCoaches.filter(n => n !== coachName);
-        await writePerfData(perf, s);
-      }
-    } catch(e) { console.error('Delete coach error:', e.message); }
-  }
-  res.json({ ok: true });
+  try {
+    const data = await readData(store);
+    const coach = data.coaches.find(c => c.username === username);
+    if (!coach) return res.status(404).json({ error: '教练不存在' });
+    const coachName = coach.name;
+    data.coaches = data.coaches.filter(c => c.username !== username);
+    await writeData(data, store);
+    // 从业绩 customCoaches 移除
+    const perf = await readPerf(store);
+    if (perf.customCoaches) {
+      perf.customCoaches = perf.customCoaches.filter(n => n !== coachName);
+      await writePerfData(perf, store);
+    }
+    res.json({ ok: true });
+  } catch(e) { console.error('Delete coach error:', e.message); res.status(500).json({ error: '删除失败' }); }
 });
 
-// Admin: List all managers
+// Admin: List managers for a store
 app.get('/api/admin/managers', async (req, res) => {
   if (!adminCheck(req.query.pwd)) return res.status(401).json({ error: '未授权' });
+  const store = req.query.store || 'baolong';
   try {
     const managers = await readManagers();
-    res.json(managers);
+    // 返回所有管理员，但标记哪些有当前门店权限
+    const result = managers.filter(m => m.stores && m.stores.includes(store)).map(m => ({
+      name: m.name,
+      password: m.password,
+      share: (m.shares && m.shares[store]) || m.share || 0
+    }));
+    res.json(result);
   } catch(e) { res.status(500).json({ error: '获取失败' }); }
 });
 
@@ -705,8 +687,8 @@ app.post('/api/admin/managers', async (req, res) => {
     const managers = await readManagers();
     if (managers.find(m => m.name === name)) return res.status(400).json({ error: '店长已存在' });
     // Build shares object from shares param or fallback to single share
-    const sharesObj = shares || (share != null ? Object.fromEntries((stores || ['baolong']).map(s => [s, parseFloat(share) || 0])) : {});
-    managers.push({ name, password, shares: sharesObj, stores: stores || ['baolong'] });
+    const sharesObj = shares || (share != null ? Object.fromEntries((stores || ['henglicheng']).map(s => [s, parseFloat(share) || 0])) : {});
+    managers.push({ name, password, shares: sharesObj, stores: stores || ['henglicheng'] });
     await writeManagers(managers);
     res.json({ ok: true });
   } catch(e) { console.error('Add manager error:', e); res.status(500).json({ error: '添加失败: '+e.message }); }
@@ -723,8 +705,8 @@ app.put('/api/admin/managers', async (req, res) => {
     if (idx === -1) return res.status(404).json({ error: '店长不存在' });
     // Check name conflict (if renaming)
     if (name !== oldName && managers.find(m => m.name === name)) return res.status(400).json({ error: '店长名称已存在' });
-    const sharesObj = shares || (share != null ? Object.fromEntries((stores || ['baolong']).map(s => [s, parseFloat(share) || 0])) : {});
-    managers[idx] = { name, password, shares: sharesObj, stores: stores || ['baolong'] };
+    const sharesObj = shares || (share != null ? Object.fromEntries((stores || ['henglicheng']).map(s => [s, parseFloat(share) || 0])) : {});
+    managers[idx] = { name, password, shares: sharesObj, stores: stores || ['henglicheng'] };
     await writeManagers(managers);
     res.json({ ok: true });
   } catch(e) { console.error('Update manager error:', e); res.status(500).json({ error: '更新失败: '+e.message }); }
@@ -772,12 +754,12 @@ app.delete('/api/admin/records', async (req, res) => {
   } catch(e) { res.status(500).json({ error: '删除失败' }); }
 });
 
-// ========== Pending Approval System ==========
-const PENDING_KEY = 'classmanager:pending';
+// ========== Pending Approval System (按门店隔离) ==========
+function getPendingKey(store) { return `classmanager:pending:${store}`; }
 
-async function readPending() {
+async function readPending(store) {
   try {
-    const r = await redisReq('GET', `/get/${PENDING_KEY}`);
+    const r = await redisReq('GET', `/get/${getPendingKey(store)}`);
     if (r.result) {
       let data = typeof r.result === 'string' ? JSON.parse(r.result) : r.result;
       if (typeof data === 'string') data = JSON.parse(data);
@@ -787,8 +769,8 @@ async function readPending() {
   return [];
 }
 
-async function writePending(data) {
-  return await _rawWrite(PENDING_KEY, data);
+async function writePending(store, data) {
+  return await _rawWrite(getPendingKey(store), data);
 }
 
 // Coach: Submit pending request
@@ -800,19 +782,20 @@ app.post('/api/pending', async (req, res) => {
     if (!coach) return res.status(401).json({ error: '未授权' });
     const { type, details } = req.body;
     if (!type || !details) return res.status(400).json({ error: '参数不完整' });
-    const pending = await readPending();
+    const pending = await readPending(store);
     const id = 'p' + Date.now();
     pending.unshift({ id, type, store, coach: coach.name, time: new Date().toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'}), status: 'pending', details });
-    await writePending(pending);
+    await writePending(store, pending);
     res.json({ ok: true, id });
   } catch(e) { console.error('Submit pending error:', e); res.status(500).json({ error: '提交失败' }); }
 });
 
-// Admin: List pending requests
+// Admin: List pending requests (按门店)
 app.get('/api/admin/pending', async (req, res) => {
   if (!adminCheck(req.query.pwd)) return res.status(401).json({ error: '未授权' });
+  const store = req.query.store || 'baolong';
   try {
-    const pending = await readPending();
+    const pending = await readPending(store);
     res.json(pending.filter(p => p.status === 'pending'));
   } catch(e) { res.status(500).json({ error: '获取失败' }); }
 });
@@ -820,38 +803,38 @@ app.get('/api/admin/pending', async (req, res) => {
 // Admin: Approve pending request
 app.post('/api/admin/pending/:id/approve', async (req, res) => {
   if (!adminCheck(req.body.pwd)) return res.status(401).json({ error: '未授权' });
+  const store = req.body.store || 'baolong';
   try {
-    const pending = await readPending();
+    const pending = await readPending(store);
     const idx = pending.findIndex(p => p.id === req.params.id);
     if (idx === -1) return res.status(404).json({ error: '申请不存在' });
     if (pending[idx].status !== 'pending') return res.status(400).json({ error: '已处理' });
     const item = pending[idx];
-    const store = item.store;
     const data = await readData(store);
     const d = item.details;
     const now = new Date().toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'});
 
     if (item.type === 'charge') {
       const stu = data.students.find(s => s.id === d.studentId);
-      if (!stu) { pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(pending); return res.json({ ok: true, warn: '学员已不存在，已跳过' }); }
+      if (!stu) { pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(store, pending); return res.json({ ok: true, warn: '学员已不存在，已跳过' }); }
       stu.classes += d.n;
       if (stu.totalClasses !== undefined && stu.totalClasses !== null) { stu.totalClasses += d.n; }
       data.records.unshift({ sid: d.studentId, sname: stu.name, coach: item.coach, time: now, after: stu.classes, type: '充', n: d.n });
     } else if (item.type === 'renew') {
       const stu = data.students.find(s => s.id === d.studentId);
-      if (!stu) { pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(pending); return res.json({ ok: true, warn: '学员已不存在，已跳过' }); }
+      if (!stu) { pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(store, pending); return res.json({ ok: true, warn: '学员已不存在，已跳过' }); }
       const newExp = d.newExpiry || (() => { const curExp = stu.expiry ? new Date(stu.expiry) : null; const nowD = new Date(); const base = (curExp && curExp > nowD) ? new Date(curExp) : nowD; if (d.unit === '天') { base.setDate(base.getDate() + d.n); } else { base.setMonth(base.getMonth() + d.n); } return base.toISOString().slice(0,10); })();
       stu.expiry = newExp;
       data.records.unshift({ sid: d.studentId, sname: stu.name, coach: item.coach, time: now, after: newExp, type: '续', n: d.n||0, unit: d.unit||undefined });
     } else if (item.type === 'delete') {
       const stu = data.students.find(s => s.id === d.studentId);
-      if (!stu) { pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(pending); return res.json({ ok: true, warn: '学员已不存在，已跳过' }); }
+      if (!stu) { pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(store, pending); return res.json({ ok: true, warn: '学员已不存在，已跳过' }); }
       data.students = data.students.filter(s => s.id !== d.studentId);
       data.records = data.records.filter(r => r.sid !== d.studentId);
     } else if (item.type === 'add') {
       // 同店编号唯一性校验
       if (data.students.find(s => s.id === d.student.id)) {
-        pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(pending);
+        pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(store, pending);
         return res.json({ ok: true, warn: '编号 ' + d.student.id + ' 已存在，已跳过该学员' });
       }
       data.students.push(d.student);
@@ -864,7 +847,7 @@ app.post('/api/admin/pending/:id/approve', async (req, res) => {
       }
     } else if (item.type === 'regDate') {
       const stu = data.students.find(s => s.id === d.studentId);
-      if (!stu) { pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(pending); return res.json({ ok: true, warn: '学员已不存在，已跳过' }); }
+      if (!stu) { pending[idx].status = 'approved'; pending[idx].reviewTime = now; await writePending(store, pending); return res.json({ ok: true, warn: '学员已不存在，已跳过' }); }
       stu.regDate = d.newRegDate;
       // 如果有 validMonths，根据新报名日期重新计算到期日
       if (stu.validMonths && stu.type === '月卡') {
@@ -878,7 +861,7 @@ app.post('/api/admin/pending/:id/approve', async (req, res) => {
     await writeData(data, store);
     pending[idx].status = 'approved';
     pending[idx].reviewTime = now;
-    await writePending(pending);
+    await writePending(store, pending);
     res.json({ ok: true });
   } catch(e) { console.error('Approve error:', e); res.status(500).json({ error: '审批失败' }); }
 });
@@ -886,14 +869,15 @@ app.post('/api/admin/pending/:id/approve', async (req, res) => {
 // Admin: Reject pending request
 app.post('/api/admin/pending/:id/reject', async (req, res) => {
   if (!adminCheck(req.body.pwd)) return res.status(401).json({ error: '未授权' });
+  const store = req.body.store || 'baolong';
   try {
-    const pending = await readPending();
+    const pending = await readPending(store);
     const idx = pending.findIndex(p => p.id === req.params.id);
     if (idx === -1) return res.status(404).json({ error: '申请不存在' });
     if (pending[idx].status !== 'pending') return res.status(400).json({ error: '已处理' });
     pending[idx].status = 'rejected';
     pending[idx].reviewTime = new Date().toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'});
-    await writePending(pending);
+    await writePending(store, pending);
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: '拒绝失败' }); }
 });
