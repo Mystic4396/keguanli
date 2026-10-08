@@ -252,7 +252,7 @@
           "note": "霸王卡25.6.6-26.6.6",
           "type": "提高班",
           "billing": "monthly",
-          "classes": 38,
+          "classes": 39,
           "expiry": "2027-06-06"
         },
         {
@@ -369,7 +369,7 @@
           "note": "花样6个月26.4.27至26.10.27",
           "type": "提高班",
           "billing": "monthly",
-          "classes": 32,
+          "classes": 33,
           "expiry": "2026-10-27"
         },
         {
@@ -878,7 +878,7 @@
           "name": "余思淼",
           "note": "6个月2026.8.7-2027.2.7不限课",
           "type": "月卡",
-          "classes": 24,
+          "classes": 25,
           "expiry": "2027-02-07"
         },
         {
@@ -954,7 +954,7 @@
           "name": "郑瑾歆",
           "note": "6个月赠6个月，25.11.1-26.11.1",
           "type": "月卡",
-          "classes": 17,
+          "classes": 18,
           "expiry": "2027-01-01"
         },
         {
@@ -1070,7 +1070,7 @@
           "name": "王语晴",
           "note": "4月赠2月，2026.9.27-2027.4.6",
           "type": "月卡",
-          "classes": 5,
+          "classes": 6,
           "expiry": "2027-04-06"
         },
         {
@@ -1094,7 +1094,7 @@
           "name": "李式霖",
           "note": "一个月，启蒙十节课",
           "type": "次卡",
-          "classes": 4,
+          "classes": 3,
           "totalClasses": 10,
           "regDate": "2025-06-27",
           "validMonths": 1,
@@ -1134,7 +1134,7 @@
           "name": "张子珺",
           "note": "4月赠2月，2026.10.1-2027.4.1",
           "type": "月卡",
-          "classes": 2,
+          "classes": 3,
           "expiry": "2027-04-01"
         },
         {
@@ -1164,11 +1164,83 @@
           "name": "一宝",
           "note": "2月，2026.10.5-2026.12.8",
           "type": "月卡",
-          "classes": 2,
+          "classes": 3,
           "expiry": "2026-12-07"
         }
       ],
       "records": [
+        {
+          "sid": "0476",
+          "sname": "陈一心",
+          "coach": "张玉莹教练",
+          "time": "2026/10/8 20:05:53",
+          "after": 33,
+          "type": "扣",
+          "n": 1
+        },
+        {
+          "sid": "0505",
+          "sname": "余思淼",
+          "coach": "张玉莹教练",
+          "time": "2026/10/8 19:54:04",
+          "after": 25,
+          "type": "扣",
+          "n": 1
+        },
+        {
+          "sid": "0125",
+          "sname": "一宝",
+          "coach": "张玉莹教练",
+          "time": "2026/10/8 19:53:56",
+          "after": 3,
+          "type": "扣",
+          "n": 1
+        },
+        {
+          "sid": "0104",
+          "sname": "郑瑾歆",
+          "coach": "张玉莹教练",
+          "time": "2026/10/8 19:53:48",
+          "after": 18,
+          "type": "扣",
+          "n": 1
+        },
+        {
+          "sid": "0119",
+          "sname": "李式霖",
+          "coach": "张玉莹教练",
+          "time": "2026/10/8 19:53:30",
+          "after": 3,
+          "type": "扣",
+          "n": 1
+        },
+        {
+          "sid": "0029",
+          "sname": "林善德",
+          "coach": "张玉莹教练",
+          "time": "2026/10/8 19:53:03",
+          "after": 39,
+          "type": "扣",
+          "n": 1
+        },
+        {
+          "sid": "0123",
+          "sname": "张子珺",
+          "coach": "张玉莹教练",
+          "time": "2026/10/8 17:22:38",
+          "after": 3,
+          "type": "扣",
+          "n": 1
+        },
+        {
+          "sid": "0117",
+          "sname": "王语晴",
+          "coach": "张玉莹教练",
+          "time": "2026/10/8 17:22:32",
+          "after": 6,
+          "type": "扣",
+          "n": 1
+        },
         {
           "sid": "0114",
           "sname": "田峥熹",
@@ -15310,11 +15382,16 @@
               "action": "恢复",
               "date": "2026-08-24T19:34:03",
               "days": 16
+            },
+            {
+              "action": "冻课",
+              "date": "2026-10-08T12:36:01",
+              "days": 81
             }
           ],
-          "isFrozen": false,
-          "frozenDays": 0,
-          "frozenStartDate": null
+          "isFrozen": true,
+          "frozenDays": 81,
+          "frozenStartDate": "2026-10-08T12:36:01"
         },
         {
           "id": "0012",
@@ -15624,7 +15701,17 @@
           "note": "",
           "type": "月卡",
           "classes": 9,
-          "expiry": "2026-10-16"
+          "expiry": "2026-10-16",
+          "freezeHistory": [
+            {
+              "action": "冻课",
+              "date": "2026-10-08T12:35:54",
+              "days": 9
+            }
+          ],
+          "isFrozen": true,
+          "frozenDays": 9,
+          "frozenStartDate": "2026-10-08T12:35:54"
         },
         {
           "id": "0044",
@@ -17817,7 +17904,7 @@
           "name": "林星潼",
           "note": "三个月不限课",
           "type": "月卡",
-          "classes": 33,
+          "classes": 34,
           "expiry": "2026-11-15",
           "freezeHistory": [
             {
@@ -17872,8 +17959,8 @@
           "name": "陈诗乐",
           "note": "四个月不限课",
           "type": "月卡",
-          "classes": 64,
-          "expiry": "2026-10-08",
+          "classes": 65,
+          "expiry": "2026-10-18",
           "freezeHistory": [
             {
               "action": "冻课",
@@ -17889,19 +17976,24 @@
               "action": "冻课",
               "date": "2026-10-02T22:25:09",
               "days": 7
+            },
+            {
+              "action": "恢复",
+              "date": "2026-10-08T17:05:32",
+              "days": 6
             }
           ],
-          "isFrozen": true,
-          "frozenDays": 7,
-          "frozenStartDate": "2026-10-02T22:25:09"
+          "isFrozen": false,
+          "frozenDays": 0,
+          "frozenStartDate": null
         },
         {
           "id": "0021",
           "name": "陈诗文",
           "note": "四个月不限课",
           "type": "月卡",
-          "classes": 64,
-          "expiry": "2026-10-08",
+          "classes": 65,
+          "expiry": "2026-10-18",
           "freezeHistory": [
             {
               "action": "冻课",
@@ -17917,11 +18009,16 @@
               "action": "冻课",
               "date": "2026-10-02T22:24:17",
               "days": 7
+            },
+            {
+              "action": "恢复",
+              "date": "2026-10-08T17:05:14",
+              "days": 6
             }
           ],
-          "isFrozen": true,
-          "frozenDays": 7,
-          "frozenStartDate": "2026-10-02T22:24:17"
+          "isFrozen": false,
+          "frozenDays": 0,
+          "frozenStartDate": null
         },
         {
           "id": "0023",
@@ -18087,7 +18184,7 @@
           "name": "吴柚柚",
           "note": "",
           "type": "月卡",
-          "classes": 37,
+          "classes": 38,
           "expiry": "2026-11-21",
           "regDate": "2026-08-05",
           "freezeHistory": [
@@ -18120,8 +18217,8 @@
           "name": "谢佳妍",
           "note": "一个月补到六个月不限课",
           "type": "月卡",
-          "classes": 24,
-          "expiry": "2027-02-23",
+          "classes": 25,
+          "expiry": "2027-05-22",
           "freezeHistory": [
             {
               "action": "冻课",
@@ -18201,7 +18298,7 @@
           "name": "朱乐桐",
           "note": "介绍两个学员送10天",
           "type": "月卡",
-          "classes": 22,
+          "classes": 23,
           "expiry": "2026-10-03"
         },
         {
@@ -18227,7 +18324,7 @@
           "name": "李伊晗",
           "note": "两个月不限课",
           "type": "月卡",
-          "classes": 15,
+          "classes": 16,
           "expiry": "2026-11-06"
         },
         {
@@ -18235,18 +18332,23 @@
           "name": "魏泽元",
           "note": "一个月不限课",
           "type": "月卡",
-          "classes": 7,
-          "expiry": "2026-10-12",
+          "classes": 8,
+          "expiry": "2026-10-28",
           "freezeHistory": [
             {
               "action": "冻课",
               "date": "2026-09-23T06:57:55",
               "days": 20
+            },
+            {
+              "action": "恢复",
+              "date": "2026-10-08T20:03:07",
+              "days": 16
             }
           ],
-          "isFrozen": true,
-          "frozenDays": 20,
-          "frozenStartDate": "2026-09-23T06:57:55"
+          "isFrozen": false,
+          "frozenDays": 0,
+          "frozenStartDate": null
         },
         {
           "id": "0052",
@@ -18292,18 +18394,23 @@
           "name": "刘子慧",
           "note": "",
           "type": "月卡",
-          "classes": 5,
-          "expiry": "2027-01-20",
+          "classes": 6,
+          "expiry": "2027-01-26",
           "freezeHistory": [
             {
               "action": "冻课",
               "date": "2026-10-02T22:20:12",
               "days": 16
+            },
+            {
+              "action": "恢复",
+              "date": "2026-10-08T19:46:15",
+              "days": 6
             }
           ],
-          "isFrozen": true,
-          "frozenDays": 16,
-          "frozenStartDate": "2026-10-02T22:20:12"
+          "isFrozen": false,
+          "frozenDays": 0,
+          "frozenStartDate": null
         },
         {
           "id": "0057",
@@ -18322,9 +18429,144 @@
           "classes": 10,
           "totalClasses": 29,
           "regDate": "2025-11-16"
+        },
+        {
+          "id": "0058",
+          "name": "周易添",
+          "note": "六个月不限课送一个月",
+          "type": "月卡",
+          "classes": 6,
+          "expiry": "2027-05-01"
         }
       ],
       "records": [
+        {
+          "sid": "0058",
+          "sname": "周易添",
+          "coach": "胡萝卜教练",
+          "time": "2026/10/8 20:24:28",
+          "after": 6,
+          "type": "扣",
+          "n": 6
+        },
+        {
+          "sid": "0041",
+          "sname": "谢佳妍",
+          "coach": "胡萝卜教练",
+          "time": "2026/10/8 20:23:18",
+          "after": "2027-05-22",
+          "type": "续",
+          "n": 0
+        },
+        {
+          "sid": "0022",
+          "sname": "陈诗乐",
+          "coach": "胡萝卜教练",
+          "time": "2026/10/8 20:23:16",
+          "after": "2026-10-18",
+          "type": "续",
+          "n": 0
+        },
+        {
+          "sid": "0021",
+          "sname": "陈诗文",
+          "coach": "胡萝卜教练",
+          "time": "2026/10/8 20:23:14",
+          "after": "2026-10-18",
+          "type": "续",
+          "n": 0
+        },
+        {
+          "sid": "0058",
+          "sname": "周易添",
+          "coach": "胡萝卜教练",
+          "time": "2026/10/8 20:23:11",
+          "after": "2027-05-01",
+          "type": "充",
+          "n": 0,
+          "note": "月卡 至 2027-05-01"
+        },
+        {
+          "sid": "0054",
+          "sname": "刘子慧",
+          "coach": "胡萝卜教练",
+          "time": "2026/10/8 20:03:26",
+          "after": 6,
+          "type": "扣",
+          "n": 1
+        },
+        {
+          "sid": "0051",
+          "sname": "魏泽元",
+          "coach": "胡萝卜教练",
+          "time": "2026/10/8 20:03:15",
+          "after": 8,
+          "type": "扣",
+          "n": 1
+        },
+        {
+          "sid": "0039",
+          "sname": "吴柚柚",
+          "coach": "胡萝卜教练",
+          "time": "2026/10/8 18:47:07",
+          "after": 38,
+          "type": "扣",
+          "n": 1
+        },
+        {
+          "sid": "0050",
+          "sname": "李伊晗",
+          "coach": "胡萝卜教练",
+          "time": "2026/10/8 18:46:56",
+          "after": 16,
+          "type": "扣",
+          "n": 1
+        },
+        {
+          "sid": "0041",
+          "sname": "谢佳妍",
+          "coach": "胡萝卜教练",
+          "time": "2026/10/8 18:46:48",
+          "after": 25,
+          "type": "扣",
+          "n": 1
+        },
+        {
+          "sid": "0047",
+          "sname": "朱乐桐",
+          "coach": "胡萝卜教练",
+          "time": "2026/10/8 18:46:28",
+          "after": 23,
+          "type": "扣",
+          "n": 1
+        },
+        {
+          "sid": "0016",
+          "sname": "林星潼",
+          "coach": "胡萝卜教练",
+          "time": "2026/10/8 17:05:52",
+          "after": 34,
+          "type": "扣",
+          "n": 1
+        },
+        {
+          "sid": "0022",
+          "sname": "陈诗乐",
+          "coach": "胡萝卜教练",
+          "time": "2026/10/8 17:05:42",
+          "after": 65,
+          "type": "扣",
+          "n": 1
+        },
+        {
+          "sid": "0021",
+          "sname": "陈诗文",
+          "coach": "胡萝卜教练",
+          "time": "2026/10/8 17:05:23",
+          "after": 65,
+          "type": "扣",
+          "n": 1
+        },
         {
           "sid": "0031",
           "sname": "曾瀚棋",
@@ -24857,7 +25099,7 @@
           "n": 1
         }
       ],
-      "nextId": 58
+      "nextId": 59
     },
     "perf": {
       "managerPassword": "admin888",
